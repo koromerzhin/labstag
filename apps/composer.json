@@ -84,7 +84,7 @@
     "twig/intl-extra": "3.3.0",
     "twig/twig": "^2.12|^3.0",
     "vantezzen/oauth2-pinterest": "2.2.1",
-    "vertisan/oauth2-twitch-helix": "1.0.1",
+    "vertisan/oauth2-twitch-helix": "1.1",
     "webonyx/graphql-php": "14.5.1",
     "wohali/oauth2-discord-new": "1.1.0"
   },

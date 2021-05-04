@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "beef61d509216f9ffc2deca0f6b783a1",
+    "content-hash": "bb38f2d987ca0097e38b886fa9ba69d9",
     "packages": [
         {
             "name": "adam-paterson/oauth2-slack",
@@ -11030,16 +11030,16 @@
         },
         {
             "name": "vertisan/oauth2-twitch-helix",
-            "version": "1.0.1",
+            "version": "1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vertisan/oauth2-twitch-helix.git",
-                "reference": "6cf3a150e28e84bb64460aab5c2fb8958a46a087"
+                "reference": "52a72c99b6f758affc1c55192770eb5213e0217a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vertisan/oauth2-twitch-helix/zipball/6cf3a150e28e84bb64460aab5c2fb8958a46a087",
-                "reference": "6cf3a150e28e84bb64460aab5c2fb8958a46a087",
+                "url": "https://api.github.com/repos/vertisan/oauth2-twitch-helix/zipball/52a72c99b6f758affc1c55192770eb5213e0217a",
+                "reference": "52a72c99b6f758affc1c55192770eb5213e0217a",
                 "shasum": ""
             },
             "require": {
@@ -11081,9 +11081,9 @@
             ],
             "support": {
                 "issues": "https://github.com/vertisan/oauth2-twitch-helix/issues",
-                "source": "https://github.com/vertisan/oauth2-twitch-helix/tree/1.0.1"
+                "source": "https://github.com/vertisan/oauth2-twitch-helix/tree/1.1"
             },
-            "time": "2019-06-16T21:31:06+00:00"
+            "time": "2021-03-26T22:04:09+00:00"
         },
         {
             "name": "webmozart/assert",
