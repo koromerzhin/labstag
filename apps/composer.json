@@ -29,7 +29,7 @@
     "league/oauth2-linkedin": "5.1.2",
     "mhujer/breadcrumbs-bundle": "1.5.5",
     "michaelkaefer/oauth2-amazon": "1.0.3",
-    "nelmio/cors-bundle": "2.1.0",
+    "nelmio/cors-bundle": "2.1.1",
     "omines/oauth2-gitlab": "3.4.0",
     "phpdocumentor/reflection-docblock": "5.2.2",
     "psr/http-message": "1.0.1",
