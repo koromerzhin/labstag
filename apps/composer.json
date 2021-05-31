@@ -36,7 +36,7 @@
     "ramsey/uuid": "4.1.1",
     "ramsey/uuid-doctrine": "1.6.0",
     "rtheunissen/oauth2-reddit": "2.0.2",
-    "sensio/framework-extra-bundle": "6.1.1",
+    "sensio/framework-extra-bundle": "6.1.5",
     "stevenmaguire/oauth2-bitbucket": "3.0.0",
     "stevenmaguire/oauth2-dropbox": "3.0.1",
     "stevenmaguire/oauth2-paypal": "2.0.0",
