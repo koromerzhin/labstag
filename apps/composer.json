@@ -15,7 +15,7 @@
     "doctrine/annotations": "1.12.1",
     "doctrine/doctrine-bundle": "2.2.4",
     "doctrine/doctrine-migrations-bundle": "3.0.2",
-    "doctrine/orm": "2.8.2",
+    "doctrine/orm": "2.9.3",
     "fzaninotto/faker": "1.9.2",
     "giggsey/libphonenumber-for-php": "8.12.20",
     "imagine/imagine": "1.2.4",
