@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "beef61d509216f9ffc2deca0f6b783a1",
+    "content-hash": "c540e48178e9db8405ed881b90ff9518",
     "packages": [
         {
             "name": "adam-paterson/oauth2-slack",
@@ -11140,16 +11140,16 @@
         },
         {
             "name": "webonyx/graphql-php",
-            "version": "v14.5.1",
+            "version": "v14.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/webonyx/graphql-php.git",
-                "reference": "3af8b92d07e0d7a9085c0b83daf86beaeb76f092"
+                "reference": "36b83621deb5eae354347a2e86dc7aec81b32a82"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webonyx/graphql-php/zipball/3af8b92d07e0d7a9085c0b83daf86beaeb76f092",
-                "reference": "3af8b92d07e0d7a9085c0b83daf86beaeb76f092",
+                "url": "https://api.github.com/repos/webonyx/graphql-php/zipball/36b83621deb5eae354347a2e86dc7aec81b32a82",
+                "reference": "36b83621deb5eae354347a2e86dc7aec81b32a82",
                 "shasum": ""
             },
             "require": {
@@ -11163,9 +11163,9 @@
                 "nyholm/psr7": "^1.2",
                 "phpbench/phpbench": "^0.16.10",
                 "phpstan/extension-installer": "^1.0",
-                "phpstan/phpstan": "0.12.32",
-                "phpstan/phpstan-phpunit": "0.12.11",
-                "phpstan/phpstan-strict-rules": "0.12.2",
+                "phpstan/phpstan": "0.12.82",
+                "phpstan/phpstan-phpunit": "0.12.18",
+                "phpstan/phpstan-strict-rules": "0.12.9",
                 "phpunit/phpunit": "^7.2|^8.5",
                 "psr/http-message": "^1.0",
                 "react/promise": "2.*",
@@ -11194,7 +11194,7 @@
             ],
             "support": {
                 "issues": "https://github.com/webonyx/graphql-php/issues",
-                "source": "https://github.com/webonyx/graphql-php/tree/v14.5.1"
+                "source": "https://github.com/webonyx/graphql-php/tree/v14.9.0"
             },
             "funding": [
                 {
@@ -11202,7 +11202,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2021-02-05T10:51:56+00:00"
+            "time": "2021-06-15T16:14:17+00:00"
         },
         {
             "name": "willdurand/negotiation",
@@ -12804,5 +12804,5 @@
     "platform-overrides": {
         "php": "7.4.2"
     },
-    "plugin-api-version": "2.0.0"
+    "plugin-api-version": "2.1.0"
 }
