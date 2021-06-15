@@ -47,7 +47,7 @@
     "markdownlint-cli": "0.27.1",
     "readme-md-generator": "1.0.0",
     "regenerator-runtime": "0.13.7",
-    "sass": "1.32.8",
+    "sass": "1.35.1",
     "sass-loader": "11.0.1",
     "stimulus": "2.0.0",
     "stylelint": "13.12.0",
