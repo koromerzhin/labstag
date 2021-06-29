@@ -34,7 +34,7 @@
     "@symfony/stimulus-bridge": "2.0.2",
     "@symfony/webpack-encore": "1.1.2",
     "all-contributors-cli": "6.20.0",
-    "core-js": "3.9.1",
+    "core-js": "3.15.2",
     "eslint": "7.22.0",
     "eslint-config-standard": "16.0.2",
     "eslint-plugin-import": "2.22.1",
