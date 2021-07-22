@@ -3,6 +3,7 @@
 {% block body %}
     {{ form_start(form) }}
     {{ form_row(form.title) }}
+    {{ form_row(form.published) }}
     {{ form_row(form.content) }}
     {% if entity.id != null %}
         {{ macro_admin.form_img(

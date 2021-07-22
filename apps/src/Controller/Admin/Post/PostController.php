@@ -22,6 +22,26 @@ class PostController extends AdminControllerLib
     protected string $urlHome = 'admin_post_index';
 
     /**
+     * @Route("/{id}/edit", name="admin_post_edit", methods={"GET","POST"})
+     */
+    public function edit(Post $post, PostRequestHandler $requestHandler): Response
+    {
+        $this->modalAttachmentDelete();
+
+        return $this->update(
+            PostType::class,
+            $post,
+            $requestHandler,
+            [
+                'delete' => 'api_action_delete',
+                'list'   => 'admin_post_index',
+                'show'   => 'admin_post_show',
+            ],
+            'admin/post/form.html.twig'
+        );
+    }
+
+    /**
      * @Route("/trash", name="admin_post_trash", methods={"GET"})
      * @Route("/", name="admin_post_index", methods={"GET"})
      * @IgnoreSoftDelete
@@ -63,7 +83,8 @@ class PostController extends AdminControllerLib
             new Post(),
             PostType::class,
             $requestHandler,
-            ['list' => 'admin_post_index']
+            ['list' => 'admin_post_index'],
+            'admin/post/form.html.twig'
         );
     }
 
@@ -84,25 +105,6 @@ class PostController extends AdminControllerLib
                 'edit'    => 'admin_post_edit',
                 'list'    => 'admin_post_index',
                 'trash'   => 'admin_post_trash',
-            ]
-        );
-    }
-
-    /**
-     * @Route("/{id}/edit", name="admin_post_edit", methods={"GET","POST"})
-     */
-    public function edit(Post $post, PostRequestHandler $requestHandler): Response
-    {
-        $this->modalAttachmentDelete();
-
-        return $this->update(
-            PostType::class,
-            $post,
-            $requestHandler,
-            [
-                'delete' => 'api_action_delete',
-                'list'   => 'admin_post_index',
-                'show'   => 'admin_post_show',
             ]
         );
     }

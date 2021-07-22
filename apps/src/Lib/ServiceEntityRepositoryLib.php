@@ -7,15 +7,19 @@ use Doctrine\ORM\Query;
 
 abstract class ServiceEntityRepositoryLib extends ServiceEntityRepository
 {
-    protected function getClassMetadataName(): string
+    public function findAllForAdmin(): Query
     {
         $methods = get_class_methods($this);
         $name    = '';
+
         if (in_array('getClassMetadata', $methods)) {
             $name = $this->getClassMetadata()->getName();
         }
 
-        return $name;
+        $dql           = 'SELECT a FROM '.$name.' a';
+        $entityManager = $this->getEntityManager();
+
+        return $entityManager->createQuery($dql);
     }
 
     /**
@@ -55,18 +59,14 @@ abstract class ServiceEntityRepositoryLib extends ServiceEntityRepository
         return $dql->getQuery()->getResult();
     }
 
-    public function findAllForAdmin(): Query
+    protected function getClassMetadataName(): string
     {
         $methods = get_class_methods($this);
         $name    = '';
-
         if (in_array('getClassMetadata', $methods)) {
             $name = $this->getClassMetadata()->getName();
         }
 
-        $dql           = 'SELECT a FROM '.$name.' a';
-        $entityManager = $this->getEntityManager();
-
-        return $entityManager->createQuery($dql);
+        return $name;
     }
 }

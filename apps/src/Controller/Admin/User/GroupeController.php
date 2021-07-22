@@ -23,68 +23,19 @@ class GroupeController extends AdminControllerLib
     protected string $urlHome = 'admin_groupuser_index';
 
     /**
-     * @Route("/trash", name="admin_groupuser_trash", methods={"GET"})
-     * @Route("/", name="admin_groupuser_index", methods={"GET"})
-     * @IgnoreSoftDelete
+     * @Route("/{id}/edit", name="admin_groupuser_edit", methods={"GET","POST"})
      */
-    public function index(GroupeRepository $repository): Response
+    public function edit(Groupe $groupe, GroupeRequestHandler $requestHandler): Response
     {
-        return $this->listOrTrash(
-            $repository,
-            [
-                'trash' => 'findTrashForAdmin',
-                'all'   => 'findAllForAdmin',
-            ],
-            'admin/user/groupe/index.html.twig',
-            [
-                'new'   => 'admin_groupuser_new',
-                'empty' => 'api_action_empty',
-                'trash' => 'admin_groupuser_trash',
-                'list'  => 'admin_groupuser_index',
-            ],
-            [
-                'list'    => 'admin_groupuser_index',
-                'show'    => 'admin_groupuser_show',
-                'edit'    => 'admin_groupuser_edit',
-                'preview' => 'admin_groupuser_preview',
-                'delete'  => 'api_action_delete',
-                'guard'   => 'admin_groupuser_guard',
-                'destroy' => 'api_action_destroy',
-            ]
-        );
-    }
-
-    /**
-     * @Route("/new", name="admin_groupuser_new", methods={"GET","POST"})
-     */
-    public function new(GroupeRequestHandler $requestHandler): Response
-    {
-        return $this->create(
-            new Groupe(),
+        return $this->update(
             GroupeType::class,
-            $requestHandler,
-            ['list' => 'admin_groupuser_index']
-        );
-    }
-
-    /**
-     * @Route("/{id}", name="admin_groupuser_show", methods={"GET"})
-     * @Route("/preview/{id}", name="admin_groupuser_preview", methods={"GET"})
-     * @IgnoreSoftDelete
-     */
-    public function showOrPreview(Groupe $groupe): Response
-    {
-        return $this->renderShowOrPreview(
             $groupe,
-            'admin/user/groupe/show.html.twig',
+            $requestHandler,
             [
-                'delete'  => 'api_action_delete',
-                'restore' => 'api_action_restore',
-                'destroy' => 'api_action_destroy',
-                'edit'    => 'admin_groupuser_edit',
-                'guard'   => 'admin_groupuser_guard',
-                'list'    => 'admin_groupuser_index',
-                'trash'   => 'admin_groupuser_trash',
+                'delete' => 'api_action_delete',
+                'list'   => 'admin_groupuser_index',
+                'guard'  => 'admin_groupuser_guard',
+                'show'   => 'admin_groupuser_show',
             ]
         );
     }
@@ -147,19 +98,68 @@ class GroupeController extends AdminControllerLib
     }
 
     /**
-     * @Route("/{id}/edit", name="admin_groupuser_edit", methods={"GET","POST"})
+     * @Route("/trash", name="admin_groupuser_trash", methods={"GET"})
+     * @Route("/", name="admin_groupuser_index", methods={"GET"})
+     * @IgnoreSoftDelete
      */
-    public function edit(Groupe $groupe, GroupeRequestHandler $requestHandler): Response
+    public function index(GroupeRepository $repository): Response
     {
-        return $this->update(
-            GroupeType::class,
-            $groupe,
-            $requestHandler,
+        return $this->listOrTrash(
+            $repository,
             [
-                'delete' => 'api_action_delete',
-                'list'   => 'admin_groupuser_index',
-                'guard'  => 'admin_groupuser_guard',
-                'show'   => 'admin_groupuser_show',
+                'trash' => 'findTrashForAdmin',
+                'all'   => 'findAllForAdmin',
+            ],
+            'admin/user/groupe/index.html.twig',
+            [
+                'new'   => 'admin_groupuser_new',
+                'empty' => 'api_action_empty',
+                'trash' => 'admin_groupuser_trash',
+                'list'  => 'admin_groupuser_index',
+            ],
+            [
+                'list'    => 'admin_groupuser_index',
+                'show'    => 'admin_groupuser_show',
+                'edit'    => 'admin_groupuser_edit',
+                'preview' => 'admin_groupuser_preview',
+                'delete'  => 'api_action_delete',
+                'guard'   => 'admin_groupuser_guard',
+                'destroy' => 'api_action_destroy',
+            ]
+        );
+    }
+
+    /**
+     * @Route("/new", name="admin_groupuser_new", methods={"GET","POST"})
+     */
+    public function new(GroupeRequestHandler $requestHandler): Response
+    {
+        return $this->create(
+            new Groupe(),
+            GroupeType::class,
+            $requestHandler,
+            ['list' => 'admin_groupuser_index']
+        );
+    }
+
+    /**
+     * @Route("/{id}", name="admin_groupuser_show", methods={"GET"})
+     * @Route("/preview/{id}", name="admin_groupuser_preview", methods={"GET"})
+     * @IgnoreSoftDelete
+     */
+    public function showOrPreview(Groupe $groupe): Response
+    {
+        return $this->renderShowOrPreview(
+            $groupe,
+            'admin/user/groupe/show.html.twig',
+            [
+                'delete'  => 'api_action_delete',
+                'restore' => 'api_action_restore',
+                'destroy' => 'api_action_destroy',
+                'edit'    => 'admin_groupuser_edit',
+                'guard'   => 'admin_groupuser_guard',
+                'list'    => 'admin_groupuser_index',
+                'trash'   => 'admin_groupuser_trash',
             ]
         );
     }

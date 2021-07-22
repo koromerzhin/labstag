@@ -9,8 +9,8 @@
             <tr>
                 <th>Verif</th>
                 <td>
-                    {% set check = verifPhone(entity.country, entity.numero)  ? 'OK' : 'KO' %}
-                    <span class="check{{ check }}"></span>
+                    {% set check = verifPhone(entity.country, entity.numero)  ? 'ok' : 'ko' %}
+                    <span class="check-{{ check }}"></span>
                 </td>
             </tr>
             <tr>

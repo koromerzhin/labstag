@@ -11,6 +11,13 @@ class OauthConnectUser
 {
 
     /**
+     * @ORM\Column(type="array")
+     *
+     * @var array
+     */
+    protected $data = [];
+
+    /**
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="UUID")
      * @ORM\Column(type="guid", unique=true)
@@ -20,18 +27,18 @@ class OauthConnectUser
     protected $id;
 
     /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     *
+     * @var string
+     */
+    protected $identity;
+
+    /**
      * @ORM\Column(type="string", length=255)
      *
      * @var string
      */
     protected $name;
-
-    /**
-     * @ORM\Column(type="array")
-     *
-     * @var array
-     */
-    protected $data = [];
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="oauthConnectUsers")
@@ -41,16 +48,19 @@ class OauthConnectUser
      */
     protected $refuser;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     *
-     * @var string
-     */
-    protected $identity;
+    public function getData(): ?array
+    {
+        return $this->data;
+    }
 
     public function getId(): ?string
     {
         return $this->id;
+    }
+
+    public function getIdentity(): ?string
+    {
+        return $this->identity;
     }
 
     public function getName(): ?string
@@ -58,16 +68,9 @@ class OauthConnectUser
         return $this->name;
     }
 
-    public function setName(string $name): self
+    public function getRefuser(): ?User
     {
-        $this->name = $name;
-
-        return $this;
-    }
-
-    public function getData(): ?array
-    {
-        return $this->data;
+        return $this->refuser;
     }
 
     public function setData(array $data): self
@@ -77,26 +80,23 @@ class OauthConnectUser
         return $this;
     }
 
-    public function getRefuser(): ?User
+    public function setIdentity(string $identity): self
     {
-        return $this->refuser;
+        $this->identity = $identity;
+
+        return $this;
+    }
+
+    public function setName(string $name): self
+    {
+        $this->name = $name;
+
+        return $this;
     }
 
     public function setRefuser(?User $refuser): self
     {
         $this->refuser = $refuser;
-
-        return $this;
-    }
-
-    public function getIdentity(): ?string
-    {
-        return $this->identity;
-    }
-
-    public function setIdentity(string $identity): self
-    {
-        $this->identity = $identity;
 
         return $this;
     }

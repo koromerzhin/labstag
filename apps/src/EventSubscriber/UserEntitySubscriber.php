@@ -16,15 +16,15 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 class UserEntitySubscriber implements EventSubscriberInterface
 {
 
-    protected SessionInterface $session;
+    protected EmailUserRequestHandler $emailUserRH;
 
     protected EntityManagerInterface $entityManager;
 
     protected UserPasswordEncoderInterface $passwordEncoder;
 
-    protected UserMailService $userMailService;
+    protected SessionInterface $session;
 
-    protected EmailUserRequestHandler $emailUserRH;
+    protected UserMailService $userMailService;
 
     public function __construct(
         SessionInterface $session,
@@ -39,6 +39,11 @@ class UserEntitySubscriber implements EventSubscriberInterface
         $this->entityManager   = $entityManager;
         $this->session         = $session;
         $this->passwordEncoder = $passwordEncoder;
+    }
+
+    public static function getSubscribedEvents()
+    {
+        return [UserEntityEvent::class => 'onUserEntityEvent'];
     }
 
     public function onUserEntityEvent(UserEntityEvent $event): void
@@ -66,6 +71,33 @@ class UserEntitySubscriber implements EventSubscriberInterface
         $session->getFlashBag()->add(
             'success',
             'Changement de mot de passe effectué'
+        );
+    }
+
+    protected function setPassword(User $user): void
+    {
+        $plainPassword = $user->getPlainPassword();
+        if ('' === $plainPassword || is_null($plainPassword)) {
+            return;
+        }
+
+        $encodePassword = $this->passwordEncoder->encodePassword(
+            $user,
+            $plainPassword
+        );
+
+        $user->setPassword($encodePassword);
+        if ('valider' == $user->getState()) {
+            $this->userMailService->changePassword($user);
+        }
+
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+        /** @var Session $session */
+        $session = $this->session;
+        $session->getFlashBag()->add(
+            'success',
+            'Mot de passe changé'
         );
     }
 
@@ -112,37 +144,5 @@ class UserEntitySubscriber implements EventSubscriberInterface
         $emailUser->setAdresse($adresse);
         $this->emailUserRH->handle($old, $emailUser);
         $this->emailUserRH->changeWorkflowState($emailUser, ['submit', 'valider']);
-    }
-
-    protected function setPassword(User $user): void
-    {
-        $plainPassword = $user->getPlainPassword();
-        if ('' === $plainPassword || is_null($plainPassword)) {
-            return;
-        }
-
-        $encodePassword = $this->passwordEncoder->encodePassword(
-            $user,
-            $plainPassword
-        );
-
-        $user->setPassword($encodePassword);
-        if ('valider' == $user->getState()) {
-            $this->userMailService->changePassword($user);
-        }
-
-        $this->entityManager->persist($user);
-        $this->entityManager->flush();
-        /** @var Session $session */
-        $session = $this->session;
-        $session->getFlashBag()->add(
-            'success',
-            'Mot de passe changé'
-        );
-    }
-
-    public static function getSubscribedEvents()
-    {
-        return [UserEntityEvent::class => 'onUserEntityEvent'];
     }
 }

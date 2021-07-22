@@ -5,21 +5,19 @@ namespace Labstag\Singleton;
 class BreadcrumbsSingleton
 {
 
-    protected static $instance = null;
-
     protected array $data = [];
+
+    protected static $instance = null;
 
     protected function __construct()
     {
     }
 
-    public static function getInstance()
+    public function add(array $breadcrumbs): void
     {
-        if (is_null(self::$instance)) {
-            self::$instance = new BreadcrumbsSingleton();
+        foreach ($breadcrumbs as $key => $row) {
+            $this->data[$key] = $row;
         }
-
-        return self::$instance;
     }
 
     public function addPosition(array $breadcrumbs, int $position): void
@@ -40,20 +38,22 @@ class BreadcrumbsSingleton
         $this->data = $newbreadcrumbs;
     }
 
-    public function add(array $breadcrumbs): void
+    public function get(): array
     {
-        foreach ($breadcrumbs as $key => $row) {
-            $this->data[$key] = $row;
+        return $this->data;
+    }
+
+    public static function getInstance()
+    {
+        if (is_null(self::$instance)) {
+            self::$instance = new BreadcrumbsSingleton();
         }
+
+        return self::$instance;
     }
 
     public function set(array $breadcrumbs): void
     {
         $this->data = $breadcrumbs;
-    }
-
-    public function get(): array
-    {
-        return $this->data;
     }
 }

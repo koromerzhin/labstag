@@ -7,14 +7,17 @@ use Labstag\Entity\Configuration;
 use Labstag\Entity\Groupe;
 use Labstag\Entity\Menu;
 use Labstag\Entity\Template;
+use Labstag\Entity\User;
 use Labstag\Repository\ConfigurationRepository;
 use Labstag\Repository\GroupeRepository;
 use Labstag\Repository\MenuRepository;
 use Labstag\Repository\TemplateRepository;
+use Labstag\Repository\UserRepository;
 use Labstag\RequestHandler\ConfigurationRequestHandler;
 use Labstag\RequestHandler\GroupeRequestHandler;
 use Labstag\RequestHandler\MenuRequestHandler;
 use Labstag\RequestHandler\TemplateRequestHandler;
+use Labstag\RequestHandler\UserRequestHandler;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Contracts\Cache\CacheInterface;
 use Twig\Environment;
@@ -22,29 +25,33 @@ use Twig\Environment;
 class InstallService
 {
 
-    protected MenuRequestHandler $menuRH;
-
-    protected GroupeRequestHandler $groupeRH;
-
-    protected ConfigurationRequestHandler $configurationRH;
-
-    protected TemplateRequestHandler $templateRH;
-
-    protected GroupeRepository $groupeRepo;
+    protected CacheInterface $cache;
 
     protected ConfigurationRepository $configurationRepo;
 
-    protected TemplateRepository $templateRepo;
-
-    protected Environment $twig;
-
-    protected MenuRepository $menuRepo;
-
-    protected OauthService $oauthService;
+    protected ConfigurationRequestHandler $configurationRH;
 
     protected EntityManagerInterface $entityManager;
 
-    protected CacheInterface $cache;
+    protected GroupeRepository $groupeRepo;
+
+    protected GroupeRequestHandler $groupeRH;
+
+    protected MenuRepository $menuRepo;
+
+    protected MenuRequestHandler $menuRH;
+
+    protected OauthService $oauthService;
+
+    protected TemplateRepository $templateRepo;
+
+    protected TemplateRequestHandler $templateRH;
+
+    protected Environment $twig;
+
+    protected UserRepository $userRepo;
+
+    protected UserRequestHandler $userRH;
 
     public function __construct(
         MenuRequestHandler $menuRH,
@@ -54,6 +61,8 @@ class InstallService
         ConfigurationRequestHandler $configurationRH,
         ConfigurationRepository $configurationRepo,
         MenuRepository $menuRepo,
+        UserRequestHandler $userRH,
+        UserRepository $userRepo,
         TemplateRequestHandler $templateRH,
         TemplateRepository $templateRepo,
         EntityManagerInterface $entityManager,
@@ -61,6 +70,8 @@ class InstallService
         CacheInterface $cache
     )
     {
+        $this->userRepo          = $userRepo;
+        $this->userRH            = $userRH;
         $this->cache             = $cache;
         $this->oauthService      = $oauthService;
         $this->menuRepo          = $menuRepo;
@@ -73,6 +84,18 @@ class InstallService
         $this->entityManager     = $entityManager;
         $this->configurationRH   = $configurationRH;
         $this->templateRH        = $templateRH;
+    }
+
+    public function config()
+    {
+        $config = $this->getData('config');
+        $env    = $this->getEnv();
+        $this->setOauth($env, $config);
+        foreach ($config as $key => $row) {
+            $this->addConfig($key, $row);
+        }
+
+        $this->cache->delete('configuration');
     }
 
     public function getData($file)
@@ -100,6 +123,14 @@ class InstallService
         return $data;
     }
 
+    public function group()
+    {
+        $groupes = $this->getData('group');
+        foreach ($groupes as $row) {
+            $this->addGroupe($row);
+        }
+    }
+
     public function menuadmin()
     {
         $childs = $this->getData('menuadmin');
@@ -112,25 +143,20 @@ class InstallService
         $this->saveMenu('admin-profil', $childs);
     }
 
-    protected function saveMenu(string $key, array $childs): void
+    public function templates()
     {
-        // $this->entityManager->getFilters()->disable('softdeleteable');
-        $search = ['clef' => $key];
-        $menu   = $this->menuRepo->findOneBy($search);
-        if ($menu instanceof Menu) {
-            $this->entityManager->remove($menu);
-            $this->entityManager->flush();
+        $templates = $this->getData('template');
+        foreach ($templates as $key => $row) {
+            $this->addTemplate($key, $row);
         }
+    }
 
-        $menu = new Menu();
-        $menu->setPosition(0);
-        $menu->setClef($key);
-        $this->entityManager->persist($menu);
-        $this->entityManager->flush();
-        $indexChild = 0;
-        foreach ($childs as $attr) {
-            $this->addChild($indexChild, $menu, $attr);
-            ++$indexChild;
+    public function users()
+    {
+        $users   = $this->getData('user');
+        $groupes = $this->groupeRepo->findAll();
+        foreach ($users as $user) {
+            $this->addUser($groupes, $user);
         }
     }
 
@@ -163,12 +189,21 @@ class InstallService
         }
     }
 
-    public function group()
+    protected function addConfig(
+        string $key,
+        $value
+    ): void
     {
-        $groupes = $this->getData('group');
-        foreach ($groupes as $row) {
-            $this->addGroupe($row);
+        $search        = ['name' => $key];
+        $configuration = $this->configurationRepo->findOneBy($search);
+        if (!$configuration instanceof Configuration) {
+            $configuration = new Configuration();
         }
+
+        $old = clone $configuration;
+        $configuration->setName($key);
+        $configuration->setValue($value);
+        $this->configurationRH->handle($old, $configuration);
     }
 
     protected function addGroupe(
@@ -188,16 +223,89 @@ class InstallService
         $this->groupeRH->handle($old, $groupe);
     }
 
-    public function config()
+    protected function addTemplate(
+        string $key,
+        string $value
+    ): void
     {
-        $config = $this->getData('config');
-        $env    = $this->getEnv();
-        $this->setOauth($env, $config);
-        foreach ($config as $key => $row) {
-            $this->addConfig($key, $row);
+        $search   = ['code' => $key];
+        $template = $this->templateRepo->findOneBy($search);
+        if ($template instanceof Template) {
+            return;
         }
 
-        $this->cache->delete('configuration');
+        $template = new Template();
+        $old      = clone $template;
+        $template->setName($value);
+        $template->setCode($key);
+        $htmlfile = 'tpl/mail-'.$key.'.html.twig';
+        if (is_file('templates/'.$htmlfile)) {
+            $template->setHtml($this->twig->render($htmlfile));
+        }
+
+        $txtfile = 'tpl/mail-'.$key.'.txt.twig';
+        if (is_file('templates/'.$txtfile)) {
+            $template->setText($this->twig->render($txtfile));
+        }
+
+        $this->templateRH->handle($old, $template);
+    }
+
+    protected function addUser(
+        array $groupes,
+        array $dataUser
+    ): void
+    {
+        $search = [
+            'username' => $dataUser['username'],
+        ];
+        $user   = $this->userRepo->findOneBy($search);
+        if ($user instanceof User) {
+            return;
+        }
+
+        $user = new User();
+        $old  = clone $user;
+
+        $user->setRefgroupe($this->getRefgroupe($groupes, $dataUser['groupe']));
+        $user->setUsername($dataUser['username']);
+        $user->setPlainPassword($dataUser['password']);
+        $user->setEmail($dataUser['email']);
+        $this->userRH->handle($old, $user);
+        $this->userRH->changeWorkflowState($user, $dataUser['state']);
+    }
+
+    protected function getRefgroupe(array $groupes, string $code): ?Groupe
+    {
+        foreach ($groupes as $groupe) {
+            if ($groupe->getCode() == $code) {
+                return $groupe;
+            }
+        }
+
+        return null;
+    }
+
+    protected function saveMenu(string $key, array $childs): void
+    {
+        // $this->entityManager->getFilters()->disable('softdeleteable');
+        $search = ['clef' => $key];
+        $menu   = $this->menuRepo->findOneBy($search);
+        if ($menu instanceof Menu) {
+            $this->entityManager->remove($menu);
+            $this->entityManager->flush();
+        }
+
+        $menu = new Menu();
+        $menu->setPosition(0);
+        $menu->setClef($key);
+        $this->entityManager->persist($menu);
+        $this->entityManager->flush();
+        $indexChild = 0;
+        foreach ($childs as $attr) {
+            $this->addChild($indexChild, $menu, $attr);
+            ++$indexChild;
+        }
     }
 
     protected function setOauth(array $env, array &$data): void
@@ -227,58 +335,5 @@ class InstallService
         foreach ($oauth as $row) {
             $data['oauth'][] = $row;
         }
-    }
-
-    protected function addConfig(
-        string $key,
-        $value
-    ): void
-    {
-        $search        = ['name' => $key];
-        $configuration = $this->configurationRepo->findOneBy($search);
-        if (!$configuration instanceof Configuration) {
-            $configuration = new Configuration();
-        }
-
-        $old = clone $configuration;
-        $configuration->setName($key);
-        $configuration->setValue($value);
-        $this->configurationRH->handle($old, $configuration);
-    }
-
-    public function templates()
-    {
-        $templates = $this->getData('template');
-        foreach ($templates as $key => $row) {
-            $this->addTemplate($key, $row);
-        }
-    }
-
-    protected function addTemplate(
-        string $key,
-        string $value
-    ): void
-    {
-        $search   = ['code' => $key];
-        $template = $this->templateRepo->findOneBy($search);
-        if ($template instanceof Template) {
-            return;
-        }
-
-        $template = new Template();
-        $old      = clone $template;
-        $template->setName($value);
-        $template->setCode($key);
-        $htmlfile = 'tpl/mail-'.$key.'.html.twig';
-        if (is_file('templates/'.$htmlfile)) {
-            $template->setHtml($this->twig->render($htmlfile));
-        }
-
-        $txtfile = 'tpl/mail-'.$key.'.txt.twig';
-        if (is_file('templates/'.$txtfile)) {
-            $template->setText($this->twig->render($txtfile));
-        }
-
-        $this->templateRH->handle($old, $template);
     }
 }

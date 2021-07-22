@@ -19,11 +19,26 @@ abstract class Adresse
     use SoftDeleteableEntity;
 
     /**
+     * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank
+     * @Assert\Country
+     */
+    protected $country;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    protected $gps;
+
+    /**
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="UUID")
      * @ORM\Column(type="guid", unique=true)
      */
     protected $id;
+
+    /** @ORM\Column(type="boolean") */
+    protected $pmr;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -32,17 +47,10 @@ abstract class Adresse
     protected $rue;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank
-     * @Assert\Country
-     */
-    protected $country;
-
-    /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      * @Assert\NotBlank
      */
-    protected $zipcode;
+    protected $type;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -51,18 +59,10 @@ abstract class Adresse
     protected $ville;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    protected $gps;
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
      */
-    protected $type;
-
-    /** @ORM\Column(type="boolean") */
-    protected $pmr;
+    protected $zipcode;
 
     public function __toString()
     {
@@ -77,6 +77,16 @@ abstract class Adresse
         );
     }
 
+    public function getCountry(): ?string
+    {
+        return $this->country;
+    }
+
+    public function getGps(): ?string
+    {
+        return $this->gps;
+    }
+
     public function getId(): ?string
     {
         return $this->id;
@@ -87,16 +97,24 @@ abstract class Adresse
         return $this->rue;
     }
 
-    public function setRue(string $rue): self
+    public function getType(): ?string
     {
-        $this->rue = $rue;
-
-        return $this;
+        return $this->type;
     }
 
-    public function getCountry(): ?string
+    public function getVille(): ?string
     {
-        return $this->country;
+        return $this->ville;
+    }
+
+    public function getZipcode(): ?string
+    {
+        return $this->zipcode;
+    }
+
+    public function isPmr(): ?bool
+    {
+        return $this->pmr;
     }
 
     public function setCountry(string $country): self
@@ -106,35 +124,6 @@ abstract class Adresse
         return $this;
     }
 
-    public function getZipcode(): ?string
-    {
-        return $this->zipcode;
-    }
-
-    public function setZipcode(string $zipcode): self
-    {
-        $this->zipcode = $zipcode;
-
-        return $this;
-    }
-
-    public function getVille(): ?string
-    {
-        return $this->ville;
-    }
-
-    public function setVille(string $ville): self
-    {
-        $this->ville = $ville;
-
-        return $this;
-    }
-
-    public function getGps(): ?string
-    {
-        return $this->gps;
-    }
-
     public function setGps(string $gps): self
     {
         $this->gps = $gps;
@@ -142,9 +131,18 @@ abstract class Adresse
         return $this;
     }
 
-    public function getType(): ?string
+    public function setPmr(bool $pmr): self
     {
-        return $this->type;
+        $this->pmr = $pmr;
+
+        return $this;
+    }
+
+    public function setRue(string $rue): self
+    {
+        $this->rue = $rue;
+
+        return $this;
     }
 
     public function setType(string $type): self
@@ -154,14 +152,16 @@ abstract class Adresse
         return $this;
     }
 
-    public function isPmr(): ?bool
+    public function setVille(string $ville): self
     {
-        return $this->pmr;
+        $this->ville = $ville;
+
+        return $this;
     }
 
-    public function setPmr(bool $pmr): self
+    public function setZipcode(string $zipcode): self
     {
-        $this->pmr = $pmr;
+        $this->zipcode = $zipcode;
 
         return $this;
     }

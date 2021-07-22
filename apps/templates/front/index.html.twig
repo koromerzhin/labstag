@@ -1,0 +1,62 @@
+{% set showaside = true %}
+{% set mainclass = "main-home" %}
+{% import "macro.html.twig" as macro_site %}
+{% extends 'skeleton/home.html.twig' %}
+{% block aside %}
+    <div class="aside-lists">
+        {% if archives|length != 0 %}
+        <div class="aside-list">
+            <h4>Archives</h4>
+            <ol>
+                {% for archive in archives %}
+                <li>
+                    <a href="{{ path('post_archive', {'code': archive.code}) }}">{{ archive.published|format_datetime(locale='fr', pattern="MMMM Y") }}</a>
+                </li>
+                {% endfor %}
+            </ol>
+        </div>
+        {% endif %}
+        {% include "front/aside.html.twig" %}
+    </div>
+{% endblock %}
+{% block header %}
+    <h1 class="header_edito_title">{{ edito.title }}</h1>
+    {% set fond = attachment(edito.fond) %}
+    {% if fond != null %}
+        <picture class="header_edito_img">
+            <img src="{{ asset(fond.name) }}" />
+        </picture>
+    {% endif %}
+    <div class="header_edito_content">
+        {{ edito.content|raw }}
+    </p>
+    </div>
+    <div class="header_edito_more">
+        <a href="{{ path('edito') }}">Continuer à lire...</a>
+    </div>
+{% endblock %}
+{% block section %}
+    {% for post in pagination %}
+        <div class="post_data">
+            <h2 class="post_title">{{ post.title }}</h2>
+            {% set img = attachment(post.img) %}
+            {% if img != null %}
+                <picture class="post_img">
+                    <img src="{{ asset(img.name) }}" />
+                </picture>
+            {% endif %}
+            <div class="post_date">{{ post.published|date }} by
+                {{ macro_site.user(post.refuser, path('post_user', {'username': post.refuser.username})) }}
+            </div>
+            <div class="post_content">
+                {{ post.content|raw }}
+            </div>
+            <div class="post_more">
+                <a href="{{ path('post_show', {'slug': post.slug}) }}">More</a>
+            </div>
+        </div>
+    {% endfor %}
+    {% if pagination is defined %}
+        {{ knp_pagination_render(pagination) }}
+    {% endif %}
+{% endblock %}

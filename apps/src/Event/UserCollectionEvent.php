@@ -11,30 +11,19 @@ use Labstag\Entity\PhoneUser;
 class UserCollectionEvent
 {
 
-    protected array $oauthConnectUser = [];
-
-    protected array $lienUser = [];
+    protected array $adresseUser = [];
 
     protected array $emailUser = [];
 
+    protected array $lienUser = [];
+
+    protected array $oauthConnectUser = [];
+
     protected array $phoneUser = [];
 
-    protected array $adresseUser = [];
-
-    public function addOauthConnectUser(
-        OauthConnectUser $old,
-        OauthConnectUser $new
-    ): void
+    public function addAdresseUser(AdresseUser $old, AdresseUser $new): void
     {
-        $this->oauthConnectUser = [
-            'old' => $old,
-            'new' => $new,
-        ];
-    }
-
-    public function addLienUser(LienUser $old, LienUser $new): void
-    {
-        $this->lienUser = [
+        $this->adresseUser = [
             'old' => $old,
             'new' => $new,
         ];
@@ -48,6 +37,25 @@ class UserCollectionEvent
         ];
     }
 
+    public function addLienUser(LienUser $old, LienUser $new): void
+    {
+        $this->lienUser = [
+            'old' => $old,
+            'new' => $new,
+        ];
+    }
+
+    public function addOauthConnectUser(
+        OauthConnectUser $old,
+        OauthConnectUser $new
+    ): void
+    {
+        $this->oauthConnectUser = [
+            'old' => $old,
+            'new' => $new,
+        ];
+    }
+
     public function addPhoneUser(PhoneUser $old, PhoneUser $new): void
     {
         $this->phoneUser = [
@@ -56,22 +64,9 @@ class UserCollectionEvent
         ];
     }
 
-    public function addAdresseUser(AdresseUser $old, AdresseUser $new): void
+    public function getAdresseUser(): array
     {
-        $this->adresseUser = [
-            'old' => $old,
-            'new' => $new,
-        ];
-    }
-
-    public function getOauthConnectUser(): array
-    {
-        return $this->oauthConnectUser;
-    }
-
-    public function getLienUser(): array
-    {
-        return $this->lienUser;
+        return $this->adresseUser;
     }
 
     public function getEmailUser(): array
@@ -79,13 +74,18 @@ class UserCollectionEvent
         return $this->emailUser;
     }
 
+    public function getLienUser(): array
+    {
+        return $this->lienUser;
+    }
+
+    public function getOauthConnectUser(): array
+    {
+        return $this->oauthConnectUser;
+    }
+
     public function getPhoneUser(): array
     {
         return $this->phoneUser;
-    }
-
-    public function getAdresseUser(): array
-    {
-        return $this->adresseUser;
     }
 }

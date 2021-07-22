@@ -15,9 +15,9 @@ class LabstagGuardRouteCommand extends Command
 
     protected static $defaultName = 'labstag:guard-route';
 
-    protected GuardService $service;
-
     protected GroupeRepository $repositoryGroupe;
+
+    protected GuardService $service;
 
     public function __construct(
         GuardService $service,

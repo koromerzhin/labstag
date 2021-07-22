@@ -14,15 +14,15 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 class GuardRouterSubscriber implements EventSubscriberInterface
 {
 
-    protected TokenStorageInterface $token;
-
-    protected SessionInterface $session;
+    protected GroupeRepository $groupeRepository;
 
     protected GuardService $guardService;
 
-    protected GroupeRepository $groupeRepository;
-
     protected RouterInterface $router;
+
+    protected SessionInterface $session;
+
+    protected TokenStorageInterface $token;
 
     public function __construct(
         SessionInterface $session,
@@ -37,6 +37,11 @@ class GuardRouterSubscriber implements EventSubscriberInterface
         $this->token            = $token;
         $this->router           = $router;
         $this->guardService     = $guardService;
+    }
+
+    public static function getSubscribedEvents()
+    {
+        return ['kernel.request' => 'onKernelRequest'];
     }
 
     public function onKernelRequest(RequestEvent $event)
@@ -56,10 +61,5 @@ class GuardRouterSubscriber implements EventSubscriberInterface
             "Vous n'avez pas les droits nécessaires"
         );
         throw new AccessDeniedException();
-    }
-
-    public static function getSubscribedEvents()
-    {
-        return ['kernel.request' => 'onKernelRequest'];
     }
 }

@@ -34,8 +34,14 @@
     "behat/transliterator": {
         "version": "v1.3.0"
     },
+    "bheller/images-generator": {
+        "version": "1.0.1"
+    },
     "brick/math": {
         "version": "0.9.1"
+    },
+    "cocur/slugify": {
+        "version": "v4.0.0"
     },
     "composer/package-versions-deprecated": {
         "version": "1.11.99"
@@ -607,6 +613,9 @@
     "symfony/orm-pack": {
         "version": "v2.0.0"
     },
+    "symfony/password-hasher": {
+        "version": "v5.3.3"
+    },
     "symfony/phpunit-bridge": {
         "version": "5.1",
         "recipe": {
@@ -642,6 +651,9 @@
     },
     "symfony/polyfill-php80": {
         "version": "v1.18.1"
+    },
+    "symfony/polyfill-php81": {
+        "version": "v1.23.0"
     },
     "symfony/process": {
         "version": "v5.1.7"

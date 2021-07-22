@@ -11,11 +11,11 @@ use Symfony\Component\Workflow\Registry;
 abstract class RequestHandlerLib
 {
 
+    protected EventDispatcherInterface $dispatcher;
+
     protected EntityManagerInterface $entityManager;
 
     protected Registry $workflows;
-
-    protected EventDispatcherInterface $dispatcher;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -26,6 +26,32 @@ abstract class RequestHandlerLib
         $this->entityManager = $entityManager;
         $this->workflows     = $workflows;
         $this->dispatcher    = $dispatcher;
+    }
+
+    public function changeWorkflowState($entity, array $states)
+    {
+        if (!$this->workflows->has($entity)) {
+            return;
+        }
+
+        $workflow = $this->workflows->get($entity);
+        foreach ($states as $state) {
+            if ($workflow->can($entity, $state)) {
+                $workflow->apply($entity, $state);
+            }
+        }
+
+        $this->entityManager->persist($entity);
+        $this->entityManager->flush();
+    }
+
+    public function handle($oldEntity, $entity)
+    {
+        $this->entityManager->persist($entity);
+        $this->entityManager->flush();
+        if ($oldEntity->getId() != $entity->getId()) {
+            $this->initWorkflow($entity);
+        }
     }
 
     protected function initWorkflow($entity)
@@ -46,32 +72,6 @@ abstract class RequestHandlerLib
                 break;
             }
         }
-    }
-
-    public function handle($oldEntity, $entity)
-    {
-        $this->entityManager->persist($entity);
-        $this->entityManager->flush();
-        if ($oldEntity->getId() != $entity->getId()) {
-            $this->initWorkflow($entity);
-        }
-    }
-
-    public function changeWorkflowState($entity, array $states)
-    {
-        if (!$this->workflows->has($entity)) {
-            return;
-        }
-
-        $workflow = $this->workflows->get($entity);
-        foreach ($states as $state) {
-            if ($workflow->can($entity, $state)) {
-                $workflow->apply($entity, $state);
-            }
-        }
-
-        $this->entityManager->persist($entity);
-        $this->entityManager->flush();
     }
 
     protected function setArrayCollectionUser(User $entity)

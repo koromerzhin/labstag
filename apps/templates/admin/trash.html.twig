@@ -1,5 +1,3 @@
-{% import "modal.html.twig" as modal %}
-{% import "modal.html.twig" as modal %}
 {% extends 'admin.html.twig' %}
 {% block body %}
     <table
@@ -20,7 +18,7 @@
         </thead>
         <tbody>
         {% for data in trash %}
-            <tr data-id="{{ data.name }}">
+            <tr data-id="{{ data.name|e('html_attr') }}">
                 <td>
                     {{ data.entity }}
                 </td>
@@ -52,5 +50,5 @@
 {% endblock %}
 {% block modal %}
     {{ parent() }}
-    {{ modal.emptyall() }}
+    {% include "modal/emptyall.html.twig" %}
 {% endblock %}

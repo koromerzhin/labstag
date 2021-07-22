@@ -50,68 +50,6 @@ class AdminController extends AdminControllerLib
     }
 
     /**
-     * @Route("/trash", name="admin_trash")
-     * @IgnoreSoftDelete
-     */
-    public function trash(TrashService $trashService): Response
-    {
-        $this->headerTitle = 'Trash';
-        $this->urlHome     = 'admin_trash';
-        $all               = $trashService->all();
-        if (0 == count($all)) {
-            $this->addFlash(
-                'danger',
-                'La corbeille est vide'
-            );
-
-            return $this->redirect($this->generateUrl('admin'));
-        }
-
-        $this->twig->addGlobal(
-            'modalEmpty',
-            true
-        );
-        $token = $this->csrfTokenManager->getToken('emptyall')->getValue();
-        if ($this->isRouteEnable('api_action_emptyall')) {
-            $this->twig->addGlobal(
-                'modalEmptyAll',
-                true
-            );
-            $this->btnInstance->add(
-                'btn-admin-header-emptyall',
-                'Tout vider',
-                [
-                    'is'            => 'link-btnadminemptyall',
-                    'data-toggle'   => 'modal',
-                    'data-target'   => '#emptyallModal',
-                    'data-token'    => $token,
-                    'data-redirect' => $this->router->generate('admin_trash'),
-                    'data-url'      => $this->router->generate('api_action_emptyall'),
-                ]
-            );
-        }
-
-        $this->btnInstance->addViderSelection(
-            [
-                'redirect' => [
-                    'href'   => 'admin_trash',
-                    'params' => [],
-                ],
-                'url'      => [
-                    'href'   => 'api_action_empties',
-                    'params' => [],
-                ],
-            ],
-            'empties'
-        );
-
-        return $this->render(
-            'admin/trash.html.twig',
-            ['trash' => $all]
-        );
-    }
-
-    /**
      * @Route("/param", name="admin_param", methods={"GET","POST"})
      */
     public function param(
@@ -191,6 +129,65 @@ class AdminController extends AdminControllerLib
             [
                 'form' => $form->createView(),
             ]
+        );
+    }
+
+    /**
+     * @Route("/trash", name="admin_trash")
+     * @IgnoreSoftDelete
+     */
+    public function trash(TrashService $trashService): Response
+    {
+        $this->headerTitle = 'Trash';
+        $this->urlHome     = 'admin_trash';
+        $all               = $trashService->all();
+        if (0 == count($all)) {
+            $this->addFlash(
+                'danger',
+                'La corbeille est vide'
+            );
+
+            return $this->redirect($this->generateUrl('admin'));
+        }
+
+        $globals        = $this->twig->getGlobals();
+        $modal          = isset($globals['modal']) ? $globals['modal'] : [];
+        $modal['empty'] = true;
+        $token          = $this->csrfTokenManager->getToken('emptyall')->getValue();
+        if ($this->isRouteEnable('api_action_emptyall')) {
+            $modal['emptyall'] = true;
+            $this->btnInstance->add(
+                'btn-admin-header-emptyall',
+                'Tout vider',
+                [
+                    'is'            => 'link-btnadminemptyall',
+                    'data-toggle'   => 'modal',
+                    'data-target'   => '#emptyall-modal',
+                    'data-token'    => $token,
+                    'data-redirect' => $this->router->generate('admin_trash'),
+                    'data-url'      => $this->router->generate('api_action_emptyall'),
+                ]
+            );
+        }
+
+        $this->twig->addGlobal('modal', $modal);
+        $this->btnInstance->addViderSelection(
+            [
+                'redirect' => [
+                    'href'   => 'admin_trash',
+                    'params' => [],
+                ],
+                'url'      => [
+                    'href'   => 'api_action_empties',
+                    'params' => [],
+                ],
+            ],
+            'empties'
+        );
+
+        return $this->render(
+            'admin/trash.html.twig',
+            ['trash' => $all]
         );
     }
 }

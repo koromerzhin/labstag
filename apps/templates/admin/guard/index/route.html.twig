@@ -48,7 +48,7 @@
                         data-state=0
                         data-check=0
                         data-url="{{ path('api_guard_routegroups', {'route': route.id}) }}"
-                        data-route="{{ route.name|e }}"
+                        data-route="{{ route.name|e('html_attr') }}"
                         data-token="{{ csrf_token('guard') }}"
                     ></guard-allroute>
                 </td>
@@ -57,10 +57,10 @@
                         {% set enable = guard_route_enable_group(route.name, group) %}
                         {% if 'superadmin' != group.code and enable %}
                             <guard-setroute
-                                title="{{ group.name|e }}"
+                                title="{{ group.name|e('html_attr') }}"
                                 data-state=0
-                                data-groupe="{{ group.code|e }}"
-                                data-route="{{ route.name|e }}"
+                                data-groupe="{{ group.code|e('html_attr') }}"
+                                data-route="{{ route.name|e('html_attr') }}"
                                 data-url="{{ path('api_guard_routesetgroup', {'group' : group.id, 'route': route.id}) }}"
                                 data-token="{{ csrf_token('guard') }}"
                             ></guard-setroute>

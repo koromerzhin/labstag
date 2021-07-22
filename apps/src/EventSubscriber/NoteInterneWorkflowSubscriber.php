@@ -7,6 +7,11 @@ use Symfony\Component\Workflow\Event\Event;
 
 class NoteInterneWorkflowSubscriber implements EventSubscriberInterface
 {
+    public static function getSubscribedEvents()
+    {
+        return ['workflow.noteinterne.transition' => 'onTransition'];
+    }
+
     public function onTransition(Event $event)
     {
         $transition = $event->getTransition();
@@ -30,16 +35,6 @@ class NoteInterneWorkflowSubscriber implements EventSubscriberInterface
         }
     }
 
-    public function transitionSubmit(Event $event)
-    {
-        unset($event);
-    }
-
-    public function transitionRelire(Event $event)
-    {
-        unset($event);
-    }
-
     public function transitionCorriger(Event $event)
     {
         unset($event);
@@ -55,8 +50,13 @@ class NoteInterneWorkflowSubscriber implements EventSubscriberInterface
         unset($event);
     }
 
-    public static function getSubscribedEvents()
+    public function transitionRelire(Event $event)
     {
-        return ['workflow.noteinterne.transition' => 'onTransition'];
+        unset($event);
+    }
+
+    public function transitionSubmit(Event $event)
+    {
+        unset($event);
     }
 }

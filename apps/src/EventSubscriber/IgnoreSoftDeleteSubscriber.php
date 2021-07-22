@@ -16,16 +16,16 @@ class IgnoreSoftDeleteSubscriber implements EventSubscriberInterface
 {
     const ANNOTATION = 'Labstag\Annotation\IgnoreSoftDelete';
 
-    protected Reader $reader;
-
     protected EntityManagerInterface $entityManager;
 
-    protected RequestStack $requestStack;
+    protected Reader $reader;
 
     /**
      * @var Request|null
      */
     protected $request;
+
+    protected RequestStack $requestStack;
 
     public function __construct(
         Reader $reader,
@@ -41,6 +41,11 @@ class IgnoreSoftDeleteSubscriber implements EventSubscriberInterface
         $this->entityManager = $entityManager;
     }
 
+    public static function getSubscribedEvents()
+    {
+        return ['kernel.controller' => 'onKernelController'];
+    }
+
     public function onKernelController(ControllerEvent $event)
     {
         $controller = $event->getController();
@@ -51,28 +56,6 @@ class IgnoreSoftDeleteSubscriber implements EventSubscriberInterface
         list($controller, $method) = $controller;
 
         $this->ignoreSoftDeleteAnnotation($controller, $method);
-    }
-
-    protected function readAnnotation($controller, $method, $annotation)
-    {
-        $utils           = new ClassUtils();
-        $classReflection = new ReflectionClass($utils->getClass($controller));
-        $classAnnotation = $this->reader->getClassAnnotation($classReflection, $annotation);
-
-        $objectReflection = new ReflectionObject($controller);
-        $methodReflection = $objectReflection->getMethod($method);
-        $methodAnnotation = $this->reader->getMethodAnnotation($methodReflection, $annotation);
-
-        if (!$classAnnotation && !$methodAnnotation) {
-            return false;
-        }
-
-        return [
-            $classAnnotation,
-            $classReflection,
-            $methodAnnotation,
-            $methodReflection,
-        ];
     }
 
     protected function ignoreSoftDeleteAnnotation($controller, $method)
@@ -108,8 +91,25 @@ class IgnoreSoftDeleteSubscriber implements EventSubscriberInterface
         }
     }
 
-    public static function getSubscribedEvents()
+    protected function readAnnotation($controller, $method, $annotation)
     {
-        return ['kernel.controller' => 'onKernelController'];
+        $utils           = new ClassUtils();
+        $classReflection = new ReflectionClass($utils->getClass($controller));
+        $classAnnotation = $this->reader->getClassAnnotation($classReflection, $annotation);
+
+        $objectReflection = new ReflectionObject($controller);
+        $methodReflection = $objectReflection->getMethod($method);
+        $methodAnnotation = $this->reader->getMethodAnnotation($methodReflection, $annotation);
+
+        if (!$classAnnotation && !$methodAnnotation) {
+            return false;
+        }
+
+        return [
+            $classAnnotation,
+            $classReflection,
+            $methodAnnotation,
+            $methodReflection,
+        ];
     }
 }

@@ -7,7 +7,7 @@
     {% if file != null %}
         <attachment-img
             data-src="{{ asset(file.name) }}"
-            data-name="{{ name|e }}"
+            data-name="{{ name|e('html_attr') }}"
             data-url="{{ url }}"
             data-token="{{ csrf_token('attachment-img-' ~ entity.id) }}"
         ></attachment-img>
@@ -20,7 +20,7 @@
     {% if state == true %}
         <link-show
             href="{{ path(url, {'id': entity.id}) }}"
-            title="{{ title|e }}"
+            title="{{ title|e('html_attr') }}"
         ></link-show>
     {% endif %}
 {% endmacro %}
@@ -35,7 +35,7 @@
     {% if state1 == true and state2 == true %}
         <link-guard
             href="{{ path(url, {'id': entity.id}) }}"
-            title="{{ title|e }}"
+            title="{{ title|e('html_attr') }}"
         ></link-guard>
     {% endif %}
 {% endmacro %}
@@ -46,7 +46,7 @@
     {% if state1 == true and state2 == true %}
         <link-edit
             href="{{ path(url, {'id': entity.id}) }}"
-            title="#{{ title|e }}"
+            title="#{{ title|e('html_attr') }}"
         ></link-edit>
     {% endif %}
 {% endmacro %}
@@ -58,7 +58,7 @@
         <link-delete
             data-url="{{ path(urlDelete, {'id': entity.id, 'entity': class_entity(entity)}) }}"
             data-token="{{ csrf_token('delete' ~ entity.id) }}"
-            data-title="{{ title }}"
+            data-title="{{ title|e('html_attr') }}"
             {% if urlList != '' %}
                 data-redirect="{{ path(urlList) }}"
             {% endif %}
@@ -73,7 +73,7 @@
         <link-destroy
             data-url="{{ path(urlDelete, {'id': entity.id, 'entity': class_entity(entity)}) }}"
             data-token="{{ csrf_token('destroy' ~ entity.id) }}"
-            data-title="{{ title }}"
+            data-title="{{ title|e('html_attr') }}"
             {% if urlList != '' %}
                 data-redirect="{{ path(urlList) }}"
             {% endif %}
@@ -88,7 +88,7 @@
         <link-restore
             data-url="{{ path(urlDelete, {'id': entity.id, 'entity': class_entity(entity)}) }}"
             data-token="{{ csrf_token('restore' ~ entity.id) }}"
-            data-title="{{ title }}"
+            data-title="{{ title|e('html_attr') }}"
             {% if urlList != '' %}
                 data-redirect="{{ path(urlList) }}"
             {% endif %}
@@ -105,7 +105,7 @@
             {% for transition in workflow_transitions(entity) %}
                 <workflow-action
                     data-url="{{ path(actions['workflow'], {'id': entity.id, 'state': transition.name, 'entity': class_entity(entity)}) }}"
-                    data-name="{{ transition.name }}"
+                    data-name="{{ transition.name|e('html_attr') }}"
                     data-token="{{ csrf_token('workflow-' ~ transition.name ~ entity.id) }}"
                     data-redirect="{{ path(actions['list']) }}"
                 ></workflow-action>

@@ -12,9 +12,9 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 class TrashService
 {
 
-    protected ManagerRegistry $manager;
-
     protected CsrfTokenManagerInterface $csrfTokenManager;
+
+    protected ManagerRegistry $manager;
 
     public function __construct(
         ManagerRegistry $manager,
@@ -64,15 +64,6 @@ class TrashService
         return $data;
     }
 
-    public function isTrashable(string $repository): bool
-    {
-        $reader     = new AnnotationReader();
-        $reflection = $this->setReflection($repository);
-        $annotation = $reader->getClassAnnotation($reflection, Trashable::class);
-
-        return !is_null($annotation);
-    }
-
     public function getProperties(string $repository)
     {
         $reader     = new AnnotationReader();
@@ -86,6 +77,15 @@ class TrashService
         $properties = $properties[0];
 
         return $properties;
+    }
+
+    public function isTrashable(string $repository): bool
+    {
+        $reader     = new AnnotationReader();
+        $reflection = $this->setReflection($repository);
+        $annotation = $reader->getClassAnnotation($reflection, Trashable::class);
+
+        return !is_null($annotation);
     }
 
     protected function setReflection(string $repository): ReflectionClass

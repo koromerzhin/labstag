@@ -24,18 +24,17 @@ use Symfony\Component\Security\Http\Util\TargetPathTrait;
 class FormAuthenticator extends AbstractAuth implements PassAuthInterface
 {
     use TargetPathTrait;
-
     public const LOGIN_ROUTE = 'app_login';
 
-    protected EntityManagerInterface $entityManager;
-
-    protected UrlGeneratorInterface $urlGenerator;
-
     protected CsrfTokenManagerInterface $csrfTokenManager;
+
+    protected EntityManagerInterface $entityManager;
 
     protected UserPasswordEncoderInterface $passwordEncoder;
 
     protected UserRepository $repository;
+
+    protected UrlGeneratorInterface $urlGenerator;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -52,10 +51,12 @@ class FormAuthenticator extends AbstractAuth implements PassAuthInterface
         $this->passwordEncoder  = $passwordEncoder;
     }
 
-    public function supports(Request $request)
+    public function checkCredentials($credentials, UserInterface $user)
     {
-        return self::LOGIN_ROUTE === $request->attributes->get('_route')
-            && $request->isMethod('POST');
+        return $this->passwordEncoder->isPasswordValid(
+            $user,
+            $credentials['password']
+        );
     }
 
     public function getCredentials(Request $request)
@@ -72,6 +73,19 @@ class FormAuthenticator extends AbstractAuth implements PassAuthInterface
         );
 
         return $credentials;
+    }
+
+    public function getLoginUrl()
+    {
+        return $this->urlGenerator->generate(self::LOGIN_ROUTE);
+    }
+
+    /**
+     * Used to upgrade (rehash) the user's password automatically over time.
+     */
+    public function getPassword($credentials): ?string
+    {
+        return $credentials['password'];
     }
 
     public function getUser($credentials, UserProviderInterface $userProvider)
@@ -91,22 +105,6 @@ class FormAuthenticator extends AbstractAuth implements PassAuthInterface
         return $user;
     }
 
-    public function checkCredentials($credentials, UserInterface $user)
-    {
-        return $this->passwordEncoder->isPasswordValid(
-            $user,
-            $credentials['password']
-        );
-    }
-
-    /**
-     * Used to upgrade (rehash) the user's password automatically over time.
-     */
-    public function getPassword($credentials): ?string
-    {
-        return $credentials['password'];
-    }
-
     public function onAuthenticationSuccess(
         Request $request,
         TokenInterface $token,
@@ -119,8 +117,9 @@ class FormAuthenticator extends AbstractAuth implements PassAuthInterface
         return new RedirectResponse($newTarget);
     }
 
-    public function getLoginUrl()
+    public function supports(Request $request)
     {
-        return $this->urlGenerator->generate(self::LOGIN_ROUTE);
+        return self::LOGIN_ROUTE === $request->attributes->get('_route')
+            && $request->isMethod('POST');
     }
 }

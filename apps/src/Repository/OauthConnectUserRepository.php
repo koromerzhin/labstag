@@ -14,6 +14,16 @@ class OauthConnectUserRepository extends ServiceEntityRepositoryLib
         parent::__construct($registry, OauthConnectUser::class);
     }
 
+    public function findDistinctAllOauth(): array
+    {
+        $builder = $this->createQueryBuilder('u');
+        $builder->select('u.name');
+        $builder->distinct();
+        $builder->orderBy('u.name', 'ASC');
+
+        return $builder->getQuery()->getResult();
+    }
+
     /**
      * @return OauthConnectUser|void
      */
@@ -81,15 +91,5 @@ class OauthConnectUserRepository extends ServiceEntityRepositoryLib
         );
 
         return $builder->getQuery()->getOneOrNullResult();
-    }
-
-    public function findDistinctAllOauth(): array
-    {
-        $builder = $this->createQueryBuilder('u');
-        $builder->select('u.name');
-        $builder->distinct();
-        $builder->orderBy('u.name', 'ASC');
-
-        return $builder->getQuery()->getResult();
     }
 }

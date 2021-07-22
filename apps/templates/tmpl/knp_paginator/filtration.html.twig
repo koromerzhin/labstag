@@ -1,16 +1,15 @@
 <form method="get" action="{{ action }}" enctype="application/x-www-form-urlencoded">
-
     {% if fields|length > 1 %}
-        <select name="{{ filterFieldName }}">
+        <select name="{{ filterFieldName|e('html_attr') }}">
             {% for field, label in fields %}
-                <option value="{{ field }}"{% if selectedField == field %} selected="selected"{% endif %}>{{ label }}</option>
+                <option value="{{ field|e('html_attr') }}"{% if selectedField == field %} selected="selected"{% endif %}>{{ label }}</option>
             {% endfor %}
         </select>
     {% else %}
-        <input type="hidden" name="{{ filterFieldName }}" value="{{ fields|keys|first }}" />
+        <input type="hidden" name="{{ filterFieldName|e('html_attr') }}" value="{{ fields|keys|first|e('html_attr') }}" />
     {% endif %}
 
-    <input type="text" value="{{ selectedValue }}" name="{{ filterValueName }}" />
+    <input type="text" value="{{ selectedValue|e('html_attr') }}" name="{{ filterValueName|e('html_attr') }}" />
 
     <button>{{ options.button }}</button>
 

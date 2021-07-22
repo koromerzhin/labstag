@@ -41,10 +41,18 @@ final class ActionsSwaggerDecorator implements NormalizerInterface
         return $docs;
     }
 
-    private function setWorkflow(&$docs)
+    /**
+     * {@inheritdoc}
+     */
+    public function supportsNormalization($data, ?string $format = null): bool
+    {
+        return $this->decorated->supportsNormalization($data, $format);
+    }
+
+    private function setDelete(&$docs)
     {
         $statsEndpoint = [
-            'summary'    => 'workflow.',
+            'summary'    => 'Delete.',
             'tags'       => ['Actions'],
             'parameters' => [
                 [
@@ -52,13 +60,6 @@ final class ActionsSwaggerDecorator implements NormalizerInterface
                     'in'          => 'query',
                     'required'    => true,
                     'description' => 'entity',
-                    'schema'      => ['type' => 'string'],
-                ],
-                [
-                    'name'        => 'state',
-                    'in'          => 'query',
-                    'required'    => true,
-                    'description' => 'state',
                     'schema'      => ['type' => 'string'],
                 ],
                 [
@@ -95,7 +96,150 @@ final class ActionsSwaggerDecorator implements NormalizerInterface
             ],
         ];
 
-        $docs['paths']['/api/actions/workflow/{entity}/{state}/{id}']['post'] = $statsEndpoint;
+        $docs['paths']['/api/actions/delete/{entity}/{id}']['delete'] = $statsEndpoint;
+    }
+
+    private function setDeleties(&$docs)
+    {
+        $statsEndpoint = [
+            'summary'    => 'Delete.',
+            'tags'       => ['Actions'],
+            'parameters' => [
+                [
+                    'name'        => 'entities',
+                    'in'          => 'query',
+                    'required'    => true,
+                    'description' => 'entities',
+                    'schema'      => ['type' => 'string'],
+                ],
+                [
+                    'name'        => '_token',
+                    'in'          => 'query',
+                    'required'    => true,
+                    'description' => 'token',
+                    'schema'      => ['type' => 'string'],
+                ],
+            ],
+            'responses'  => [
+                Response::HTTP_OK => [
+                    'content' => [
+                        'application/json' => [
+                            'schema' => [
+                                'type'       => 'object',
+                                'properties' => [
+                                    'isvalid' => [
+                                        'type'    => 'boolean',
+                                        'example' => true,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $docs['paths']['/api/actions/deleties/{entity}']['delete'] = $statsEndpoint;
+    }
+
+    private function setDestroies(&$docs)
+    {
+        $statsEndpoint = [
+            'summary'    => 'destroy.',
+            'tags'       => ['Actions'],
+            'parameters' => [
+                [
+                    'name'        => 'entity',
+                    'in'          => 'query',
+                    'required'    => true,
+                    'description' => 'entity',
+                    'schema'      => ['type' => 'string'],
+                ],
+                [
+                    'name'        => 'entities',
+                    'in'          => 'query',
+                    'required'    => true,
+                    'description' => 'entities',
+                    'schema'      => ['type' => 'string'],
+                ],
+                [
+                    'name'        => '_token',
+                    'in'          => 'query',
+                    'required'    => true,
+                    'description' => 'token',
+                    'schema'      => ['type' => 'string'],
+                ],
+            ],
+            'responses'  => [
+                Response::HTTP_OK => [
+                    'content' => [
+                        'application/json' => [
+                            'schema' => [
+                                'type'       => 'object',
+                                'properties' => [
+                                    'isvalid' => [
+                                        'type'    => 'boolean',
+                                        'example' => true,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $docs['paths']['/api/actions/destroies/{entity}']['delete'] = $statsEndpoint;
+    }
+
+    private function setDestroy(&$docs)
+    {
+        $statsEndpoint = [
+            'summary'    => 'destroy.',
+            'tags'       => ['Actions'],
+            'parameters' => [
+                [
+                    'name'        => 'entity',
+                    'in'          => 'query',
+                    'required'    => true,
+                    'description' => 'entity',
+                    'schema'      => ['type' => 'string'],
+                ],
+                [
+                    'name'        => 'id',
+                    'in'          => 'query',
+                    'required'    => true,
+                    'description' => 'id',
+                    'schema'      => ['type' => 'string'],
+                ],
+                [
+                    'name'        => '_token',
+                    'in'          => 'query',
+                    'required'    => true,
+                    'description' => 'token',
+                    'schema'      => ['type' => 'string'],
+                ],
+            ],
+            'responses'  => [
+                Response::HTTP_OK => [
+                    'content' => [
+                        'application/json' => [
+                            'schema' => [
+                                'type'       => 'object',
+                                'properties' => [
+                                    'isvalid' => [
+                                        'type'    => 'boolean',
+                                        'example' => true,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $docs['paths']['/api/actions/destroy/{entity}/{id}']['delete'] = $statsEndpoint;
     }
 
     private function setEmpties(&$docs)
@@ -141,42 +285,6 @@ final class ActionsSwaggerDecorator implements NormalizerInterface
         $docs['paths']['/api/actions/empties']['delete'] = $statsEndpoint;
     }
 
-    private function setEmptyAll(&$docs)
-    {
-        $statsEndpoint = [
-            'summary'    => 'empty entity.',
-            'tags'       => ['Actions'],
-            'parameters' => [
-                [
-                    'name'        => '_token',
-                    'in'          => 'query',
-                    'required'    => true,
-                    'description' => 'token',
-                    'schema'      => ['type' => 'string'],
-                ],
-            ],
-            'responses'  => [
-                Response::HTTP_OK => [
-                    'content' => [
-                        'application/json' => [
-                            'schema' => [
-                                'type'       => 'object',
-                                'properties' => [
-                                    'isvalid' => [
-                                        'type'    => 'boolean',
-                                        'example' => true,
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ];
-
-        $docs['paths']['/api/actions/emptyall']['delete'] = $statsEndpoint;
-    }
-
     private function setEmpty(&$docs)
     {
         $statsEndpoint = [
@@ -218,6 +326,42 @@ final class ActionsSwaggerDecorator implements NormalizerInterface
         ];
 
         $docs['paths']['/api/actions/empty/{entity}']['delete'] = $statsEndpoint;
+    }
+
+    private function setEmptyAll(&$docs)
+    {
+        $statsEndpoint = [
+            'summary'    => 'empty entity.',
+            'tags'       => ['Actions'],
+            'parameters' => [
+                [
+                    'name'        => '_token',
+                    'in'          => 'query',
+                    'required'    => true,
+                    'description' => 'token',
+                    'schema'      => ['type' => 'string'],
+                ],
+            ],
+            'responses'  => [
+                Response::HTTP_OK => [
+                    'content' => [
+                        'application/json' => [
+                            'schema' => [
+                                'type'       => 'object',
+                                'properties' => [
+                                    'isvalid' => [
+                                        'type'    => 'boolean',
+                                        'example' => true,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $docs['paths']['/api/actions/emptyall']['delete'] = $statsEndpoint;
     }
 
     private function setRestore(&$docs)
@@ -320,10 +464,10 @@ final class ActionsSwaggerDecorator implements NormalizerInterface
         $docs['paths']['/api/actions/restories/{entity}']['post'] = $statsEndpoint;
     }
 
-    private function setDestroy(&$docs)
+    private function setWorkflow(&$docs)
     {
         $statsEndpoint = [
-            'summary'    => 'destroy.',
+            'summary'    => 'workflow.',
             'tags'       => ['Actions'],
             'parameters' => [
                 [
@@ -331,6 +475,13 @@ final class ActionsSwaggerDecorator implements NormalizerInterface
                     'in'          => 'query',
                     'required'    => true,
                     'description' => 'entity',
+                    'schema'      => ['type' => 'string'],
+                ],
+                [
+                    'name'        => 'state',
+                    'in'          => 'query',
+                    'required'    => true,
+                    'description' => 'state',
                     'schema'      => ['type' => 'string'],
                 ],
                 [
@@ -367,157 +518,6 @@ final class ActionsSwaggerDecorator implements NormalizerInterface
             ],
         ];
 
-        $docs['paths']['/api/actions/destroy/{entity}/{id}']['delete'] = $statsEndpoint;
-    }
-
-    private function setDestroies(&$docs)
-    {
-        $statsEndpoint = [
-            'summary'    => 'destroy.',
-            'tags'       => ['Actions'],
-            'parameters' => [
-                [
-                    'name'        => 'entity',
-                    'in'          => 'query',
-                    'required'    => true,
-                    'description' => 'entity',
-                    'schema'      => ['type' => 'string'],
-                ],
-                [
-                    'name'        => 'entities',
-                    'in'          => 'query',
-                    'required'    => true,
-                    'description' => 'entities',
-                    'schema'      => ['type' => 'string'],
-                ],
-                [
-                    'name'        => '_token',
-                    'in'          => 'query',
-                    'required'    => true,
-                    'description' => 'token',
-                    'schema'      => ['type' => 'string'],
-                ],
-            ],
-            'responses'  => [
-                Response::HTTP_OK => [
-                    'content' => [
-                        'application/json' => [
-                            'schema' => [
-                                'type'       => 'object',
-                                'properties' => [
-                                    'isvalid' => [
-                                        'type'    => 'boolean',
-                                        'example' => true,
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ];
-
-        $docs['paths']['/api/actions/destroies/{entity}']['delete'] = $statsEndpoint;
-    }
-
-    private function setDelete(&$docs)
-    {
-        $statsEndpoint = [
-            'summary'    => 'Delete.',
-            'tags'       => ['Actions'],
-            'parameters' => [
-                [
-                    'name'        => 'entity',
-                    'in'          => 'query',
-                    'required'    => true,
-                    'description' => 'entity',
-                    'schema'      => ['type' => 'string'],
-                ],
-                [
-                    'name'        => 'id',
-                    'in'          => 'query',
-                    'required'    => true,
-                    'description' => 'id',
-                    'schema'      => ['type' => 'string'],
-                ],
-                [
-                    'name'        => '_token',
-                    'in'          => 'query',
-                    'required'    => true,
-                    'description' => 'token',
-                    'schema'      => ['type' => 'string'],
-                ],
-            ],
-            'responses'  => [
-                Response::HTTP_OK => [
-                    'content' => [
-                        'application/json' => [
-                            'schema' => [
-                                'type'       => 'object',
-                                'properties' => [
-                                    'isvalid' => [
-                                        'type'    => 'boolean',
-                                        'example' => true,
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ];
-
-        $docs['paths']['/api/actions/delete/{entity}/{id}']['delete'] = $statsEndpoint;
-    }
-
-    private function setDeleties(&$docs)
-    {
-        $statsEndpoint = [
-            'summary'    => 'Delete.',
-            'tags'       => ['Actions'],
-            'parameters' => [
-                [
-                    'name'        => 'entities',
-                    'in'          => 'query',
-                    'required'    => true,
-                    'description' => 'entities',
-                    'schema'      => ['type' => 'string'],
-                ],
-                [
-                    'name'        => '_token',
-                    'in'          => 'query',
-                    'required'    => true,
-                    'description' => 'token',
-                    'schema'      => ['type' => 'string'],
-                ],
-            ],
-            'responses'  => [
-                Response::HTTP_OK => [
-                    'content' => [
-                        'application/json' => [
-                            'schema' => [
-                                'type'       => 'object',
-                                'properties' => [
-                                    'isvalid' => [
-                                        'type'    => 'boolean',
-                                        'example' => true,
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ];
-
-        $docs['paths']['/api/actions/deleties/{entity}']['delete'] = $statsEndpoint;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function supportsNormalization($data, ?string $format = null): bool
-    {
-        return $this->decorated->supportsNormalization($data, $format);
+        $docs['paths']['/api/actions/workflow/{entity}/{state}/{id}']['post'] = $statsEndpoint;
     }
 }

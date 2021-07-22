@@ -10,13 +10,13 @@ use Twig\Environment;
 class MailerService
 {
 
-    protected Environment $twig;
+    protected DataService $dataService;
 
     protected EnqueueMethod $enqueue;
 
     protected MailerInterface $mailer;
 
-    protected DataService $dataService;
+    protected Environment $twig;
 
     public function __construct(
         Environment $twig,

@@ -22,6 +22,23 @@ class GeoCodeController extends AdminControllerLib
     protected string $urlHome = 'admin_geocode_index';
 
     /**
+     * @Route("/{id}/edit", name="admin_geocode_edit", methods={"GET","POST"})
+     */
+    public function edit(GeoCode $geoCode, GeoCodeRequestHandler $requestHandler): Response
+    {
+        return $this->update(
+            GeoCodeType::class,
+            $geoCode,
+            $requestHandler,
+            [
+                'delete' => 'api_action_delete',
+                'list'   => 'admin_geocode_index',
+                'show'   => 'admin_geocode_show',
+            ]
+        );
+    }
+
+    /**
      * @Route("/trash", name="admin_geocode_trash", methods={"GET"})
      * @Route("/", name="admin_geocode_index", methods={"GET"})
      * @IgnoreSoftDelete
@@ -81,23 +98,6 @@ class GeoCodeController extends AdminControllerLib
                 'list'    => 'admin_geocode_index',
                 'edit'    => 'admin_geocode_edit',
                 'trash'   => 'admin_geocode_trash',
-            ]
-        );
-    }
-
-    /**
-     * @Route("/{id}/edit", name="admin_geocode_edit", methods={"GET","POST"})
-     */
-    public function edit(GeoCode $geoCode, GeoCodeRequestHandler $requestHandler): Response
-    {
-        return $this->update(
-            GeoCodeType::class,
-            $geoCode,
-            $requestHandler,
-            [
-                'delete' => 'api_action_delete',
-                'list'   => 'admin_geocode_index',
-                'show'   => 'admin_geocode_show',
             ]
         );
     }

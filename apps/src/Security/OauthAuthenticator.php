@@ -32,30 +32,30 @@ class OauthAuthenticator extends AbstractFormLoginAuthenticator
 {
     use TargetPathTrait;
 
-    protected Request $request;
+    protected CsrfTokenManagerInterface $csrfTokenManager;
 
     protected EntityManagerInterface $entityManager;
 
-    protected UrlGeneratorInterface $urlGenerator;
+    protected LoggerInterface $logger;
 
-    protected CsrfTokenManagerInterface $csrfTokenManager;
+    protected string $oauthCode;
+
+    protected OauthService $oauthService;
 
     protected UserPasswordEncoderInterface $passwordEncoder;
+
+    protected Request $request;
+
+    protected RequestStack $requestStack;
 
     /**
      * @var string
      */
     protected $route;
 
-    protected OauthService $oauthService;
-
-    protected string $oauthCode;
-
-    protected RequestStack $requestStack;
-
     protected TokenStorageInterface $token;
 
-    protected LoggerInterface $logger;
+    protected UrlGeneratorInterface $urlGenerator;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -86,25 +86,11 @@ class OauthAuthenticator extends AbstractFormLoginAuthenticator
         $this->oauthCode = $oauthCode;
     }
 
-    protected function setOauthCode(ParameterBag $attributes): string
+    public function checkCredentials($credentials, UserInterface $user)
     {
-        if ($attributes->has('oauthCode')) {
-            return $attributes->get('oauthCode');
-        }
+        unset($credentials, $user);
 
-        return '';
-    }
-
-    public function supports(Request $request)
-    {
-        $session     = $request->getSession()->all();
-        $route       = $request->attributes->get('_route');
-        $this->route = $route;
-        $token       = $this->token->getToken();
-        $test1       = 'connect_check' === $route && !array_key_exists('link', $session);
-        $test2       = (is_null($token) || !$token->getUser() instanceof User);
-
-        return $test1 && $test2;
+        return true;
     }
 
     public function getCredentials(Request $request)
@@ -146,6 +132,11 @@ class OauthAuthenticator extends AbstractFormLoginAuthenticator
         }
     }
 
+    public function getLoginUrl()
+    {
+        return $this->urlGenerator->generate('app_login');
+    }
+
     /**
      * @param mixed $credentials credentials
      *
@@ -183,13 +174,6 @@ class OauthAuthenticator extends AbstractFormLoginAuthenticator
         return $user;
     }
 
-    public function checkCredentials($credentials, UserInterface $user)
-    {
-        unset($credentials, $user);
-
-        return true;
-    }
-
     /**
      * @param string $providerKey
      *
@@ -210,8 +194,24 @@ class OauthAuthenticator extends AbstractFormLoginAuthenticator
         return new RedirectResponse($getTargetPath);
     }
 
-    public function getLoginUrl()
+    public function supports(Request $request)
     {
-        return $this->urlGenerator->generate('app_login');
+        $session     = $request->getSession()->all();
+        $route       = $request->attributes->get('_route');
+        $this->route = $route;
+        $token       = $this->token->getToken();
+        $test1       = 'connect_check' === $route && !array_key_exists('link', $session);
+        $test2       = (is_null($token) || !$token->getUser() instanceof User);
+
+        return $test1 && $test2;
+    }
+
+    protected function setOauthCode(ParameterBag $attributes): string
+    {
+        if ($attributes->has('oauthCode')) {
+            return $attributes->get('oauthCode');
+        }
+
+        return '';
     }
 }

@@ -25,6 +25,11 @@ class DisclaimerSubscriber implements EventSubscriberInterface
         $this->router      = $router;
     }
 
+    public static function getSubscribedEvents()
+    {
+        return ['kernel.request' => 'onKernelRequest'];
+    }
+
     public function onKernelRequest(RequestEvent $event): void
     {
         $request = $event->getRequest();
@@ -70,10 +75,5 @@ class DisclaimerSubscriber implements EventSubscriberInterface
         $activate   = (bool) $disclaimer['activate'];
 
         return 1 !== $session->get($key, 0) && true === $activate;
-    }
-
-    public static function getSubscribedEvents()
-    {
-        return ['kernel.request' => 'onKernelRequest'];
     }
 }

@@ -22,6 +22,26 @@ class EditoController extends AdminControllerLib
     protected string $urlHome = 'admin_edito_index';
 
     /**
+     * @Route("/{id}/edit", name="admin_edito_edit", methods={"GET","POST"})
+     */
+    public function edit(Edito $edito, EditoRequestHandler $requestHandler): Response
+    {
+        $this->modalAttachmentDelete();
+
+        return $this->update(
+            EditoType::class,
+            $edito,
+            $requestHandler,
+            [
+                'delete' => 'api_action_delete',
+                'list'   => 'admin_edito_index',
+                'show'   => 'admin_edito_show',
+            ],
+            'admin/edito/form.html.twig'
+        );
+    }
+
+    /**
      * @Route("/trash", name="admin_edito_trash", methods={"GET"})
      * @Route("/", name="admin_edito_index", methods={"GET"})
      * @IgnoreSoftDelete
@@ -86,26 +106,6 @@ class EditoController extends AdminControllerLib
                 'list'    => 'admin_edito_index',
                 'trash'   => 'admin_edito_trash',
             ]
-        );
-    }
-
-    /**
-     * @Route("/{id}/edit", name="admin_edito_edit", methods={"GET","POST"})
-     */
-    public function edit(Edito $edito, EditoRequestHandler $requestHandler): Response
-    {
-        $this->modalAttachmentDelete();
-
-        return $this->update(
-            EditoType::class,
-            $edito,
-            $requestHandler,
-            [
-                'delete' => 'api_action_delete',
-                'list'   => 'admin_edito_index',
-                'show'   => 'admin_edito_show',
-            ],
-            'admin/edito/form.html.twig'
         );
     }
 }

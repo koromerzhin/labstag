@@ -22,6 +22,25 @@ class LibelleController extends AdminControllerLib
     protected string $urlHome = 'admin_postlibelle_index';
 
     /**
+     * @Route("/{id}/edit", name="admin_postlibelle_edit", methods={"GET","POST"})
+     */
+    public function edit(Libelle $libelle, LibelleRequestHandler $requestHandler): Response
+    {
+        $this->modalAttachmentDelete();
+
+        return $this->update(
+            LibelleType::class,
+            $libelle,
+            $requestHandler,
+            [
+                'delete' => 'api_action_delete',
+                'list'   => 'admin_postlibelle_index',
+                'show'   => 'admin_postlibelle_show',
+            ]
+        );
+    }
+
+    /**
      * @Route("/trash", name="admin_postlibelle_trash", methods={"GET"})
      * @Route("/", name="admin_postlibelle_index", methods={"GET"})
      * @IgnoreSoftDelete
@@ -84,25 +103,6 @@ class LibelleController extends AdminControllerLib
                 'edit'    => 'admin_postlibelle_edit',
                 'list'    => 'admin_postlibelle_index',
                 'trash'   => 'admin_postlibelle_trash',
-            ]
-        );
-    }
-
-    /**
-     * @Route("/{id}/edit", name="admin_postlibelle_edit", methods={"GET","POST"})
-     */
-    public function edit(Libelle $libelle, LibelleRequestHandler $requestHandler): Response
-    {
-        $this->modalAttachmentDelete();
-
-        return $this->update(
-            LibelleType::class,
-            $libelle,
-            $requestHandler,
-            [
-                'delete' => 'api_action_delete',
-                'list'   => 'admin_postlibelle_index',
-                'show'   => 'admin_postlibelle_show',
             ]
         );
     }

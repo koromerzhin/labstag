@@ -17,6 +17,11 @@ class EmailWorkflowSubscriber implements EventSubscriberInterface
         $this->userMailService = $userMailService;
     }
 
+    public static function getSubscribedEvents()
+    {
+        return ['workflow.email.transition' => 'onTransition'];
+    }
+
     public function onTransition(Event $event)
     {
         $transition = $event->getTransition();
@@ -38,10 +43,5 @@ class EmailWorkflowSubscriber implements EventSubscriberInterface
         }
 
         $this->userMailService->checkNewMail($entity->getRefuser(), $entity);
-    }
-
-    public static function getSubscribedEvents()
-    {
-        return ['workflow.email.transition' => 'onTransition'];
     }
 }

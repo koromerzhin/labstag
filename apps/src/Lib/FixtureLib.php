@@ -2,23 +2,30 @@
 
 namespace Labstag\Lib;
 
+use bheller\ImagesGenerator\ImagesGeneratorProvider;
+use Cocur\Slugify\Slugify;
 use DateTime;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Exception;
+use Faker\Factory;
 use Faker\Generator;
 use Labstag\Entity\AdresseUser;
-use Labstag\Entity\Edito;
+use Labstag\Entity\Attachment;
 use Labstag\Entity\EmailUser;
 use Labstag\Entity\Groupe;
 use Labstag\Entity\LienUser;
 use Labstag\Entity\NoteInterne;
 use Labstag\Entity\PhoneUser;
 use Labstag\Entity\User;
+use Labstag\Reader\UploadAnnotationReader;
 use Labstag\Repository\GroupeRepository;
 use Labstag\Repository\UserRepository;
 use Labstag\RequestHandler\AdresseUserRequestHandler;
+use Labstag\RequestHandler\AttachmentRequestHandler;
 use Labstag\RequestHandler\EditoRequestHandler;
 use Labstag\RequestHandler\EmailUserRequestHandler;
 use Labstag\RequestHandler\GroupeRequestHandler;
+use Labstag\RequestHandler\LibelleRequestHandler;
 use Labstag\RequestHandler\LienUserRequestHandler;
 use Labstag\RequestHandler\NoteInterneRequestHandler;
 use Labstag\RequestHandler\PhoneUserRequestHandler;
@@ -27,45 +34,79 @@ use Labstag\RequestHandler\UserRequestHandler;
 use Labstag\Service\GuardService;
 use Labstag\Service\InstallService;
 use Labstag\Service\OauthService;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Contracts\Cache\CacheInterface;
 use Twig\Environment;
 
 abstract class FixtureLib extends Fixture
 {
+    protected const NUMBER_ADRESSE = 25;
 
-    protected UserRepository $userRepository;
+    protected const NUMBER_EDITO = 25;
 
-    protected OauthService $oauthService;
+    protected const NUMBER_EMAIL = 25;
 
-    protected Environment $twig;
+    protected const NUMBER_LIBELLE = 10;
 
-    protected GroupeRepository $groupeRepository;
+    protected const NUMBER_LIEN = 25;
 
-    protected EmailUserRequestHandler $emailUserRH;
+    protected const NUMBER_NOTEINTERNE = 25;
 
-    protected LienUserRequestHandler $lienUserRH;
+    protected const NUMBER_PHONE = 25;
 
-    protected NoteInterneRequestHandler $noteInterneRH;
+    protected const NUMBER_POST = 100;
 
-    protected GroupeRequestHandler $groupeRH;
-
-    protected EditoRequestHandler $editoRH;
-
-    protected PhoneUserRequestHandler $phoneUserRH;
+    protected const NUMBER_TEMPLATES = 10;
 
     protected AdresseUserRequestHandler $adresseUserRH;
 
-    protected TemplateRequestHandler $templateRH;
-
-    protected UserRequestHandler $userRH;
-
-    protected GuardService $guardService;
+    protected AttachmentRequestHandler $attachmentRH;
 
     protected CacheInterface $cache;
 
+    protected ContainerBagInterface $containerBag;
+
+    protected EditoRequestHandler $editoRH;
+
+    protected EmailUserRequestHandler $emailUserRH;
+
+    protected GroupeRepository $groupeRepository;
+
+    protected GroupeRequestHandler $groupeRH;
+
+    protected GuardService $guardService;
+
     protected InstallService $installService;
 
+    protected LibelleRequestHandler $libelleRH;
+
+    protected LienUserRequestHandler $lienUserRH;
+
+    protected LoggerInterface $logger;
+
+    protected NoteInterneRequestHandler $noteInterneRH;
+
+    protected OauthService $oauthService;
+
+    protected PhoneUserRequestHandler $phoneUserRH;
+
+    protected TemplateRequestHandler $templateRH;
+
+    protected Environment $twig;
+
+    protected UploadAnnotationReader $uploadAnnotReader;
+
+    protected UserRepository $userRepository;
+
+    protected UserRequestHandler $userRH;
+
     public function __construct(
+        LoggerInterface $logger,
+        ContainerBagInterface $containerBag,
+        UploadAnnotationReader $uploadAnnotReader,
         InstallService $installService,
         OauthService $oauthService,
         UserRepository $userRepository,
@@ -79,38 +120,55 @@ abstract class FixtureLib extends Fixture
         EditoRequestHandler $editoRH,
         UserRequestHandler $userRH,
         PhoneUserRequestHandler $phoneUserRH,
+        AttachmentRequestHandler $attachmentRH,
         AdresseUserRequestHandler $adresseUserRH,
         TemplateRequestHandler $templateRH,
+        LibelleRequestHandler $libelleRH,
         CacheInterface $cache
     )
     {
-        $this->installService   = $installService;
-        $this->cache            = $cache;
-        $this->guardService     = $guardService;
-        $this->twig             = $twig;
-        $this->userRepository   = $userRepository;
-        $this->oauthService     = $oauthService;
-        $this->groupeRepository = $groupeRepository;
-        $this->templateRH       = $templateRH;
-        $this->adresseUserRH    = $adresseUserRH;
-        $this->phoneUserRH      = $phoneUserRH;
-        $this->userRH           = $userRH;
-        $this->editoRH          = $editoRH;
-        $this->groupeRH         = $groupeRH;
-        $this->noteInterneRH    = $noteInterneRH;
-        $this->lienUserRH       = $lienUserRH;
-        $this->emailUserRH      = $emailUserRH;
+        $this->attachmentRH      = $attachmentRH;
+        $this->logger            = $logger;
+        $this->containerBag      = $containerBag;
+        $this->libelleRH         = $libelleRH;
+        $this->uploadAnnotReader = $uploadAnnotReader;
+        $this->installService    = $installService;
+        $this->cache             = $cache;
+        $this->guardService      = $guardService;
+        $this->twig              = $twig;
+        $this->userRepository    = $userRepository;
+        $this->oauthService      = $oauthService;
+        $this->groupeRepository  = $groupeRepository;
+        $this->templateRH        = $templateRH;
+        $this->adresseUserRH     = $adresseUserRH;
+        $this->phoneUserRH       = $phoneUserRH;
+        $this->userRH            = $userRH;
+        $this->editoRH           = $editoRH;
+        $this->groupeRH          = $groupeRH;
+        $this->noteInterneRH     = $noteInterneRH;
+        $this->lienUserRH        = $lienUserRH;
+        $this->emailUserRH       = $emailUserRH;
     }
 
-    protected function getRefgroupe(array $groupes, string $code): ?Groupe
+    protected function addAdresse(
+        Generator $faker,
+        User $user
+    ): void
     {
-        foreach ($groupes as $groupe) {
-            if ($groupe->getCode() == $code) {
-                return $groupe;
-            }
-        }
-
-        return null;
+        $adresse = new AdresseUser();
+        $old     = clone $adresse;
+        $adresse->setRefuser($user);
+        $adresse->setRue($faker->streetAddress);
+        $adresse->setVille($faker->city);
+        $adresse->setCountry($faker->countryCode);
+        $adresse->setZipcode($faker->postcode);
+        $adresse->setType($faker->unique()->colorName);
+        $latitude  = $faker->latitude;
+        $longitude = $faker->longitude;
+        $gps       = $latitude.','.$longitude;
+        $adresse->setGps($gps);
+        $adresse->setPmr((bool) rand(0, 1));
+        $this->adresseUserRH->handle($old, $adresse);
     }
 
     protected function addEmail(
@@ -123,6 +181,19 @@ abstract class FixtureLib extends Fixture
         $email->setRefuser($user);
         $email->setAdresse($faker->safeEmail);
         $this->emailUserRH->handle($old, $email);
+    }
+
+    protected function addGroupe(
+        int $key,
+        string $row
+    ): void
+    {
+        $groupe = new Groupe();
+        $old    = clone $groupe;
+        $groupe->setCode($row);
+        $groupe->setName($row);
+        $this->addReference('groupe_'.$key, $groupe);
+        $this->groupeRH->handle($old, $groupe);
     }
 
     protected function addLink(
@@ -149,7 +220,7 @@ abstract class FixtureLib extends Fixture
         $noteinterne = new NoteInterne();
         $old         = clone $noteinterne;
         $random      = $faker->numberBetween(5, 50);
-        $noteinterne->setTitle($faker->text($random));
+        $noteinterne->setTitle($faker->unique()->text($random));
         $dateDebut = $faker->dateTime($maxDate);
         $noteinterne->setDateDebut($dateDebut);
         $dateFin = clone $dateDebut;
@@ -164,62 +235,9 @@ abstract class FixtureLib extends Fixture
         /** @var User $user */
         $user = $users[$tabIndex];
         $noteinterne->setRefuser($user);
+        $this->upload($noteinterne, $faker);
         $this->noteInterneRH->handle($old, $noteinterne);
         $this->noteInterneRH->changeWorkflowState($noteinterne, $states);
-    }
-
-    protected function addGroupe(
-        int $key,
-        string $row
-    ): void
-    {
-        $groupe = new Groupe();
-        $old    = clone $groupe;
-        $groupe->setCode($row);
-        $groupe->setName($row);
-        $this->addReference('groupe_'.$key, $groupe);
-        $this->groupeRH->handle($old, $groupe);
-    }
-
-    protected function addEdito(
-        array $users,
-        Generator $faker,
-        int $index,
-        array $states
-    ): void
-    {
-        $edito  = new Edito();
-        $old    = clone $edito;
-        $random = $faker->numberBetween(5, 50);
-        $edito->setTitle($faker->text($random));
-        /** @var string $content */
-        $content = $faker->paragraphs(4, true);
-        $edito->setContent(str_replace("\n\n", '<br />', $content));
-        $this->addReference('edito_'.$index, $edito);
-        $tabIndex = array_rand($users);
-        /** @var User $user */
-        $user = $users[$tabIndex];
-        $edito->setRefuser($user);
-        $this->editoRH->handle($old, $edito);
-        $this->editoRH->changeWorkflowState($edito, $states);
-    }
-
-    protected function addUser(
-        array $groupes,
-        int $index,
-        array $dataUser
-    ): void
-    {
-        $user = new User();
-        $old  = clone $user;
-
-        $user->setRefgroupe($this->getRefgroupe($groupes, $dataUser['groupe']));
-        $user->setUsername($dataUser['username']);
-        $user->setPlainPassword($dataUser['password']);
-        $user->setEmail($dataUser['email']);
-        $this->addReference('user_'.$index, $user);
-        $this->userRH->handle($old, $user);
-        $this->userRH->changeWorkflowState($user, $dataUser['state']);
     }
 
     protected function addPhone(
@@ -239,24 +257,115 @@ abstract class FixtureLib extends Fixture
         $this->phoneUserRH->changeWorkflowState($phone, $states);
     }
 
-    protected function addAdresse(
-        Generator $faker,
-        User $user
+    protected function addUser(
+        array $groupes,
+        int $index,
+        array $dataUser,
+        Generator $faker
     ): void
     {
-        $adresse = new AdresseUser();
-        $old     = clone $adresse;
-        $adresse->setRefuser($user);
-        $adresse->setRue($faker->streetAddress);
-        $adresse->setVille($faker->city);
-        $adresse->setCountry($faker->countryCode);
-        $adresse->setZipcode($faker->postcode);
-        $adresse->setType($faker->unique()->colorName);
-        $latitude  = $faker->latitude;
-        $longitude = $faker->longitude;
-        $gps       = $latitude.','.$longitude;
-        $adresse->setGps($gps);
-        $adresse->setPmr((bool) $faker->numberBetween(0, 1));
-        $this->adresseUserRH->handle($old, $adresse);
+        $user = new User();
+        $old  = clone $user;
+
+        $user->setRefgroupe($this->getRefgroupe($groupes, $dataUser['groupe']));
+        $user->setUsername($dataUser['username']);
+        $user->setPlainPassword($dataUser['password']);
+        $user->setEmail($dataUser['email']);
+        $this->upload($user, $faker);
+        $this->addReference('user_'.$index, $user);
+        $this->userRH->handle($old, $user);
+        $this->userRH->changeWorkflowState($user, $dataUser['state']);
+    }
+
+    protected function getParameter(string $name)
+    {
+        return $this->containerBag->get($name);
+    }
+
+    protected function getRefgroupe(array $groupes, string $code): ?Groupe
+    {
+        foreach ($groupes as $groupe) {
+            if ($groupe->getCode() == $code) {
+                return $groupe;
+            }
+        }
+
+        return null;
+    }
+
+    protected function setFaker()
+    {
+        $faker = Factory::create('fr_FR');
+        $faker->addProvider(new ImagesGeneratorProvider($faker));
+
+        return $faker;
+    }
+
+    protected function upload($entity, Generator $faker)
+    {
+        if (!$this->uploadAnnotReader->isUploadable($entity)) {
+            return;
+        }
+
+        /** @var resource $finfo */
+        $finfo       = finfo_open(FILEINFO_MIME_TYPE);
+        $annotations = $this->uploadAnnotReader->getUploadableFields($entity);
+        $slugify     = new Slugify();
+        foreach ($annotations as $annotation) {
+            $path       = $this->getParameter('file_directory').'/'.$annotation->getPath();
+            $accessor   = PropertyAccess::createPropertyAccessor();
+            $title      = $accessor->getValue($entity, $annotation->getSlug());
+            $slug       = $slugify->slugify($title);
+            $attachment = new Attachment();
+            $old        = clone $attachment;
+            try {
+                $image   = $faker->imageGenerator(
+                    null,
+                    1920,
+                    1920,
+                    'jpg',
+                    true,
+                    $faker->word,
+                    $faker->hexColor,
+                    $faker->hexColor
+                );
+                $content = file_get_contents($image);
+                /** @var resource $tmpfile */
+                $tmpfile = tmpfile();
+                $data    = stream_get_meta_data($tmpfile);
+                file_put_contents($data['uri'], $content);
+                $file     = new UploadedFile(
+                    $data['uri'],
+                    $slug.'.jpg',
+                    (string) finfo_file($finfo, $data['uri']),
+                    null,
+                    true
+                );
+                $filename = $file->getClientOriginalName();
+                $file->move(
+                    $path,
+                    $filename
+                );
+                $file = $path.'/'.$filename;
+            } catch (Exception $exception) {
+                $this->logger->error($exception->getMessage());
+                echo $exception->getMessage();
+            }
+
+            $file = $path.'/'.$filename;
+            $attachment->setMimeType(mime_content_type($file));
+            $attachment->setSize(filesize($file));
+            $size = getimagesize($file);
+            $attachment->setDimensions(is_array($size) ? $size : []);
+            $attachment->setName(
+                str_replace(
+                    $this->getParameter('kernel.project_dir').'/public/',
+                    '',
+                    $file
+                )
+            );
+            $this->attachmentRH->handle($old, $attachment);
+            $accessor->setValue($entity, $annotation->getFilename(), $attachment);
+        }
     }
 }

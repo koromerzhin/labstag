@@ -22,14 +22,14 @@ class OauthService
 
     protected array $configProvider;
 
+    protected DataService $dataService;
+
+    protected array $oauthActivated;
+
     /**
      * @var Router|RouterInterface
      */
     protected $router;
-
-    protected DataService $dataService;
-
-    protected array $oauthActivated;
 
     public function __construct(
         RouterInterface $router,
@@ -42,14 +42,13 @@ class OauthService
         $this->setConfigProvider();
     }
 
-    public function getTypes(): array
+    public function getActivedProvider(?string $clientName): bool
     {
-        $types = [];
-        foreach (array_keys($this->configProvider) as $key) {
-            $types[] = $key;
+        if (is_null($clientName)) {
+            return false;
         }
 
-        return $types;
+        return array_key_exists($clientName, $this->configProvider);
     }
 
     public function getConfigProvider(): array
@@ -81,18 +80,14 @@ class OauthService
         return $data[$identity];
     }
 
-    /**
-     * @return AbstractProvider|void
-     */
-    public function setProvider(?string $clientName)
+    public function getTypes(): array
     {
-        if (is_null($clientName)) {
-            return;
+        $types = [];
+        foreach (array_keys($this->configProvider) as $key) {
+            $types[] = $key;
         }
 
-        if ($this->ifConfigProviderEnable($clientName)) {
-            return $this->initProvider($clientName);
-        }
+        return $types;
     }
 
     public function ifConfigProviderEnable(string $clientName): bool
@@ -108,15 +103,6 @@ class OauthService
         return $this->oauthActivated[$clientName]['activate'];
     }
 
-    public function getActivedProvider(?string $clientName): bool
-    {
-        if (is_null($clientName)) {
-            return false;
-        }
-
-        return array_key_exists($clientName, $this->configProvider);
-    }
-
     public function setConfigProvider(): void
     {
         $file = __DIR__.'/../../json/oauth.json';
@@ -128,92 +114,18 @@ class OauthService
         $this->configProvider = $data;
     }
 
-    protected function getConfig(string $clientName): array
+    /**
+     * @return AbstractProvider|void
+     */
+    public function setProvider(?string $clientName)
     {
-        if (isset($this->configProvider[$clientName])) {
-            return $this->configProvider[$clientName];
+        if (is_null($clientName)) {
+            return;
         }
 
-        return [];
-    }
-
-    protected function generateStandardProvider($clientName, $params)
-    {
-        $provider = null;
-        $provider = $this->generateStandardProviderBitbucket($clientName, $params, $provider);
-        $provider = $this->generateStandardProviderDiscord($clientName, $params, $provider);
-        $provider = $this->generateStandardProviderDropbox($clientName, $params, $provider);
-        $provider = $this->generateStandardProviderGithub($clientName, $params, $provider);
-        $provider = $this->generateStandardProviderGitlab($clientName, $params, $provider);
-        $provider = $this->generateStandardProviderGoogle($clientName, $params, $provider);
-        $provider = $this->generateStandardProviderLinkedin($clientName, $params, $provider);
-        $provider = $this->generateStandardProviderSlack($clientName, $params, $provider);
-        $provider = $this->generateStandardProviderTwitch($clientName, $params, $provider);
-
-        return $provider;
-    }
-
-    protected function generateStandardProviderDiscord($clientName, $params, $provider)
-    {
-        $provider = ('discord' == $clientName) ? new Discord($params) : $provider;
-
-        return $provider;
-    }
-
-    protected function generateStandardProviderGithub($clientName, $params, $provider)
-    {
-        $provider = ('github' == $clientName) ? new Github($params) : $provider;
-
-        return $provider;
-    }
-
-    protected function generateStandardProviderGitlab($clientName, $params, $provider)
-    {
-        $provider = ('gitlab' == $clientName) ? new Gitlab($params) : $provider;
-
-        return $provider;
-    }
-
-    protected function generateStandardProviderSlack($clientName, $params, $provider)
-    {
-        $provider = ('slack' == $clientName) ? new Slack($params) : $provider;
-
-        return $provider;
-    }
-
-    protected function generateStandardProviderTwitch($clientName, $params, $provider)
-    {
-        $provider = ('twitch' == $clientName) ? new TwitchHelix($params) : $provider;
-
-        return $provider;
-    }
-
-    protected function generateStandardProviderGoogle($clientName, $params, $provider)
-    {
-        $provider = ('google' == $clientName) ? new Google($params) : $provider;
-
-        return $provider;
-    }
-
-    protected function generateStandardProviderBitbucket($clientName, $params, $provider)
-    {
-        $provider = ('bitbucket' == $clientName) ? new Bitbucket($params) : $provider;
-
-        return $provider;
-    }
-
-    protected function generateStandardProviderDropbox($clientName, $params, $provider)
-    {
-        $provider = ('dropbox' == $clientName) ? new Dropbox($params) : $provider;
-
-        return $provider;
-    }
-
-    protected function generateStandardProviderlinkedin($clientName, $params, $provider)
-    {
-        $provider = ('linkedin' == $clientName) ? new LinkedIn($params) : $provider;
-
-        return $provider;
+        if ($this->ifConfigProviderEnable($clientName)) {
+            return $this->initProvider($clientName);
+        }
     }
 
     protected function generateProvider($clientName, $url, $oauth)
@@ -240,6 +152,94 @@ class OauthService
         }
 
         return $provider;
+    }
+
+    protected function generateStandardProvider($clientName, $params)
+    {
+        $provider = null;
+        $provider = $this->generateStandardProviderBitbucket($clientName, $params, $provider);
+        $provider = $this->generateStandardProviderDiscord($clientName, $params, $provider);
+        $provider = $this->generateStandardProviderDropbox($clientName, $params, $provider);
+        $provider = $this->generateStandardProviderGithub($clientName, $params, $provider);
+        $provider = $this->generateStandardProviderGitlab($clientName, $params, $provider);
+        $provider = $this->generateStandardProviderGoogle($clientName, $params, $provider);
+        $provider = $this->generateStandardProviderLinkedin($clientName, $params, $provider);
+        $provider = $this->generateStandardProviderSlack($clientName, $params, $provider);
+        $provider = $this->generateStandardProviderTwitch($clientName, $params, $provider);
+
+        return $provider;
+    }
+
+    protected function generateStandardProviderBitbucket($clientName, $params, $provider)
+    {
+        $provider = ('bitbucket' == $clientName) ? new Bitbucket($params) : $provider;
+
+        return $provider;
+    }
+
+    protected function generateStandardProviderDiscord($clientName, $params, $provider)
+    {
+        $provider = ('discord' == $clientName) ? new Discord($params) : $provider;
+
+        return $provider;
+    }
+
+    protected function generateStandardProviderDropbox($clientName, $params, $provider)
+    {
+        $provider = ('dropbox' == $clientName) ? new Dropbox($params) : $provider;
+
+        return $provider;
+    }
+
+    protected function generateStandardProviderGithub($clientName, $params, $provider)
+    {
+        $provider = ('github' == $clientName) ? new Github($params) : $provider;
+
+        return $provider;
+    }
+
+    protected function generateStandardProviderGitlab($clientName, $params, $provider)
+    {
+        $provider = ('gitlab' == $clientName) ? new Gitlab($params) : $provider;
+
+        return $provider;
+    }
+
+    protected function generateStandardProviderGoogle($clientName, $params, $provider)
+    {
+        $provider = ('google' == $clientName) ? new Google($params) : $provider;
+
+        return $provider;
+    }
+
+    protected function generateStandardProviderlinkedin($clientName, $params, $provider)
+    {
+        $provider = ('linkedin' == $clientName) ? new LinkedIn($params) : $provider;
+
+        return $provider;
+    }
+
+    protected function generateStandardProviderSlack($clientName, $params, $provider)
+    {
+        $provider = ('slack' == $clientName) ? new Slack($params) : $provider;
+
+        return $provider;
+    }
+
+    protected function generateStandardProviderTwitch($clientName, $params, $provider)
+    {
+        $provider = ('twitch' == $clientName) ? new TwitchHelix($params) : $provider;
+
+        return $provider;
+    }
+
+    protected function getConfig(string $clientName): array
+    {
+        if (isset($this->configProvider[$clientName])) {
+            return $this->configProvider[$clientName];
+        }
+
+        return [];
     }
 
     protected function initProvider(string $clientName): AbstractProvider

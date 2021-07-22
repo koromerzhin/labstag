@@ -22,6 +22,27 @@ class AdresseUserController extends AdminControllerLib
     protected string $urlHome = 'admin_adresseuser_index';
 
     /**
+     * @Route(
+     *  "/{id}/edit",
+     *  name="admin_adresseuser_edit",
+     *  methods={"GET","POST"}
+     * )
+     */
+    public function edit(AdresseUser $adresseUser, AdresseUserRequestHandler $requestHandler): Response
+    {
+        return $this->update(
+            AdresseUserType::class,
+            $adresseUser,
+            $requestHandler,
+            [
+                'delete' => 'api_action_delete',
+                'list'   => 'admin_adresseuser_index',
+                'show'   => 'admin_adresseuser_show',
+            ]
+        );
+    }
+
+    /**
      * @Route("/trash", name="admin_adresseuser_trash", methods={"GET"})
      * @Route("/", name="admin_adresseuser_index", methods={"GET"})
      * @IgnoreSoftDelete
@@ -83,27 +104,6 @@ class AdresseUserController extends AdminControllerLib
                 'edit'    => 'admin_adresseuser_edit',
                 'list'    => 'admin_adresseuser_index',
                 'trash'   => 'admin_adresseuser_trash',
-            ]
-        );
-    }
-
-    /**
-     * @Route(
-     *  "/{id}/edit",
-     *  name="admin_adresseuser_edit",
-     *  methods={"GET","POST"}
-     * )
-     */
-    public function edit(AdresseUser $adresseUser, AdresseUserRequestHandler $requestHandler): Response
-    {
-        return $this->update(
-            AdresseUserType::class,
-            $adresseUser,
-            $requestHandler,
-            [
-                'delete' => 'api_action_delete',
-                'list'   => 'admin_adresseuser_index',
-                'show'   => 'admin_adresseuser_show',
             ]
         );
     }

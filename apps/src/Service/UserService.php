@@ -16,15 +16,15 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 class UserService
 {
 
-    protected UserRepository $repository;
-
     protected EntityManagerInterface $entityManager;
 
-    protected SessionInterface $session;
+    protected OauthConnectUserRequestHandler $oauthConnectUserRH;
 
     protected OauthService $oauthService;
 
-    protected OauthConnectUserRequestHandler $oauthConnectUserRH;
+    protected UserRepository $repository;
+
+    protected SessionInterface $session;
 
     protected UserRequestHandler $userRH;
 
@@ -99,30 +99,6 @@ class UserService
         );
     }
 
-    /**
-     * @param mixed $oauthConnect
-     */
-    protected function findOAuthIdentity(
-        User $user,
-        string $identity,
-        string $client,
-        &$oauthConnect = null
-    ): bool
-    {
-        $oauthConnects = $user->getOauthConnectUsers();
-        foreach ($oauthConnects as $oauthConnect) {
-            $test1 = ($oauthConnect->getName() == $client);
-            $test2 = ($oauthConnect->getIdentity() == $identity);
-            if ($test1 && $test2) {
-                return true;
-            }
-        }
-
-        $oauthConnect = null;
-
-        return false;
-    }
-
     public function ifBug(
         AbstractProvider $provider,
         array $query,
@@ -153,5 +129,29 @@ class UserService
         }
 
         $this->userRH->changeWorkflowState($user, ['lostpassword']);
+    }
+
+    /**
+     * @param mixed $oauthConnect
+     */
+    protected function findOAuthIdentity(
+        User $user,
+        string $identity,
+        string $client,
+        &$oauthConnect = null
+    ): bool
+    {
+        $oauthConnects = $user->getOauthConnectUsers();
+        foreach ($oauthConnects as $oauthConnect) {
+            $test1 = ($oauthConnect->getName() == $client);
+            $test2 = ($oauthConnect->getIdentity() == $identity);
+            if ($test1 && $test2) {
+                return true;
+            }
+        }
+
+        $oauthConnect = null;
+
+        return false;
     }
 }

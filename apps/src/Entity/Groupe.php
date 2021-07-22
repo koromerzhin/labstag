@@ -19,6 +19,12 @@ class Groupe
     use SoftDeleteableEntity;
 
     /**
+     * @Gedmo\Slug(updatable=false, fields={"name"})
+     * @ORM\Column(type="string", length=255, unique=true)
+     */
+    protected $code;
+
+    /**
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="UUID")
      * @ORM\Column(type="guid", unique=true)
@@ -32,10 +38,9 @@ class Groupe
     protected $name;
 
     /**
-     * @Gedmo\Slug(updatable=false, fields={"name"})
-     * @ORM\Column(type="string", length=255, unique=true)
+     * @ORM\OneToMany(targetEntity=RouteGroupe::class, mappedBy="refgroupe")
      */
-    protected $code;
+    protected $routes;
 
     /**
      * @ORM\OneToMany(
@@ -45,11 +50,6 @@ class Groupe
      * )
      */
     protected $users;
-
-    /**
-     * @ORM\OneToMany(targetEntity=RouteGroupe::class, mappedBy="refgroupe")
-     */
-    protected $routes;
 
     /**
      * @ORM\OneToMany(targetEntity=WorkflowGroupe::class, mappedBy="refgroupe")
@@ -67,6 +67,41 @@ class Groupe
         return $this->getName();
     }
 
+    public function addRoute(RouteGroupe $route): self
+    {
+        if (!$this->routes->contains($route)) {
+            $this->routes[] = $route;
+            $route->setRefgroupe($this);
+        }
+
+        return $this;
+    }
+
+    public function addUser(User $user): self
+    {
+        if (!$this->users->contains($user)) {
+            $this->users[] = $user;
+            $user->setRefgroupe($this);
+        }
+
+        return $this;
+    }
+
+    public function addWorkflowGroupe(WorkflowGroupe $workflowGroupe): self
+    {
+        if (!$this->workflowGroupes->contains($workflowGroupe)) {
+            $this->workflowGroupes[] = $workflowGroupe;
+            $workflowGroupe->setRefgroupe($this);
+        }
+
+        return $this;
+    }
+
+    public function getCode(): ?string
+    {
+        return $this->code;
+    }
+
     public function getId(): ?string
     {
         return $this->id;
@@ -77,23 +112,12 @@ class Groupe
         return $this->name;
     }
 
-    public function setName(string $name): self
+    /**
+     * @return Collection|RouteGroupe[]
+     */
+    public function getRoutes(): Collection
     {
-        $this->name = $name;
-
-        return $this;
-    }
-
-    public function getCode(): ?string
-    {
-        return $this->code;
-    }
-
-    public function setCode(string $code): self
-    {
-        $this->code = $code;
-
-        return $this;
+        return $this->routes;
     }
 
     public function getUsers()
@@ -101,11 +125,21 @@ class Groupe
         return $this->users;
     }
 
-    public function addUser(User $user): self
+    /**
+     * @return Collection|WorkflowGroupe[]
+     */
+    public function getWorkflowGroupes(): Collection
     {
-        if (!$this->users->contains($user)) {
-            $this->users[] = $user;
-            $user->setRefgroupe($this);
+        return $this->workflowGroupes;
+    }
+
+    public function removeRoute(RouteGroupe $route): self
+    {
+        if ($this->routes->removeElement($route)) {
+            // set the owning side to null (unless already changed)
+            if ($route->getRefgroupe() === $this) {
+                $route->setRefgroupe(null);
+            }
         }
 
         return $this;
@@ -124,54 +158,6 @@ class Groupe
         return $this;
     }
 
-    /**
-     * @return Collection|RouteGroupe[]
-     */
-    public function getRoutes(): Collection
-    {
-        return $this->routes;
-    }
-
-    public function addRoute(RouteGroupe $route): self
-    {
-        if (!$this->routes->contains($route)) {
-            $this->routes[] = $route;
-            $route->setRefgroupe($this);
-        }
-
-        return $this;
-    }
-
-    public function removeRoute(RouteGroupe $route): self
-    {
-        if ($this->routes->removeElement($route)) {
-            // set the owning side to null (unless already changed)
-            if ($route->getRefgroupe() === $this) {
-                $route->setRefgroupe(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|WorkflowGroupe[]
-     */
-    public function getWorkflowGroupes(): Collection
-    {
-        return $this->workflowGroupes;
-    }
-
-    public function addWorkflowGroupe(WorkflowGroupe $workflowGroupe): self
-    {
-        if (!$this->workflowGroupes->contains($workflowGroupe)) {
-            $this->workflowGroupes[] = $workflowGroupe;
-            $workflowGroupe->setRefgroupe($this);
-        }
-
-        return $this;
-    }
-
     public function removeWorkflowGroupe(WorkflowGroupe $workflowGroupe): self
     {
         if ($this->workflowGroupes->removeElement($workflowGroupe)) {
@@ -180,6 +166,20 @@ class Groupe
                 $workflowGroupe->setRefgroupe(null);
             }
         }
+
+        return $this;
+    }
+
+    public function setCode(string $code): self
+    {
+        $this->code = $code;
+
+        return $this;
+    }
+
+    public function setName(string $name): self
+    {
+        $this->name = $name;
 
         return $this;
     }

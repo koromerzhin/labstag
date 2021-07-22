@@ -31,8 +31,8 @@
                     {{ entity.country|country_name('fr') }}
                 </td>
                 <td>
-                    {% set check = verifPhone(entity.country, entity.numero)  ? 'OK' : 'KO' %}
-                    <span class="check{{ check }}"></span>
+                    {% set check = verifPhone(entity.country, entity.numero)  ? 'ok' : 'ko' %}
+                    <span class="check-{{ check }}"></span>
                 </td>
                 <td>{{ entity.type }}</td>
                 <td>{{ entity.principal ? 'Yes' : 'No' }}</td>

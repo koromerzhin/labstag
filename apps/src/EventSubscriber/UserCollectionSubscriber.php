@@ -19,6 +19,11 @@ class UserCollectionSubscriber implements EventSubscriberInterface
         $this->userMailService = $userMailService;
     }
 
+    public static function getSubscribedEvents()
+    {
+        return [UserCollectionEvent::class => 'onUserCollectionEvent'];
+    }
+
     public function onUserCollectionEvent(UserCollectionEvent $event): void
     {
         $oauthConnectUser = $event->getOauthConnectUser();
@@ -28,6 +33,40 @@ class UserCollectionSubscriber implements EventSubscriberInterface
         $this->setOauthConnectUser($oauthConnectUser);
         $this->setLienUser($lienUser);
         $this->setAdresseUser($adresseUser);
+    }
+
+    protected function setAdresseUser(array $data): void
+    {
+        if (0 == count($data)) {
+            return;
+        }
+
+        /** @var AdresseUser $old */
+        $old = $data['old'];
+        /** @var AdresseUser $new */
+        $new = $data['new'];
+        if ($old->getId() == $new->getId()) {
+            return;
+        }
+
+        $this->userMailService->checkNewAdresse($new->getRefuser(), $new);
+    }
+
+    protected function setLienUser(array $data): void
+    {
+        if (0 == count($data)) {
+            return;
+        }
+
+        /** @var LienUser $old */
+        $old = $data['old'];
+        /** @var LienUser $new */
+        $new = $data['new'];
+        if ($old->getId() == $new->getId()) {
+            return;
+        }
+
+        $this->userMailService->checkNewLink($new->getRefuser(), $new);
     }
 
     protected function setOauthConnectUser(array $data): void
@@ -48,44 +87,5 @@ class UserCollectionSubscriber implements EventSubscriberInterface
             $new->getRefuser(),
             $new
         );
-    }
-
-    protected function setLienUser(array $data): void
-    {
-        if (0 == count($data)) {
-            return;
-        }
-
-        /** @var LienUser $old */
-        $old = $data['old'];
-        /** @var LienUser $new */
-        $new = $data['new'];
-        if ($old->getId() == $new->getId()) {
-            return;
-        }
-
-        $this->userMailService->checkNewLink($new->getRefuser(), $new);
-    }
-
-    protected function setAdresseUser(array $data): void
-    {
-        if (0 == count($data)) {
-            return;
-        }
-
-        /** @var AdresseUser $old */
-        $old = $data['old'];
-        /** @var AdresseUser $new */
-        $new = $data['new'];
-        if ($old->getId() == $new->getId()) {
-            return;
-        }
-
-        $this->userMailService->checkNewAdresse($new->getRefuser(), $new);
-    }
-
-    public static function getSubscribedEvents()
-    {
-        return [UserCollectionEvent::class => 'onUserCollectionEvent'];
     }
 }

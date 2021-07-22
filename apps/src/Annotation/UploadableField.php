@@ -16,6 +16,8 @@ class UploadableField
 
     protected $path;
 
+    protected $slug;
+
     public function __construct(array $options)
     {
         if (empty($options['filename'])) {
@@ -26,8 +28,13 @@ class UploadableField
             throw new InvalidArgumentException("L'annotation UplodableField doit avoir un attribut 'path'");
         }
 
+        if (empty($options['slug'])) {
+            throw new InvalidArgumentException("L'annotation UplodableField doit avoir un attribut 'slug'");
+        }
+
         $this->filename = $options['filename'];
         $this->path     = $options['path'];
+        $this->slug     = $options['slug'];
     }
 
     public function getFilename()
@@ -38,5 +45,10 @@ class UploadableField
     public function getPath()
     {
         return $this->path;
+    }
+
+    public function getSlug()
+    {
+        return $this->slug;
     }
 }

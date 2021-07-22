@@ -11,16 +11,16 @@
                 {% if attrname != 'is' %}
                     {{- " " -}}
                     {%- if attrvalue is same as(true) -%}
-                        {{- attrname }}="{{ attrname }}"
+                        {{- attrname }}="{{ attrname|e('html_attr') }}"
                     {%- elseif attrvalue is not same as(false) -%}
-                        {{- attrname }}="{{ attrvalue }}"
+                        {{- attrname }}="{{ attrvalue|e('html_attr') }}"
                     {%- endif -%}
                 {% endif %}
             {%- endfor -%}
             {% if btn.icon is defined %}
                 icon="{{ btn.icon }}"
             {% endif %}
-            text="{{ btn.text }}"
+            text="{{ btn.text|e('html_attr') }}"
         ></{{ btnname }}>
     {% endfor %}
 </div>

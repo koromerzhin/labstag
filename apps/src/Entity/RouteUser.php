@@ -19,9 +19,9 @@ class RouteUser
     protected $id;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\ManyToOne(targetEntity=Route::class, inversedBy="users")
      */
-    protected $state;
+    protected $refroute;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="routes")
@@ -29,13 +29,23 @@ class RouteUser
     protected $refuser;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Route::class, inversedBy="users")
+     * @ORM\Column(type="boolean")
      */
-    protected $refroute;
+    protected $state;
 
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getRefroute(): ?Route
+    {
+        return $this->refroute;
+    }
+
+    public function getRefuser(): ?User
+    {
+        return $this->refuser;
     }
 
     public function isState(): ?bool
@@ -43,16 +53,11 @@ class RouteUser
         return $this->state;
     }
 
-    public function setState(bool $state): self
+    public function setRefroute(?Route $refroute): self
     {
-        $this->state = $state;
+        $this->refroute = $refroute;
 
         return $this;
-    }
-
-    public function getRefuser(): ?User
-    {
-        return $this->refuser;
     }
 
     public function setRefuser(?User $refuser): self
@@ -62,14 +67,9 @@ class RouteUser
         return $this;
     }
 
-    public function getRefroute(): ?Route
+    public function setState(bool $state): self
     {
-        return $this->refroute;
-    }
-
-    public function setRefroute(?Route $refroute): self
-    {
-        $this->refroute = $refroute;
+        $this->state = $state;
 
         return $this;
     }

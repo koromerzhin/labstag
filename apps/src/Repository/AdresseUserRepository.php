@@ -20,10 +20,7 @@ class AdresseUserRepository extends AdresseRepository
     public function findAllForAdmin(): Query
     {
         $queryBuilder = $this->createQueryBuilder('a');
-        $query        = $queryBuilder->leftJoin(
-            'a.refuser',
-            'u'
-        );
+        $query        = $queryBuilder->leftJoin('a.refuser', 'u');
         $query->where(
             'u.id IS NOT NULL'
         );

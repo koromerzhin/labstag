@@ -16,6 +16,11 @@ class PhoneWorkflowSubscriber implements EventSubscriberInterface
         $this->userMailService = $userMailService;
     }
 
+    public static function getSubscribedEvents()
+    {
+        return ['workflow.phone.transition' => 'onTransition'];
+    }
+
     public function onTransition(Event $event)
     {
         $transition = $event->getTransition();
@@ -31,10 +36,5 @@ class PhoneWorkflowSubscriber implements EventSubscriberInterface
     {
         $entity = $event->getSubject();
         $this->userMailService->checkNewPhone($entity->getRefuser(), $entity);
-    }
-
-    public static function getSubscribedEvents()
-    {
-        return ['workflow.phone.transition' => 'onTransition'];
     }
 }

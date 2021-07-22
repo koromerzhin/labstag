@@ -8,6 +8,11 @@ use Labstag\Lib\FixtureLib;
 
 class GroupFixtures extends FixtureLib implements DependentFixtureInterface
 {
+    public function getDependencies()
+    {
+        return [DataFixtures::class];
+    }
+
     public function load(ObjectManager $manager): void
     {
         unset($manager);
@@ -15,10 +20,5 @@ class GroupFixtures extends FixtureLib implements DependentFixtureInterface
         foreach ($groupes as $key => $row) {
             $this->addGroupe($key, $row);
         }
-    }
-
-    public function getDependencies()
-    {
-        return [DataFixtures::class];
     }
 }

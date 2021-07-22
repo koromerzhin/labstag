@@ -49,8 +49,7 @@ class UserType extends AbstractType
                 'second_options'  => ['label' => 'Repeat Password'],
             ]
         );
-        $builder->add('groupe');
-
+        $builder->add('refgroupe');
         $builder->add(
             'file',
             FileType::class,

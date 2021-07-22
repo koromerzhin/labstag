@@ -30,37 +30,35 @@ use WhiteOctober\BreadcrumbsBundle\Model\Breadcrumbs;
 abstract class AdminControllerLib extends ControllerLib
 {
 
-    protected string $headerTitle = '';
-
-    protected string $urlHome = '';
-
-    protected Environment $twig;
-
-    protected AdminBtnSingleton $btnInstance;
-
-    protected GuardService $guardService;
-
-    protected RouterInterface $router;
-
-    protected CsrfTokenManagerInterface $csrfTokenManager;
-
-    protected TokenStorageInterface $token;
-
-    protected PaginatorInterface $paginator;
-
-    protected RequestStack $requestStack;
-
-    protected Request $request;
-
-    protected SessionInterface $session;
-
-    protected UploadAnnotationReader $uploadAnnotReader;
-
-    protected EntityManagerInterface $entityManager;
+    protected AttachmentRepository $attachmentRepository;
 
     protected AttachmentRequestHandler $attachmentRH;
 
-    protected AttachmentRepository $attachmentRepository;
+    protected AdminBtnSingleton $btnInstance;
+
+    protected CsrfTokenManagerInterface $csrfTokenManager;
+
+    protected EntityManagerInterface $entityManager;
+
+    protected GuardService $guardService;
+
+    protected string $headerTitle = '';
+
+    protected Request $request;
+
+    protected RequestStack $requestStack;
+
+    protected RouterInterface $router;
+
+    protected SessionInterface $session;
+
+    protected TokenStorageInterface $token;
+
+    protected Environment $twig;
+
+    protected UploadAnnotationReader $uploadAnnotReader;
+
+    protected string $urlHome = '';
 
     public function __construct(
         UploadAnnotationReader $uploadAnnotReader,
@@ -87,7 +85,6 @@ abstract class AdminControllerLib extends ControllerLib
         /** @var Request $request */
         $request                 = $this->requestStack->getCurrentRequest();
         $this->request           = $request;
-        $this->paginator         = $paginator;
         $this->uploadAnnotReader = $uploadAnnotReader;
         $this->guardService      = $guardService;
         $this->twig              = $twig;
@@ -95,23 +92,7 @@ abstract class AdminControllerLib extends ControllerLib
         $this->token             = $token;
         $this->csrfTokenManager  = $csrfTokenManager;
         $this->setSingletonsAdmin();
-        parent::__construct($dataService, $breadcrumbs);
-    }
-
-    protected function setSingletonsAdmin()
-    {
-        $btnInstance = AdminBtnSingleton::getInstance();
-        if (!$btnInstance->isInit()) {
-            $btnInstance->setConf(
-                $this->twig,
-                $this->router,
-                $this->token,
-                $this->csrfTokenManager,
-                $this->guardService
-            );
-        }
-
-        $this->btnInstance = $btnInstance;
+        parent::__construct($dataService, $breadcrumbs, $paginator);
     }
 
     public function addBreadcrumbs(array $breadcrumbs): void
@@ -119,157 +100,18 @@ abstract class AdminControllerLib extends ControllerLib
         $this->breadcrumbsInstance->add($breadcrumbs);
     }
 
-    protected function setBreadcrumbsPage()
-    {
-        if ('' == $this->headerTitle && '' == $this->urlHome) {
-            return;
-        }
-
-        $router      = $this->get('router');
-        $breadcrumbs = [
-            $this->headerTitle => $router->generate(
-                $this->urlHome
-            ),
-        ];
-
-        $this->breadcrumbsInstance->addPosition($breadcrumbs, 0);
-    }
-
-    public function render(
-        string $view,
-        array $parameters = [],
-        ?Response $response = null
+    public function create(
+        object $entity,
+        string $formType,
+        RequestHandlerLib $handler,
+        array $url = [],
+        string $twig = 'admin/crud/form.html.twig'
     ): Response
     {
-        $this->setBreadcrumbsPage();
-        $parameters = array_merge(
-            $parameters,
-            [
-                'btnadmin' => $this->btnInstance->get(),
-            ]
-        );
-
-        return parent::render($view, $parameters, $response);
-    }
-
-    public function setBtnInstance($btnInstance)
-    {
-        $this->btnInstance = $btnInstance;
-    }
-
-    protected function setBtnList(array $url): void
-    {
-        if (!isset($url['list'])) {
-            return;
-        }
-
-        $this->btnInstance->addBtnList(
-            $url['list'],
-            'Liste',
-        );
-    }
-
-    protected function setBtnViewUpdate(array $url, object $entity): void
-    {
-        $this->setBtnList($url);
-        $this->setBtnShow($url, $entity);
-        $this->setBtnGuard($url, $entity);
-        $this->setBtnDelete($url, $entity);
-    }
-
-    protected function setBtnShow(array $url, object $entity): void
-    {
-        if (!isset($url['show'])) {
-            return;
-        }
-
-        $this->btnInstance->addBtnShow(
-            $url['show'],
-            'Show',
-            [
-                'id' => $entity->getId(),
-            ]
-        );
-    }
-
-    protected function enableBtnGuard($entity): bool
-    {
-        if ($entity instanceof User) {
-            $routes = $this->guardService->getGuardRoutesForUser($entity);
-
-            return (0 != count($routes)) ? true : false;
-        }
-
-        $routes = $this->guardService->getGuardRoutesForGroupe($entity);
-
-        return (0 != count($routes)) ? true : false;
-    }
-
-    protected function setBtnGuard(array $url, object $entity): void
-    {
-        if (!isset($url['guard']) || !$this->enableBtnGuard($entity)) {
-            return;
-        }
-
-        $this->btnInstance->addBtnGuard(
-            $url['guard'],
-            'Guard',
-            [
-                'id' => $entity->getId(),
-            ]
-        );
-    }
-
-    protected function setBtnDelete(array $url, object $entity): void
-    {
-        if (!isset($url['delete'])) {
-            return;
-        }
-
-        $urlsDelete = [
-            'delete' => $url['delete'],
-        ];
-        if (isset($url['list'])) {
-            $urlsDelete['list'] = $url['list'];
-        }
-
-        $this->btnInstance->addBtnDelete(
-            $entity,
-            $urlsDelete,
-            'Supprimer',
-            [
-                'id'     => $entity->getId(),
-                'entity' => $this->classEntity($entity),
-            ]
-        );
-    }
-
-    protected function classEntity($entity)
-    {
-        $class = get_class($entity);
-
-        $class = str_replace('Labstag\\Entity\\', '', $class);
-
-        return strtolower($class);
-    }
-
-    protected function listOrTrashRouteTrash(
-        array $url,
-        array $actions,
-        ServiceEntityRepositoryLib $repository
-    )
-    {
-        $entity = strtolower(
-            str_replace(
-                'Labstag\\Entity\\',
-                '',
-                $repository->getClassName()
-            )
-        );
-
-        $breadcrumb = [
-            'Trash' => $this->router->generate(
-                'admin_adresseuser_trash'
+        $routeCurrent = $this->request->get('_route');
+        $breadcrumb   = [
+            'New' => $this->router->generate(
+                $routeCurrent
             ),
         ];
         $this->addBreadcrumbs($breadcrumb);
@@ -279,115 +121,27 @@ abstract class AdminControllerLib extends ControllerLib
             );
         }
 
-        if (isset($url['empty'])) {
-            $this->btnInstance->addBtnEmpty(
-                [
-                    'empty' => $url['empty'],
-                    'list'  => $url['list'],
-                ],
-                $entity
-            );
+        $oldEntity = clone $entity;
+        $form      = $this->createForm($formType, $entity);
+        $this->btnInstance->addBtnSave($form->getName(), 'Ajouter');
+        $form->handleRequest($this->request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->upload($entity);
+            $handler->handle($oldEntity, $entity);
+            if (isset($url['list'])) {
+                return new RedirectResponse(
+                    $this->router->generate($url['list'])
+                );
+            }
         }
 
-        if (isset($actions['destroy'])) {
-            $this->twig->addGlobal(
-                'modalDestroy',
-                true
-            );
-        }
-
-        if (isset($actions['restore'])) {
-            $this->twig->addGlobal(
-                'modalRestore',
-                true
-            );
-        }
-
-        $this->btnInstance->addViderSelection(
+        return $this->render(
+            $twig,
             [
-                'redirect' => [
-                    'href'   => $this->request->get('_route'),
-                    'params' => [],
-                ],
-                'url'      => [
-                    'href'   => 'api_action_destroies',
-                    'params' => [
-                        'entity' => strtolower(
-                            str_replace(
-                                'Labstag\\Entity\\',
-                                '',
-                                $repository->getClassName()
-                            )
-                        ),
-                    ],
-                ],
-            ],
-            'destroies'
+                'entity' => $entity,
+                'form'   => $form->createView(),
+            ]
         );
-
-        $this->btnInstance->addRestoreSelection(
-            [
-                'redirect' => [
-                    'href'   => $this->request->get('_route'),
-                    'params' => [],
-                ],
-                'url'      => [
-                    'href'   => 'api_action_restories',
-                    'params' => [
-                        'entity' => strtolower(
-                            str_replace(
-                                'Labstag\\Entity\\',
-                                '',
-                                $repository->getClassName()
-                            )
-                        ),
-                    ],
-                ],
-            ],
-            'restories'
-        );
-    }
-
-    public function modalAttachmentDelete(): void
-    {
-        $this->twig->addGlobal(
-            'modalAttachmentDelete',
-            true
-        );
-    }
-
-    protected function setTrashIcon($methods, $repository, $url, $actions)
-    {
-        $methodTrash = $methods['trash'];
-        $this->entityManager->getFilters()->disable('softdeleteable');
-        $total = $repository->$methodTrash();
-        $this->entityManager->getFilters()->enable('softdeleteable');
-        if (0 != count($total)) {
-            $this->btnInstance->addBtnTrash(
-                $url['trash']
-            );
-        }
-
-        if (isset($actions['delete'])) {
-            $this->twig->addGlobal(
-                'modalDelete',
-                true
-            );
-        }
-
-        if (isset($actions['workflow'])) {
-            $this->twig->addGlobal(
-                'modalWorkflow',
-                true
-            );
-        }
-    }
-
-    protected function isRouteEnable(string $route)
-    {
-        $token = $this->token->getToken();
-
-        return $this->guardService->guardRoute($route, $token);
     }
 
     public function listOrTrash(
@@ -457,118 +211,29 @@ abstract class AdminControllerLib extends ControllerLib
         );
     }
 
-    protected function showOrPreviewaddBreadcrumbs($url, $routeType, $routeCurrent, $entity)
+    public function modalAttachmentDelete(): void
     {
-        if ('preview' == $routeType && isset($url['trash'])) {
-            $breadcrumb = [
-                'Trash' => $this->router->generate(
-                    $url['trash']
-                ),
-            ];
-            $this->addBreadcrumbs($breadcrumb);
-        }
-
-        $breadcrumb = [
-            $routeType => $this->router->generate(
-                $routeCurrent,
-                [
-                    'id' => $entity->getId(),
-                ]
-            ),
-        ];
-        $this->addBreadcrumbs($breadcrumb);
+        $globals                   = $this->twig->getGlobals();
+        $modal                     = isset($globals['modal']) ? $globals['modal'] : [];
+        $modal['attachmentdelete'] = true;
+        $this->twig->addGlobal('modal', $modal);
     }
 
-    protected function showOrPreviewaddBtnList($url, $routeType)
+    public function render(
+        string $view,
+        array $parameters = [],
+        ?Response $response = null
+    ): Response
     {
-        if (!(isset($url['list']) && 'show' == $routeType)) {
-            return;
-        }
-
-        $this->btnInstance->addBtnList(
-            $url['list'],
-            'Liste',
-        );
-    }
-
-    protected function showOrPreviewaddBtnTrash($url, $routeType)
-    {
-        if (!(isset($url['trash']) && 'preview' == $routeType)) {
-            return;
-        }
-
-        $this->btnInstance->addBtnTrash(
-            $url['trash'],
-            'Trash',
-        );
-    }
-
-    protected function showOrPreviewaddBtnGuard($url, $routeType, $entity)
-    {
-        if (!(isset($url['guard']) && 'show' == $routeType) || !$this->enableBtnGuard($entity)) {
-            return;
-        }
-
-        $this->btnInstance->addBtnGuard(
-            $url['guard'],
-            'Guard',
+        $this->setBreadcrumbsPage();
+        $parameters = array_merge(
+            $parameters,
             [
-                'id' => $entity->getId(),
+                'btnadmin' => $this->btnInstance->get(),
             ]
         );
-    }
 
-    protected function showOrPreviewaddBtnEdit($url, $routeType, $entity)
-    {
-        if (!(isset($url['edit']) && 'show' == $routeType) || !$this->isGranted('edit', $entity)) {
-            return;
-        }
-
-        $this->btnInstance->addBtnEdit(
-            $url['edit'],
-            'Editer',
-            [
-                'id' => $entity->getId(),
-            ]
-        );
-    }
-
-    protected function showOrPreviewaddBtnRestore($url, $routeType, $entity)
-    {
-        if (isset($url['restore']) && 'preview' == $routeType) {
-            $this->btnInstance->addBtnRestore(
-                $entity,
-                [
-                    'restore' => $url['restore'],
-                    'list'    => $url['trash'],
-                ],
-                'Restore',
-                [
-                    'id'     => $entity->getId(),
-                    'entity' => $this->classEntity($entity),
-                ]
-            );
-        }
-    }
-
-    protected function showOrPreviewaddBtnDestroy($url, $routeType, $entity)
-    {
-        if (!(isset($url['destroy']) && 'preview' == $routeType)) {
-            return;
-        }
-
-        $this->btnInstance->addBtnDestroy(
-            $entity,
-            [
-                'destroy' => $url['destroy'],
-                'list'    => $url['trash'],
-            ],
-            'Destroy',
-            [
-                'id'     => $entity->getId(),
-                'entity' => $this->classEntity($entity),
-            ]
-        );
+        return parent::render($view, $parameters, $response);
     }
 
     public function renderShowOrPreview(
@@ -616,48 +281,9 @@ abstract class AdminControllerLib extends ControllerLib
         );
     }
 
-    public function create(
-        object $entity,
-        string $formType,
-        RequestHandlerLib $handler,
-        array $url = [],
-        string $twig = 'admin/crud/form.html.twig'
-    ): Response
+    public function setBtnInstance($btnInstance)
     {
-        $routeCurrent = $this->request->get('_route');
-        $breadcrumb   = [
-            'New' => $this->router->generate(
-                $routeCurrent
-            ),
-        ];
-        $this->addBreadcrumbs($breadcrumb);
-        if (isset($url['list'])) {
-            $this->btnInstance->addBtnList(
-                $url['list']
-            );
-        }
-
-        $oldEntity = clone $entity;
-        $form      = $this->createForm($formType, $entity);
-        $this->btnInstance->addBtnSave($form->getName(), 'Ajouter');
-        $form->handleRequest($this->request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->upload($entity);
-            $handler->handle($oldEntity, $entity);
-            if (isset($url['list'])) {
-                return new RedirectResponse(
-                    $this->router->generate($url['list'])
-                );
-            }
-        }
-
-        return $this->render(
-            $twig,
-            [
-                'entity' => $entity,
-                'form'   => $form->createView(),
-            ]
-        );
+        $this->btnInstance = $btnInstance;
     }
 
     public function update(
@@ -709,6 +335,379 @@ abstract class AdminControllerLib extends ControllerLib
         );
     }
 
+    protected function classEntity($entity)
+    {
+        $class = get_class($entity);
+
+        $class = str_replace('Labstag\\Entity\\', '', $class);
+
+        return strtolower($class);
+    }
+
+    protected function enableBtnGuard($entity): bool
+    {
+        if ($entity instanceof User) {
+            $routes = $this->guardService->getGuardRoutesForUser($entity);
+
+            return (0 != count($routes)) ? true : false;
+        }
+
+        $routes = $this->guardService->getGuardRoutesForGroupe($entity);
+
+        return (0 != count($routes)) ? true : false;
+    }
+
+    protected function isRouteEnable(string $route)
+    {
+        $token = $this->token->getToken();
+
+        return $this->guardService->guardRoute($route, $token);
+    }
+
+    protected function listOrTrashRouteTrash(
+        array $url,
+        array $actions,
+        ServiceEntityRepositoryLib $repository
+    )
+    {
+        $entity = strtolower(
+            str_replace(
+                'Labstag\\Entity\\',
+                '',
+                $repository->getClassName()
+            )
+        );
+
+        $breadcrumb = [
+            'Trash' => $this->router->generate(
+                'admin_adresseuser_trash'
+            ),
+        ];
+        $this->addBreadcrumbs($breadcrumb);
+        if (isset($url['list'])) {
+            $this->btnInstance->addBtnList(
+                $url['list']
+            );
+        }
+
+        if (isset($url['empty'])) {
+            $this->btnInstance->addBtnEmpty(
+                [
+                    'empty' => $url['empty'],
+                    'list'  => $url['list'],
+                ],
+                $entity
+            );
+        }
+
+        $globals          = $this->twig->getGlobals();
+        $modal            = isset($globals['modal']) ? $globals['modal'] : [];
+        $modal['destroy'] = (isset($actions['destroy']));
+        $modal['restore'] = (isset($actions['restore']));
+        $this->twig->addGlobal('modal', $modal);
+
+        $this->btnInstance->addViderSelection(
+            [
+                'redirect' => [
+                    'href'   => $this->request->get('_route'),
+                    'params' => [],
+                ],
+                'url'      => [
+                    'href'   => 'api_action_destroies',
+                    'params' => [
+                        'entity' => strtolower(
+                            str_replace(
+                                'Labstag\\Entity\\',
+                                '',
+                                $repository->getClassName()
+                            )
+                        ),
+                    ],
+                ],
+            ],
+            'destroies'
+        );
+
+        $this->btnInstance->addRestoreSelection(
+            [
+                'redirect' => [
+                    'href'   => $this->request->get('_route'),
+                    'params' => [],
+                ],
+                'url'      => [
+                    'href'   => 'api_action_restories',
+                    'params' => [
+                        'entity' => strtolower(
+                            str_replace(
+                                'Labstag\\Entity\\',
+                                '',
+                                $repository->getClassName()
+                            )
+                        ),
+                    ],
+                ],
+            ],
+            'restories'
+        );
+    }
+
+    protected function setAttachment($accessor, $entity, $annotation): Attachment
+    {
+        $attachmentField = $accessor->getValue($entity, $annotation->getFilename());
+        if (is_null($attachmentField)) {
+            $attachment = new Attachment();
+
+            return $attachment;
+        }
+
+        $attachment = $this->attachmentRepository->findOneBy(['id' => $attachmentField->getId()]);
+        if (!$attachment instanceof Attachment) {
+            $attachment = new Attachment();
+        }
+
+        return $attachment;
+    }
+
+    protected function setBreadcrumbsPage()
+    {
+        if ('' == $this->headerTitle && '' == $this->urlHome) {
+            return;
+        }
+
+        $router      = $this->get('router');
+        $breadcrumbs = [
+            $this->headerTitle => $router->generate(
+                $this->urlHome
+            ),
+        ];
+
+        $this->breadcrumbsInstance->addPosition($breadcrumbs, 0);
+    }
+
+    protected function setBtnDelete(array $url, object $entity): void
+    {
+        if (!isset($url['delete'])) {
+            return;
+        }
+
+        $urlsDelete = [
+            'delete' => $url['delete'],
+        ];
+        if (isset($url['list'])) {
+            $urlsDelete['list'] = $url['list'];
+        }
+
+        $this->btnInstance->addBtnDelete(
+            $entity,
+            $urlsDelete,
+            'Supprimer',
+            [
+                'id'     => $entity->getId(),
+                'entity' => $this->classEntity($entity),
+            ]
+        );
+    }
+
+    protected function setBtnGuard(array $url, object $entity): void
+    {
+        if (!isset($url['guard']) || !$this->enableBtnGuard($entity)) {
+            return;
+        }
+
+        $this->btnInstance->addBtnGuard(
+            $url['guard'],
+            'Guard',
+            [
+                'id' => $entity->getId(),
+            ]
+        );
+    }
+
+    protected function setBtnList(array $url): void
+    {
+        if (!isset($url['list'])) {
+            return;
+        }
+
+        $this->btnInstance->addBtnList(
+            $url['list'],
+            'Liste',
+        );
+    }
+
+    protected function setBtnShow(array $url, object $entity): void
+    {
+        if (!isset($url['show'])) {
+            return;
+        }
+
+        $this->btnInstance->addBtnShow(
+            $url['show'],
+            'Show',
+            [
+                'id' => $entity->getId(),
+            ]
+        );
+    }
+
+    protected function setBtnViewUpdate(array $url, object $entity): void
+    {
+        $this->setBtnList($url);
+        $this->setBtnShow($url, $entity);
+        $this->setBtnGuard($url, $entity);
+        $this->setBtnDelete($url, $entity);
+    }
+
+    protected function setSingletonsAdmin()
+    {
+        $btnInstance = AdminBtnSingleton::getInstance();
+        if (!$btnInstance->isInit()) {
+            $btnInstance->setConf(
+                $this->twig,
+                $this->router,
+                $this->token,
+                $this->csrfTokenManager,
+                $this->guardService
+            );
+        }
+
+        $this->btnInstance = $btnInstance;
+    }
+
+    protected function setTrashIcon($methods, $repository, $url, $actions)
+    {
+        $methodTrash = $methods['trash'];
+        $this->entityManager->getFilters()->disable('softdeleteable');
+        $total = $repository->$methodTrash();
+        $this->entityManager->getFilters()->enable('softdeleteable');
+        if (0 != count($total)) {
+            $this->btnInstance->addBtnTrash(
+                $url['trash']
+            );
+        }
+
+        $globals           = $this->twig->getGlobals();
+        $modal             = isset($globals['modal']) ? $globals['modal'] : [];
+        $modal['delete']   = (isset($actions['delete']));
+        $modal['workflow'] = (isset($actions['workflow']));
+
+        $this->twig->addGlobal('modal', $modal);
+    }
+
+    protected function showOrPreviewaddBreadcrumbs($url, $routeType, $routeCurrent, $entity)
+    {
+        if ('preview' == $routeType && isset($url['trash'])) {
+            $breadcrumb = [
+                'Trash' => $this->router->generate(
+                    $url['trash']
+                ),
+            ];
+            $this->addBreadcrumbs($breadcrumb);
+        }
+
+        $breadcrumb = [
+            $routeType => $this->router->generate(
+                $routeCurrent,
+                [
+                    'id' => $entity->getId(),
+                ]
+            ),
+        ];
+        $this->addBreadcrumbs($breadcrumb);
+    }
+
+    protected function showOrPreviewaddBtnDestroy($url, $routeType, $entity)
+    {
+        if (!(isset($url['destroy']) && 'preview' == $routeType)) {
+            return;
+        }
+
+        $this->btnInstance->addBtnDestroy(
+            $entity,
+            [
+                'destroy' => $url['destroy'],
+                'list'    => $url['trash'],
+            ],
+            'Destroy',
+            [
+                'id'     => $entity->getId(),
+                'entity' => $this->classEntity($entity),
+            ]
+        );
+    }
+
+    protected function showOrPreviewaddBtnEdit($url, $routeType, $entity)
+    {
+        if (!(isset($url['edit']) && 'show' == $routeType) || !$this->isGranted('edit', $entity)) {
+            return;
+        }
+
+        $this->btnInstance->addBtnEdit(
+            $url['edit'],
+            'Editer',
+            [
+                'id' => $entity->getId(),
+            ]
+        );
+    }
+
+    protected function showOrPreviewaddBtnGuard($url, $routeType, $entity)
+    {
+        if (!(isset($url['guard']) && 'show' == $routeType) || !$this->enableBtnGuard($entity)) {
+            return;
+        }
+
+        $this->btnInstance->addBtnGuard(
+            $url['guard'],
+            'Guard',
+            [
+                'id' => $entity->getId(),
+            ]
+        );
+    }
+
+    protected function showOrPreviewaddBtnList($url, $routeType)
+    {
+        if (!(isset($url['list']) && 'show' == $routeType)) {
+            return;
+        }
+
+        $this->btnInstance->addBtnList(
+            $url['list'],
+            'Liste',
+        );
+    }
+
+    protected function showOrPreviewaddBtnRestore($url, $routeType, $entity)
+    {
+        if (isset($url['restore']) && 'preview' == $routeType) {
+            $this->btnInstance->addBtnRestore(
+                $entity,
+                [
+                    'restore' => $url['restore'],
+                    'list'    => $url['trash'],
+                ],
+                'Restore',
+                [
+                    'id'     => $entity->getId(),
+                    'entity' => $this->classEntity($entity),
+                ]
+            );
+        }
+    }
+
+    protected function showOrPreviewaddBtnTrash($url, $routeType)
+    {
+        if (!(isset($url['trash']) && 'preview' == $routeType)) {
+            return;
+        }
+
+        $this->btnInstance->addBtnTrash(
+            $url['trash'],
+            'Trash',
+        );
+    }
+
     protected function upload($entity)
     {
         if (!$this->uploadAnnotReader->isUploadable($entity)) {
@@ -747,22 +746,5 @@ abstract class AdminControllerLib extends ControllerLib
             $this->attachmentRH->handle($old, $attachment);
             $accessor->setValue($entity, $annotation->getFilename(), $attachment);
         }
-    }
-
-    protected function setAttachment($accessor, $entity, $annotation): Attachment
-    {
-        $attachmentField = $accessor->getValue($entity, $annotation->getFilename());
-        if (is_null($attachmentField)) {
-            $attachment = new Attachment();
-
-            return $attachment;
-        }
-
-        $attachment = $this->attachmentRepository->findOneBy(['id' => $attachmentField->getId()]);
-        if (!$attachment instanceof Attachment) {
-            $attachment = new Attachment();
-        }
-
-        return $attachment;
     }
 }

@@ -8,6 +8,14 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class EditoVoter extends Voter
 {
+    protected function canEdit(Edito $entity, TokenInterface $token): bool
+    {
+        unset($token);
+        $state = $entity->getState();
+
+        return !(in_array($state, ['publie', 'rejete']));
+    }
+
     protected function supports($attribute, $subject)
     {
         unset($attribute);
@@ -26,13 +34,5 @@ class EditoVoter extends Voter
         }
 
         return $return;
-    }
-
-    protected function canEdit(Edito $entity, TokenInterface $token): bool
-    {
-        unset($token);
-        $state = $entity->getState();
-
-        return !(in_array($state, ['publie', 'rejete']));
     }
 }

@@ -19,7 +19,9 @@
             <tr>
                 <th>Avatar</th>
                 <td>
-                    <img src="{{ asset(avatar.name) }}" />
+                    <picture class="img-fluid">
+                        <img src="{{ asset(avatar.name) }}" />
+                    </picture>
                 </td>
             </tr>
             {% endif %}
@@ -58,7 +60,7 @@
                                         <span class="flag-icon flag-icon-{{ adresse.country|lower }}"></span>
                                         {{ adresse.country|country_name('fr') }}
                                         <br />
-                                        <span class="GpsIcon">
+                                        <span class="gps-icon">
                                             {{ adresse.gps }}
                                         </span>
                                     </td>
@@ -139,8 +141,8 @@
                                 <tr>
                                     <td><a href="tel:{{ phone.numero }}">{{ phone.numero }}</a></td>
                                     <td>
-                                        {% set check = verifPhone(phone.country, phone.numero)  ? 'OK' : 'KO' %}
-                                        <span class="check{{ check }}"></span>
+                                        {% set check = verifPhone(phone.country, phone.numero)  ? 'ok' : 'ko' %}
+                                        <span class="check-{{ check }}"></span>
                                     </td>
                                     <td>
                                         <span class="flag-icon flag-icon-{{ phone.country|lower }}"></span>

@@ -19,23 +19,23 @@ class ApiControllerLib extends AbstractController
 
     protected ApiActionsService $apiActionsService;
 
-    protected EntityManagerInterface $entityManager;
-
-    protected Registry $workflows;
-
-    protected PhoneService $phoneService;
-
-    protected RequestStack $requestStack;
-
-    protected Request $request;
+    protected AttachmentRequestHandler $attachmentRH;
 
     protected CsrfTokenManagerInterface $csrfTokenManager;
 
-    protected TokenStorageInterface $token;
+    protected EntityManagerInterface $entityManager;
 
-    protected AttachmentRequestHandler $attachmentRH;
+    protected PhoneService $phoneService;
+
+    protected Request $request;
+
+    protected RequestStack $requestStack;
 
     protected RouteRepository $routeRepo;
+
+    protected TokenStorageInterface $token;
+
+    protected Registry $workflows;
 
     public function __construct(
         RequestStack $requestStack,

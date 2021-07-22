@@ -21,126 +21,27 @@ final class AttachmentSwaggerDecorator implements NormalizerInterface
         $this->decorated = $decorated;
     }
 
-    private function setUserAvatar(&$docs)
+    /**
+     * {@inheritdoc}
+     */
+    public function normalize($object, ?string $format = null, array $context = [])
     {
-        $statsEndpoint = [
-            'summary'    => 'User avatar.',
-            'tags'       => ['Attachment'],
-            'parameters' => [
-                [
-                    'name'        => 'entity',
-                    'in'          => 'query',
-                    'required'    => true,
-                    'description' => 'entity',
-                    'schema'      => ['type' => 'string'],
-                ],
-                [
-                    'name'        => '_token',
-                    'in'          => 'query',
-                    'required'    => true,
-                    'description' => 'token',
-                    'schema'      => ['type' => 'string'],
-                ],
-            ],
-            'responses'  => [
-                Response::HTTP_OK => [
-                    'content' => [
-                        'application/json' => [
-                            'schema' => [
-                                'type'       => 'object',
-                                'properties' => [
-                                    'isvalid' => [
-                                        'type'    => 'boolean',
-                                        'example' => true,
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ];
+        $docs = $this->decorated->normalize($object, $format, $context);
+        $this->setProfilAvatar($docs);
+        $this->setUserAvatar($docs);
+        $this->setPostImg($docs);
+        $this->setNoteInterneFond($docs);
+        $this->setEditoFond($docs);
 
-        $docs['paths']['/api/attachment/user/avatar/{entity}']['delete'] = $statsEndpoint;
+        return $docs;
     }
 
-    private function setProfilAvatar(&$docs)
+    /**
+     * {@inheritdoc}
+     */
+    public function supportsNormalization($data, ?string $format = null): bool
     {
-        $statsEndpoint = [
-            'summary'    => 'Profil avatar.',
-            'tags'       => ['Attachment'],
-            'parameters' => [
-                [
-                    'name'        => '_token',
-                    'in'          => 'query',
-                    'required'    => true,
-                    'description' => 'token',
-                    'schema'      => ['type' => 'string'],
-                ],
-            ],
-            'responses'  => [
-                Response::HTTP_OK => [
-                    'content' => [
-                        'application/json' => [
-                            'schema' => [
-                                'type'       => 'object',
-                                'properties' => [
-                                    'isvalid' => [
-                                        'type'    => 'boolean',
-                                        'example' => true,
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ];
-
-        $docs['paths']['/api/attachment/profil/avatar']['delete'] = $statsEndpoint;
-    }
-
-    private function setNoteInterneFond(&$docs)
-    {
-        $statsEndpoint = [
-            'summary'    => 'node interne Fond.',
-            'tags'       => ['Attachment'],
-            'parameters' => [
-                [
-                    'name'        => 'entity',
-                    'in'          => 'query',
-                    'required'    => true,
-                    'description' => 'entity',
-                    'schema'      => ['type' => 'string'],
-                ],
-                [
-                    'name'        => '_token',
-                    'in'          => 'query',
-                    'required'    => true,
-                    'description' => 'token',
-                    'schema'      => ['type' => 'string'],
-                ],
-            ],
-            'responses'  => [
-                Response::HTTP_OK => [
-                    'content' => [
-                        'application/json' => [
-                            'schema' => [
-                                'type'       => 'object',
-                                'properties' => [
-                                    'isvalid' => [
-                                        'type'    => 'boolean',
-                                        'example' => true,
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ];
-
-        $docs['paths']['/api/attachment/noteinterne/fond/{entity}']['delete'] = $statsEndpoint;
+        return $this->decorated->supportsNormalization($data, $format);
     }
 
     private function setEditoFond(&$docs)
@@ -186,25 +87,168 @@ final class AttachmentSwaggerDecorator implements NormalizerInterface
         $docs['paths']['/api/attachment/edito/fond/{entity}']['delete'] = $statsEndpoint;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function normalize($object, ?string $format = null, array $context = [])
+    private function setNoteInterneFond(&$docs)
     {
-        $docs = $this->decorated->normalize($object, $format, $context);
-        $this->setProfilAvatar($docs);
-        $this->setUserAvatar($docs);
-        $this->setNoteInterneFond($docs);
-        $this->setEditoFond($docs);
+        $statsEndpoint = [
+            'summary'    => 'node interne Fond.',
+            'tags'       => ['Attachment'],
+            'parameters' => [
+                [
+                    'name'        => 'entity',
+                    'in'          => 'query',
+                    'required'    => true,
+                    'description' => 'entity',
+                    'schema'      => ['type' => 'string'],
+                ],
+                [
+                    'name'        => '_token',
+                    'in'          => 'query',
+                    'required'    => true,
+                    'description' => 'token',
+                    'schema'      => ['type' => 'string'],
+                ],
+            ],
+            'responses'  => [
+                Response::HTTP_OK => [
+                    'content' => [
+                        'application/json' => [
+                            'schema' => [
+                                'type'       => 'object',
+                                'properties' => [
+                                    'isvalid' => [
+                                        'type'    => 'boolean',
+                                        'example' => true,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
 
-        return $docs;
+        $docs['paths']['/api/attachment/noteinterne/fond/{entity}']['delete'] = $statsEndpoint;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function supportsNormalization($data, ?string $format = null): bool
+    private function setPostImg(&$docs)
     {
-        return $this->decorated->supportsNormalization($data, $format);
+        $statsEndpoint = [
+            'summary'    => 'Post Img.',
+            'tags'       => ['Attachment'],
+            'parameters' => [
+                [
+                    'name'        => 'entity',
+                    'in'          => 'query',
+                    'required'    => true,
+                    'description' => 'entity',
+                    'schema'      => ['type' => 'string'],
+                ],
+                [
+                    'name'        => '_token',
+                    'in'          => 'query',
+                    'required'    => true,
+                    'description' => 'token',
+                    'schema'      => ['type' => 'string'],
+                ],
+            ],
+            'responses'  => [
+                Response::HTTP_OK => [
+                    'content' => [
+                        'application/json' => [
+                            'schema' => [
+                                'type'       => 'object',
+                                'properties' => [
+                                    'isvalid' => [
+                                        'type'    => 'boolean',
+                                        'example' => true,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $docs['paths']['/api/attachment/post/img/{entity}']['delete'] = $statsEndpoint;
+    }
+
+    private function setProfilAvatar(&$docs)
+    {
+        $statsEndpoint = [
+            'summary'    => 'Profil avatar.',
+            'tags'       => ['Attachment'],
+            'parameters' => [
+                [
+                    'name'        => '_token',
+                    'in'          => 'query',
+                    'required'    => true,
+                    'description' => 'token',
+                    'schema'      => ['type' => 'string'],
+                ],
+            ],
+            'responses'  => [
+                Response::HTTP_OK => [
+                    'content' => [
+                        'application/json' => [
+                            'schema' => [
+                                'type'       => 'object',
+                                'properties' => [
+                                    'isvalid' => [
+                                        'type'    => 'boolean',
+                                        'example' => true,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $docs['paths']['/api/attachment/profil/avatar']['delete'] = $statsEndpoint;
+    }
+
+    private function setUserAvatar(&$docs)
+    {
+        $statsEndpoint = [
+            'summary'    => 'User avatar.',
+            'tags'       => ['Attachment'],
+            'parameters' => [
+                [
+                    'name'        => 'entity',
+                    'in'          => 'query',
+                    'required'    => true,
+                    'description' => 'entity',
+                    'schema'      => ['type' => 'string'],
+                ],
+                [
+                    'name'        => '_token',
+                    'in'          => 'query',
+                    'required'    => true,
+                    'description' => 'token',
+                    'schema'      => ['type' => 'string'],
+                ],
+            ],
+            'responses'  => [
+                Response::HTTP_OK => [
+                    'content' => [
+                        'application/json' => [
+                            'schema' => [
+                                'type'       => 'object',
+                                'properties' => [
+                                    'isvalid' => [
+                                        'type'    => 'boolean',
+                                        'example' => true,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $docs['paths']['/api/attachment/user/avatar/{entity}']['delete'] = $statsEndpoint;
     }
 }

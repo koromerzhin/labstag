@@ -1,4 +1,14 @@
-{% extends 'public.html.twig' %}
-{% block body %}
-    Prochainement ICI, mon futur SITE INTERNET
+{% set tarteaucitronenable = 1 %}
+{% extends 'base.html.twig' %}
+{% import "macro.html.twig" as macro_site %}
+{% block stylesheets %}
+    {{ encore_entry_link_tags('front') }}
+{% endblock %}
+{% block content %}
+    {{ macro_site.flashbag(app) }}
+    {% block body %}
+    {% endblock %}
+{% endblock %}
+{% block javascripts %}
+    {{ encore_entry_script_tags('front') }}
 {% endblock %}

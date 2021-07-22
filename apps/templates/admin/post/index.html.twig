@@ -14,6 +14,7 @@
             <tr>
                 <th>Title</th>
                 <th>User</th>
+                <th>Published</th>
                 <th>State</th>
                 <th>Workflow</th>
                 <th></th>
@@ -24,6 +25,7 @@
             <tr data-id="{{ entity.id }}">
                 <td>{{ entity.title }}</td>
                 <td>{{ entity.refuser }}</td>
+                <td>{{ entity.published|format_datetime('full', 'full', locale='fr') }}</td>
                 <td>
                     {% for state in workflow_marked_places(entity) %}
                         {{ state }}

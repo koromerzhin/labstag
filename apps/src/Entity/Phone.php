@@ -2,6 +2,7 @@
 
 namespace Labstag\Entity;
 
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Gedmo\SoftDeleteable\Traits\SoftDeleteableEntity;
@@ -19,6 +20,13 @@ abstract class Phone
     use SoftDeleteableEntity;
 
     /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     * @Assert\NotBlank
+     * @Assert\Country
+     */
+    protected $country;
+
+    /**
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="UUID")
      * @ORM\Column(type="guid", unique=true)
@@ -31,19 +39,6 @@ abstract class Phone
      */
     protected $numero;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     * @Assert\NotBlank
-     * @Assert\Country
-     */
-    protected $country;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank
-     */
-    protected $type;
-
     /** @ORM\Column(type="boolean") */
     protected $principal;
 
@@ -51,6 +46,25 @@ abstract class Phone
      * @ORM\Column(type="array")
      */
     protected $state;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank
+     */
+    protected $type;
+
+    /**
+     * @var DateTime
+     *
+     * @ORM\Column(name="state_changed", type="datetime", nullable=true)
+     * @Gedmo\Timestampable(on="change", field={"state"})
+     */
+    private $stateChanged;
+
+    public function __construct()
+    {
+        $this->principal = false;
+    }
 
     public function __toString()
     {
@@ -63,19 +77,9 @@ abstract class Phone
         );
     }
 
-    public function getState()
+    public function getCountry(): ?string
     {
-        return $this->state;
-    }
-
-    public function setState($state)
-    {
-        $this->state = $state;
-    }
-
-    public function __construct()
-    {
-        $this->principal = false;
+        return $this->country;
     }
 
     public function getId(): ?string
@@ -88,16 +92,24 @@ abstract class Phone
         return $this->numero;
     }
 
-    public function setNumero(string $numero): self
+    public function getState()
     {
-        $this->numero = $numero;
-
-        return $this;
+        return $this->state;
     }
 
-    public function getCountry(): ?string
+    public function getStateChanged()
     {
-        return $this->country;
+        return $this->stateChanged;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function isPrincipal(): ?bool
+    {
+        return $this->principal;
     }
 
     public function setCountry(string $country): self
@@ -107,26 +119,28 @@ abstract class Phone
         return $this;
     }
 
-    public function getType(): ?string
+    public function setNumero(string $numero): self
     {
-        return $this->type;
-    }
-
-    public function setType(string $type): self
-    {
-        $this->type = $type;
+        $this->numero = $numero;
 
         return $this;
-    }
-
-    public function isPrincipal(): ?bool
-    {
-        return $this->principal;
     }
 
     public function setPrincipal(bool $principal): self
     {
         $this->principal = $principal;
+
+        return $this;
+    }
+
+    public function setState($state)
+    {
+        $this->state = $state;
+    }
+
+    public function setType(string $type): self
+    {
+        $this->type = $type;
 
         return $this;
     }

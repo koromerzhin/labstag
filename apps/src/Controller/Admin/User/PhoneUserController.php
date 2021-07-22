@@ -22,6 +22,27 @@ class PhoneUserController extends AdminControllerLib
     protected string $urlHome = 'admin_phoneuser_index';
 
     /**
+     * @Route(
+     *  "/{id}/edit",
+     *  name="admin_phoneuser_edit",
+     *  methods={"GET","POST"}
+     * )
+     */
+    public function edit(PhoneUser $phoneUser, PhoneUserRequestHandler $requestHandler): Response
+    {
+        return $this->update(
+            PhoneUserType::class,
+            $phoneUser,
+            $requestHandler,
+            [
+                'delete' => 'api_action_delete',
+                'list'   => 'admin_phoneuser_index',
+                'show'   => 'admin_phoneuser_show',
+            ]
+        );
+    }
+
+    /**
      * @Route("/trash", name="admin_phoneuser_trash", methods={"GET"})
      * @Route("/", name="admin_phoneuser_index", methods={"GET"})
      * @IgnoreSoftDelete
@@ -84,27 +105,6 @@ class PhoneUserController extends AdminControllerLib
                 'list'    => 'admin_phoneuser_index',
                 'edit'    => 'admin_phoneuser_edit',
                 'trash'   => 'admin_phoneuser_trash',
-            ]
-        );
-    }
-
-    /**
-     * @Route(
-     *  "/{id}/edit",
-     *  name="admin_phoneuser_edit",
-     *  methods={"GET","POST"}
-     * )
-     */
-    public function edit(PhoneUser $phoneUser, PhoneUserRequestHandler $requestHandler): Response
-    {
-        return $this->update(
-            PhoneUserType::class,
-            $phoneUser,
-            $requestHandler,
-            [
-                'delete' => 'api_action_delete',
-                'list'   => 'admin_phoneuser_index',
-                'show'   => 'admin_phoneuser_show',
             ]
         );
     }

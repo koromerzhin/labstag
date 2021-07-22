@@ -14,6 +14,11 @@ class Route
 {
 
     /**
+     * @ORM\OneToMany(targetEntity=RouteGroupe::class, mappedBy="refroute")
+     */
+    protected $groupes;
+
+    /**
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="UUID")
      * @ORM\Column(type="guid", unique=true)
@@ -24,11 +29,6 @@ class Route
      * @ORM\Column(type="string", length=255)
      */
     protected $name;
-
-    /**
-     * @ORM\OneToMany(targetEntity=RouteGroupe::class, mappedBy="refroute")
-     */
-    protected $groupes;
 
     /**
      * @ORM\OneToMany(targetEntity=RouteUser::class, mappedBy="refroute")
@@ -46,19 +46,22 @@ class Route
         return $this->getName();
     }
 
-    public function getId(): ?string
+    public function addGroupe(RouteGroupe $groupe): self
     {
-        return $this->id;
+        if (!$this->groupes->contains($groupe)) {
+            $this->groupes[] = $groupe;
+            $groupe->setRefroute($this);
+        }
+
+        return $this;
     }
 
-    public function getName(): ?string
+    public function addUser(RouteUser $user): self
     {
-        return $this->name;
-    }
-
-    public function setName(string $name): self
-    {
-        $this->name = $name;
+        if (!$this->users->contains($user)) {
+            $this->users[] = $user;
+            $user->setRefroute($this);
+        }
 
         return $this;
     }
@@ -71,14 +74,22 @@ class Route
         return $this->groupes;
     }
 
-    public function addGroupe(RouteGroupe $groupe): self
+    public function getId(): ?string
     {
-        if (!$this->groupes->contains($groupe)) {
-            $this->groupes[] = $groupe;
-            $groupe->setRefroute($this);
-        }
+        return $this->id;
+    }
 
-        return $this;
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @return Collection|RouteUser[]
+     */
+    public function getUsers(): Collection
+    {
+        return $this->users;
     }
 
     public function removeGroupe(RouteGroupe $groupe): self
@@ -93,24 +104,6 @@ class Route
         return $this;
     }
 
-    /**
-     * @return Collection|RouteUser[]
-     */
-    public function getUsers(): Collection
-    {
-        return $this->users;
-    }
-
-    public function addUser(RouteUser $user): self
-    {
-        if (!$this->users->contains($user)) {
-            $this->users[] = $user;
-            $user->setRefroute($this);
-        }
-
-        return $this;
-    }
-
     public function removeUser(RouteUser $user): self
     {
         if ($this->users->removeElement($user)) {
@@ -119,6 +112,13 @@ class Route
                 $user->setRefroute(null);
             }
         }
+
+        return $this;
+    }
+
+    public function setName(string $name): self
+    {
+        $this->name = $name;
 
         return $this;
     }

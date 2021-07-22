@@ -20,6 +20,23 @@ class RouteGroupeRepository extends ServiceEntityRepositoryLib
         parent::__construct($registry, RouteGroupe::class);
     }
 
+    public function findEnable(?Groupe $groupe = null)
+    {
+        $queryBuilder = $this->createQueryBuilder('a');
+        $query        = $queryBuilder->where(
+            'a.state=:state'
+        );
+        $parameters   = ['state' => 1];
+        if (!is_null($groupe)) {
+            $query->andWhere('a.refgroupe=:refgroupe');
+            $parameters['refgroupe'] = $groupe;
+        }
+
+        $query->setParameters($parameters);
+
+        return $query->getQuery()->getResult();
+    }
+
     public function findRoute(Groupe $groupe, string $route)
     {
         $queryBuilder = $this->createQueryBuilder('a');
@@ -42,22 +59,5 @@ class RouteGroupeRepository extends ServiceEntityRepositoryLib
         );
 
         return $query->getQuery()->getOneOrNullResult();
-    }
-
-    public function findEnable(?Groupe $groupe = null)
-    {
-        $queryBuilder = $this->createQueryBuilder('a');
-        $query        = $queryBuilder->where(
-            'a.state=:state'
-        );
-        $parameters   = ['state' => 1];
-        if (!is_null($groupe)) {
-            $query->andWhere('a.refgroupe=:refgroupe');
-            $parameters['refgroupe'] = $groupe;
-        }
-
-        $query->setParameters($parameters);
-
-        return $query->getQuery()->getResult();
     }
 }

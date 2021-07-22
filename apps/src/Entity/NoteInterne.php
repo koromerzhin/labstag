@@ -21,19 +21,6 @@ class NoteInterne
     use SoftDeleteableEntity;
 
     /**
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="UUID")
-     * @ORM\Column(type="guid", unique=true)
-     */
-    protected $id;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank
-     */
-    protected $title;
-
-    /**
      * @ORM\Column(type="text")
      * @Assert\NotBlank
      */
@@ -52,6 +39,23 @@ class NoteInterne
     protected DateTime $dateFin;
 
     /**
+     * @UploadableField(filename="fond", path="noteinterne/fond", slug="title")
+     */
+    protected $file;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Attachment::class, inversedBy="noteInternes")
+     */
+    protected $fond;
+
+    /**
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="UUID")
+     * @ORM\Column(type="guid", unique=true)
+     */
+    protected $id;
+
+    /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="noteInternes")
      * @ORM\JoinColumn(nullable=false)
      */
@@ -63,14 +67,18 @@ class NoteInterne
     protected $state;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Attachment::class, inversedBy="noteInternes")
+     * @ORM\Column(type="string", length=255, unique=true, nullable=false)
+     * @Assert\NotBlank
      */
-    protected $fond;
+    protected $title;
 
     /**
-     * @UploadableField(filename="fond", path="noteinterne/fond")
+     * @var DateTime
+     *
+     * @ORM\Column(name="state_changed", type="datetime", nullable=true)
+     * @Gedmo\Timestampable(on="change", field={"state"})
      */
-    protected $file;
+    private $stateChanged;
 
     public function __construct()
     {
@@ -78,19 +86,34 @@ class NoteInterne
         $this->dateFin   = new DateTime();
     }
 
-    public function getState()
-    {
-        return $this->state;
-    }
-
-    public function setState($state)
-    {
-        $this->state = $state;
-    }
-
     public function __toString()
     {
         return $this->getTitle();
+    }
+
+    public function getContent(): ?string
+    {
+        return $this->content;
+    }
+
+    public function getDateDebut(): ?DateTime
+    {
+        return $this->dateDebut;
+    }
+
+    public function getDateFin(): ?DateTime
+    {
+        return $this->dateFin;
+    }
+
+    public function getFile()
+    {
+        return $this->file;
+    }
+
+    public function getFond(): ?Attachment
+    {
+        return $this->fond;
     }
 
     public function getId(): ?string
@@ -98,21 +121,24 @@ class NoteInterne
         return $this->id;
     }
 
+    public function getRefuser(): ?User
+    {
+        return $this->refuser;
+    }
+
+    public function getState()
+    {
+        return $this->state;
+    }
+
+    public function getStateChanged()
+    {
+        return $this->stateChanged;
+    }
+
     public function getTitle(): ?string
     {
         return $this->title;
-    }
-
-    public function setTitle(string $title): self
-    {
-        $this->title = $title;
-
-        return $this;
-    }
-
-    public function getContent(): ?string
-    {
-        return $this->content;
     }
 
     public function setContent(string $content): self
@@ -122,21 +148,11 @@ class NoteInterne
         return $this;
     }
 
-    public function getDateDebut(): ?DateTime
-    {
-        return $this->dateDebut;
-    }
-
     public function setDateDebut(DateTime $dateDebut): self
     {
         $this->dateDebut = $dateDebut;
 
         return $this;
-    }
-
-    public function getDateFin(): ?DateTime
-    {
-        return $this->dateFin;
     }
 
     public function setDateFin(?DateTime $dateFin): self
@@ -146,21 +162,11 @@ class NoteInterne
         return $this;
     }
 
-    public function getRefuser(): ?User
+    public function setFile($file): self
     {
-        return $this->refuser;
-    }
-
-    public function setRefuser(?User $refuser): self
-    {
-        $this->refuser = $refuser;
+        $this->file = $file;
 
         return $this;
-    }
-
-    public function getFond(): ?Attachment
-    {
-        return $this->fond;
     }
 
     public function setFond(?Attachment $fond): self
@@ -170,14 +176,21 @@ class NoteInterne
         return $this;
     }
 
-    public function getFile()
+    public function setRefuser(?User $refuser): self
     {
-        return $this->file;
+        $this->refuser = $refuser;
+
+        return $this;
     }
 
-    public function setFile($file): self
+    public function setState($state)
     {
-        $this->file = $file;
+        $this->state = $state;
+    }
+
+    public function setTitle(string $title): self
+    {
+        $this->title = $title;
 
         return $this;
     }

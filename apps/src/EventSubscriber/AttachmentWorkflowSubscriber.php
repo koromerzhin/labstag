@@ -7,6 +7,11 @@ use Symfony\Component\Workflow\Event\Event;
 
 class AttachmentWorkflowSubscriber implements EventSubscriberInterface
 {
+    public static function getSubscribedEvents()
+    {
+        return ['workflow.attachment.transition' => 'onTransition'];
+    }
+
     public function onTransition(Event $event)
     {
         $transition = $event->getTransition();
@@ -27,16 +32,6 @@ class AttachmentWorkflowSubscriber implements EventSubscriberInterface
         }
     }
 
-    public function transitionSubmit(Event $event)
-    {
-        unset($event);
-    }
-
-    public function transitionValider(Event $event)
-    {
-        unset($event);
-    }
-
     public function transitionAnnuler(Event $event)
     {
         unset($event);
@@ -47,8 +42,13 @@ class AttachmentWorkflowSubscriber implements EventSubscriberInterface
         unset($event);
     }
 
-    public static function getSubscribedEvents()
+    public function transitionSubmit(Event $event)
     {
-        return ['workflow.attachment.transition' => 'onTransition'];
+        unset($event);
+    }
+
+    public function transitionValider(Event $event)
+    {
+        unset($event);
     }
 }

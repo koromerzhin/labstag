@@ -18,22 +18,6 @@ class EmailUserRepository extends EmailRepository
         parent::__construct($registry, EmailUser::class);
     }
 
-    public function getEmailsUserVerif(User $user, bool $verif): array
-    {
-        $queryBuilder = $this->createQueryBuilder('u');
-        $query        = $queryBuilder->where(
-            'u.refuser=:user AND u.state LIKE :state'
-        );
-        $query->setParameters(
-            [
-                'user'  => $user,
-                'state' => $verif ? 'valide' : 'averifier',
-            ]
-        );
-
-        return $query->getQuery()->getResult();
-    }
-
     public function findAllForAdmin(): Query
     {
         $queryBuilder = $this->createQueryBuilder('a');
@@ -57,6 +41,22 @@ class EmailUserRepository extends EmailRepository
         );
         $query->where(
             'u.deletedAt IS NOT NULL OR a.deletedAt IS NOT NULL'
+        );
+
+        return $query->getQuery()->getResult();
+    }
+
+    public function getEmailsUserVerif(User $user, bool $verif): array
+    {
+        $queryBuilder = $this->createQueryBuilder('u');
+        $query        = $queryBuilder->where(
+            'u.refuser=:user AND u.state LIKE :state'
+        );
+        $query->setParameters(
+            [
+                'user'  => $user,
+                'state' => $verif ? '%valide%' : '%averifier%',
+            ]
         );
 
         return $query->getQuery()->getResult();

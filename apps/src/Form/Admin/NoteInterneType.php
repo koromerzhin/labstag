@@ -26,6 +26,10 @@ class NoteInterneType extends AbstractType
             'title',
             TextType::class
         );
+        $builder->add(
+            'slug',
+            TextType::class
+        );
         $builder->add('content', WysiwygType::class);
         $builder->add(
             'date_debut',

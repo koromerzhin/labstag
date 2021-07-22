@@ -19,11 +19,6 @@ class RouteGroupe
     protected $id;
 
     /**
-     * @ORM\Column(type="boolean")
-     */
-    protected $state;
-
-    /**
      * @ORM\ManyToOne(targetEntity=Groupe::class, inversedBy="routes")
      */
     protected $refgroupe;
@@ -33,26 +28,29 @@ class RouteGroupe
      */
     protected $refroute;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    protected $state;
+
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function isState(): ?bool
-    {
-        return $this->state;
-    }
-
-    public function setState(bool $state): self
-    {
-        $this->state = $state;
-
-        return $this;
-    }
-
     public function getRefgroupe(): ?Groupe
     {
         return $this->refgroupe;
+    }
+
+    public function getRefroute(): ?Route
+    {
+        return $this->refroute;
+    }
+
+    public function isState(): ?bool
+    {
+        return $this->state;
     }
 
     public function setRefgroupe(?Groupe $refgroupe): self
@@ -62,14 +60,16 @@ class RouteGroupe
         return $this;
     }
 
-    public function getRefroute(): ?Route
-    {
-        return $this->refroute;
-    }
-
     public function setRefroute(?Route $refroute): self
     {
         $this->refroute = $refroute;
+
+        return $this;
+    }
+
+    public function setState(bool $state): self
+    {
+        $this->state = $state;
 
         return $this;
     }

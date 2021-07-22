@@ -1,0 +1,22 @@
+{% import "admin/macro.html.twig" as macro_admin %}
+{% extends 'admin/post/layout.html.twig' %}
+{% block body %}
+    {{ form_start(form) }}
+    {{ form_row(form.title) }}
+    {{ form_row(form.published) }}
+    {{ form_row(form.slug) }}
+    {{ form_row(form.content) }}
+    {% if entity.id != null %}
+        {{ macro_admin.form_img(
+            entity,
+            entity.img,
+            "Image",
+            path('api_attachment_postimg', {'entity': entity.id})
+        ) }}
+    {% endif %}
+    {{ form_row(form.file) }}
+    {{ form_row(form.refuser) }}
+    {{ form_row(form.commentaire) }}
+    {{ form_row(form.libelles) }}
+    {{ form_end(form) }}
+{% endblock %}

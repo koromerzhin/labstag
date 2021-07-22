@@ -16,15 +16,15 @@ use Symfony\Contracts\Cache\CacheInterface;
 class ConfigurationEntitySubscriber implements EventSubscriberInterface
 {
 
-    protected SessionInterface $session;
-
-    protected LoggerInterface $logger;
+    protected CacheInterface $cache;
 
     protected EntityManagerInterface $entityManager;
 
+    protected LoggerInterface $logger;
+
     protected ConfigurationRepository $repository;
 
-    protected CacheInterface $cache;
+    protected SessionInterface $session;
 
     public function __construct(
         SessionInterface $session,
@@ -39,6 +39,11 @@ class ConfigurationEntitySubscriber implements EventSubscriberInterface
         $this->repository    = $repository;
         $this->logger        = $logger;
         $this->session       = $session;
+    }
+
+    public static function getSubscribedEvents()
+    {
+        return [ConfigurationEntityEvent::class => 'onEvent'];
     }
 
     public function onEvent(ConfigurationEntityEvent $event): void
@@ -101,10 +106,5 @@ class ConfigurationEntitySubscriber implements EventSubscriberInterface
             $this->logger->error($errorMsg);
             $session->getFlashBag()->add('danger', $errorMsg);
         }
-    }
-
-    public static function getSubscribedEvents()
-    {
-        return [ConfigurationEntityEvent::class => 'onEvent'];
     }
 }

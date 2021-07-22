@@ -22,6 +22,30 @@ class NoteInterneController extends AdminControllerLib
     protected string $urlHome = 'admin_noteinterne_index';
 
     /**
+     * @Route(
+     *  "/{id}/edit",
+     *  name="admin_noteinterne_edit",
+     *  methods={"GET","POST"}
+     * )
+     */
+    public function edit(NoteInterne $noteInterne, NoteInterneRequestHandler $requestHandler): Response
+    {
+        $this->modalAttachmentDelete();
+
+        return $this->update(
+            NoteInterneType::class,
+            $noteInterne,
+            $requestHandler,
+            [
+                'delete' => 'api_action_delete',
+                'list'   => 'admin_noteinterne_index',
+                'show'   => 'admin_noteinterne_show',
+            ],
+            'admin/note_interne/form.html.twig'
+        );
+    }
+
+    /**
      * @Route("/trash", name="admin_noteinterne_trash", methods={"GET"})
      * @Route("/", name="admin_noteinterne_index", methods={"GET"})
      * @IgnoreSoftDelete
@@ -86,30 +110,6 @@ class NoteInterneController extends AdminControllerLib
                 'edit'    => 'admin_noteinterne_edit',
                 'trash'   => 'admin_noteinterne_trash',
             ]
-        );
-    }
-
-    /**
-     * @Route(
-     *  "/{id}/edit",
-     *  name="admin_noteinterne_edit",
-     *  methods={"GET","POST"}
-     * )
-     */
-    public function edit(NoteInterne $noteInterne, NoteInterneRequestHandler $requestHandler): Response
-    {
-        $this->modalAttachmentDelete();
-
-        return $this->update(
-            NoteInterneType::class,
-            $noteInterne,
-            $requestHandler,
-            [
-                'delete' => 'api_action_delete',
-                'list'   => 'admin_noteinterne_index',
-                'show'   => 'admin_noteinterne_show',
-            ],
-            'admin/note_interne/form.html.twig'
         );
     }
 }

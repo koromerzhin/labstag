@@ -14,13 +14,13 @@ class ApiActionsService
     const REPOSITORY     = 'Repository';
     const REQUESTHANDLER = 'RequestHandler';
 
-    protected RequestStack $requestStack;
+    protected ContainerInterface $container;
 
     protected CsrfTokenManagerInterface $csrfTokenManager;
 
     protected Request $request;
 
-    protected ContainerInterface $container;
+    protected RequestStack $requestStack;
 
     public function __construct(
         RequestStack $requestStack,
@@ -34,25 +34,6 @@ class ApiActionsService
         /** @var Request $request */
         $request       = $this->requestStack->getCurrentRequest();
         $this->request = $request;
-    }
-
-    protected function setRepository(): array
-    {
-        $services     = $this->container->getServiceIds();
-        $repositories = [];
-        foreach ($services as $service) {
-            $matches = [];
-            preg_match(
-                '/'.self::REPOSITORY.'/',
-                $service,
-                $matches
-            );
-            if (0 !== count($matches)) {
-                $repositories[] = $service;
-            }
-        }
-
-        return $repositories;
     }
 
     public function getRepository(string $entity): ?ServiceEntityRepositoryLib
@@ -85,5 +66,24 @@ class ApiActionsService
         );
 
         return $this->csrfTokenManager->isTokenValid($csrfToken);
+    }
+
+    protected function setRepository(): array
+    {
+        $services     = $this->container->getServiceIds();
+        $repositories = [];
+        foreach ($services as $service) {
+            $matches = [];
+            preg_match(
+                '/'.self::REPOSITORY.'/',
+                $service,
+                $matches
+            );
+            if (0 !== count($matches)) {
+                $repositories[] = $service;
+            }
+        }
+
+        return $repositories;
     }
 }

@@ -22,6 +22,23 @@ class TemplateController extends AdminControllerLib
     protected string $urlHome = 'admin_template_index';
 
     /**
+     * @Route("/{id}/edit", name="admin_template_edit", methods={"GET","POST"})
+     */
+    public function edit(Template $template, TemplateRequestHandler $requestHandler): Response
+    {
+        return $this->update(
+            TemplateType::class,
+            $template,
+            $requestHandler,
+            [
+                'delete' => 'api_action_delete',
+                'list'   => 'admin_template_index',
+                'show'   => 'admin_template_show',
+            ]
+        );
+    }
+
+    /**
      * @Route("/trash", name="admin_template_trash", methods={"GET"})
      * @Route("/", name="admin_template_index", methods={"GET"})
      * @IgnoreSoftDelete
@@ -83,23 +100,6 @@ class TemplateController extends AdminControllerLib
                 'list'    => 'admin_template_index',
                 'edit'    => 'admin_template_edit',
                 'trash'   => 'admin_template_trash',
-            ]
-        );
-    }
-
-    /**
-     * @Route("/{id}/edit", name="admin_template_edit", methods={"GET","POST"})
-     */
-    public function edit(Template $template, TemplateRequestHandler $requestHandler): Response
-    {
-        return $this->update(
-            TemplateType::class,
-            $template,
-            $requestHandler,
-            [
-                'delete' => 'api_action_delete',
-                'list'   => 'admin_template_index',
-                'show'   => 'admin_template_show',
             ]
         );
     }

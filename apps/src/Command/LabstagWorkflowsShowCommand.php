@@ -19,9 +19,9 @@ class LabstagWorkflowsShowCommand extends Command
 
     protected EventDispatcherInterface $dispatcher;
 
-    protected WorkflowRepository $workflowRepository;
-
     protected EntityManagerInterface $entityManager;
+
+    protected WorkflowRepository $workflowRepository;
 
     protected WorkflowRequestHandler $workflowRH;
 

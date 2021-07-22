@@ -22,6 +22,23 @@ class MenuController extends AdminControllerLib
     protected string $urlHome = 'admin_menu_index';
 
     /**
+     * @Route("/{id}/edit", name="admin_menu_edit", methods={"GET","POST"})
+     */
+    public function edit(Menu $menu, MenuRequestHandler $requestHandler): Response
+    {
+        return $this->update(
+            MenuType::class,
+            $menu,
+            $requestHandler,
+            [
+                'delete' => 'api_action_delete',
+                'list'   => 'admin_menu_index',
+                'show'   => 'admin_menu_show',
+            ]
+        );
+    }
+
+    /**
      * @Route("/trash", name="admin_menu_trash", methods={"GET"})
      * @Route("/", name="admin_menu_index", methods={"GET"})
      * @IgnoreSoftDelete
@@ -83,23 +100,6 @@ class MenuController extends AdminControllerLib
                 'list'    => 'admin_menu_index',
                 'edit'    => 'admin_menu_edit',
                 'trash'   => 'admin_menu_trash',
-            ]
-        );
-    }
-
-    /**
-     * @Route("/{id}/edit", name="admin_menu_edit", methods={"GET","POST"})
-     */
-    public function edit(Menu $menu, MenuRequestHandler $requestHandler): Response
-    {
-        return $this->update(
-            MenuType::class,
-            $menu,
-            $requestHandler,
-            [
-                'delete' => 'api_action_delete',
-                'list'   => 'admin_menu_index',
-                'show'   => 'admin_menu_show',
             ]
         );
     }

@@ -10,7 +10,9 @@
         </div>
     {% endfor %}
 {% endmacro %}
-{% macro user(user) %}
+{% macro user(user, url) %}
     <i class="fas fa-user"></i>
-    {{ user }}
+    <a href="{{ url }}">
+        {{ user }}
+    </a>
 {% endmacro %}

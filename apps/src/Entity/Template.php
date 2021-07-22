@@ -17,6 +17,18 @@ class Template
     use SoftDeleteableEntity;
 
     /**
+     * @Gedmo\Slug(updatable=false, fields={"name"})
+     * @ORM\Column(type="string", length=255)
+     */
+    protected $code;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     * @Assert\NotBlank
+     */
+    protected $html;
+
+    /**
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="UUID")
      * @ORM\Column(type="guid", unique=true)
@@ -30,18 +42,6 @@ class Template
     protected $name;
 
     /**
-     * @Gedmo\Slug(updatable=false, fields={"name"})
-     * @ORM\Column(type="string", length=255)
-     */
-    protected $code;
-
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     * @Assert\NotBlank
-     */
-    protected $html;
-
-    /**
      * @ORM\Column(type="text", nullable=true)
      * @Assert\NotBlank
      */
@@ -50,6 +50,16 @@ class Template
     public function __toString()
     {
         return $this->getName();
+    }
+
+    public function getCode(): ?string
+    {
+        return $this->code;
+    }
+
+    public function getHtml(): ?string
+    {
+        return $this->html;
     }
 
     public function getId(): ?string
@@ -62,16 +72,9 @@ class Template
         return $this->name;
     }
 
-    public function setName(string $name): self
+    public function getText(): ?string
     {
-        $this->name = $name;
-
-        return $this;
-    }
-
-    public function getCode(): ?string
-    {
-        return $this->code;
+        return $this->text;
     }
 
     public function setCode(string $code): self
@@ -81,11 +84,6 @@ class Template
         return $this;
     }
 
-    public function getHtml(): ?string
-    {
-        return $this->html;
-    }
-
     public function setHtml(string $html): self
     {
         $this->html = $html;
@@ -93,9 +91,11 @@ class Template
         return $this;
     }
 
-    public function getText(): ?string
+    public function setName(string $name): self
     {
-        return $this->text;
+        $this->name = $name;
+
+        return $this;
     }
 
     public function setText(string $text): self

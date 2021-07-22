@@ -1,22 +1,22 @@
-{% extends 'global.html.twig' %}
+{% extends 'skeleton/landing.html.twig' %}
+
 {% import "macro.html.twig" as macro_site %}
+{% set title = '' %}
+{% if config.meta.title is defined %}
+    {% set title = config.meta.title|trim %}
+{% endif %}
 {% block content_title %}{{ title }}{% endblock %}
-{% block body %}
-    <div class="ShowGlobalLDisclaimer">
-        {{ form_start(form) }}
-        {{ macro_site.flashbag(app) }}
+{% block box_title %}{{ title }}{% endblock %}
+{% block box %}
+    {{ form_start(form) }}
+    {{ macro_site.flashbag(app) }}
+    <div>
         {{ config['disclaimer']['message']|raw }}
-        {{ form_row(form.confirm) }}
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6 text-center">
-                    {{ form_row(form.submit) }}
-                </div>
-                <div class="col-md-6 text-center">
-                    {{ form_row(form.reset) }}
-                </div>
-            </div>
-        </div>
-        {{ form_end(form) }}
     </div>
+    {{ form_row(form.confirm) }}
+    <div class="btns">
+        {{ form_row(form.submit) }}
+        {{ form_row(form.reset) }}
+    </div>
+    {{ form_end(form) }}
 {% endblock %}

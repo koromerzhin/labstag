@@ -27,7 +27,7 @@ PHPFPMFULLNAME := $(PHPFPM).1.$$(docker service ps -f 'name=$(PHPFPM)' $(PHPFPM)
 
 DOCKER_EXECPHP := @docker exec $(PHPFPMFULLNAME)
 
-SUPPORTED_COMMANDS := bdd composer contributors docker encore env geocode git inspect install linter logs messenger sleep ssh tests workflow-png update inspect
+SUPPORTED_COMMANDS := bdd composer contributors docker encore env geocode git inspect install linter logs messenger sleep ssh tests workflow-png update inspect libraries
 SUPPORTS_MAKE_ARGS := $(findstring $(firstword $(MAKECMDGOALS)), $(SUPPORTED_COMMANDS))
 ifneq "$(SUPPORTS_MAKE_ARGS)" ""
   COMMAND_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
@@ -276,7 +276,6 @@ endif
 
 .PHONY: commands
 commands:
-	@make bdd fixtures -i
 	$(DOCKER_EXECPHP) symfony console labstag:install --all
 	$(DOCKER_EXECPHP) symfony console labstag:guard-route
 	$(DOCKER_EXECPHP) symfony console labstag:workflows-show
@@ -495,6 +494,21 @@ translations: ## update translation
 .PHONY: workflow-png
 workflow-png: ## generate workflow png
 	$(DOCKER_EXECPHP) make workflow-png $(COMMAND_ARGS)
+
+.PHONY: libraries
+libraries: ## Add libraries
+ifeq ($(COMMAND_ARGS),tarteaucitron)
+	wget https://github.com/AmauriC/tarteaucitron.js/archive/refs/tags/v1.9.3.zip
+	unzip v1.9.3.zip
+	rm v1.9.3.zip
+	mv tarteaucitron.js-1.9.3 apps/public/tarteaucitron
+else
+	@echo "ARGUMENT missing"
+	@echo "---"
+	@echo "make libraries ARGUMENT"
+	@echo "---"
+	@echo "tarteaucitron: tarteaucitron"
+endif
 
 .PHONY: upgrade
 upgrade: ## upgrade git

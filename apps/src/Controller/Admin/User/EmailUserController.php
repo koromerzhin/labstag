@@ -22,6 +22,27 @@ class EmailUserController extends AdminControllerLib
     protected string $urlHome = 'admin_emailuser_index';
 
     /**
+     * @Route(
+     *  "/{id}/edit",
+     *  name="admin_emailuser_edit",
+     *  methods={"GET","POST"}
+     * )
+     */
+    public function edit(EmailUser $emailUser, EmailUserRequestHandler $requestHandler): Response
+    {
+        return $this->update(
+            EmailUserType::class,
+            $emailUser,
+            $requestHandler,
+            [
+                'delete' => 'api_action_delete',
+                'list'   => 'admin_emailuser_index',
+                'show'   => 'admin_emailuser_show',
+            ]
+        );
+    }
+
+    /**
      * @Route("/trash", name="admin_emailuser_trash", methods={"GET"})
      * @Route("/", name="admin_emailuser_index", methods={"GET"})
      * @IgnoreSoftDelete
@@ -84,27 +105,6 @@ class EmailUserController extends AdminControllerLib
                 'edit'    => 'admin_emailuser_edit',
                 'list'    => 'admin_emailuser_index',
                 'trash'   => 'admin_emailuser_trash',
-            ]
-        );
-    }
-
-    /**
-     * @Route(
-     *  "/{id}/edit",
-     *  name="admin_emailuser_edit",
-     *  methods={"GET","POST"}
-     * )
-     */
-    public function edit(EmailUser $emailUser, EmailUserRequestHandler $requestHandler): Response
-    {
-        return $this->update(
-            EmailUserType::class,
-            $emailUser,
-            $requestHandler,
-            [
-                'delete' => 'api_action_delete',
-                'list'   => 'admin_emailuser_index',
-                'show'   => 'admin_emailuser_show',
             ]
         );
     }

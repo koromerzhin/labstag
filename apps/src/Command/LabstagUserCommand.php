@@ -21,17 +21,17 @@ class LabstagUserCommand extends Command
 
     protected static $defaultName = 'labstag:user';
 
+    protected EntityManagerInterface $entityManager;
+
+    protected GroupeRepository $groupeRepository;
+
     protected UserRepository $userRepository;
 
     protected UserRequestHandler $userRequestHandler;
 
-    protected EntityManagerInterface $entityManager;
+    protected UserRequestHandler $userRH;
 
     protected Registry $workflows;
-
-    protected GroupeRepository $groupeRepository;
-
-    protected UserRequestHandler $userRH;
 
     public function __construct(
         UserRepository $userRepository,
@@ -49,74 +49,6 @@ class LabstagUserCommand extends Command
         $this->userRequestHandler = $userRequestHandler;
         $this->userRepository     = $userRepository;
         parent::__construct();
-    }
-
-    protected function configure()
-    {
-        $this->setDescription('command for admin user');
-    }
-
-    protected function actionState($input, $output, $inputOutput)
-    {
-        $helper   = $this->getHelper('question');
-        $question = new ChoiceQuestion(
-            "Entrer le username de l'utilisateur : ",
-            $this->tableQuestionUser()
-        );
-        $username = $helper->ask($input, $output, $question);
-        $this->state($helper, $username, $inputOutput, $input, $output);
-    }
-
-    protected function actionUpdatePassword($input, $output, $inputOutput)
-    {
-        $helper   = $this->getHelper('question');
-        $question = new ChoiceQuestion(
-            "Entrer le username de l'utilisateur : ",
-            $this->tableQuestionUser()
-        );
-        $username = $helper->ask($input, $output, $question);
-        $this->updatePassword($helper, $username, $inputOutput, $input, $output);
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $inputOutput = new SymfonyStyle($input, $output);
-        $helper      = $this->getHelper('question');
-        $question    = new ChoiceQuestion(
-            'Action à effectué',
-            [
-                'list'           => 'list',
-                'create'         => 'create',
-                'enable'         => 'enable',
-                'disable'        => 'disable',
-                'delete'         => 'delete',
-                'state'          => 'state',
-                'updatepassword' => 'updatepassword',
-            ]
-        );
-
-        $action = $helper->ask($input, $output, $question);
-        switch ($action) {
-            case 'list':
-                $this->list($inputOutput, $output);
-                break;
-            case 'create':
-                $this->create($helper, $inputOutput, $input, $output);
-                break;
-            case 'updatepassword':
-                $this->actionUpdatePassword($input, $output, $inputOutput);
-                break;
-            case 'state':
-                $this->actionState($input, $output, $inputOutput);
-                break;
-            case 'enable':
-            case 'disable':
-            case 'delete':
-                $this->actionEnableDisableDelete($input, $output, $inputOutput, $action);
-                break;
-        }
-
-        return Command::SUCCESS;
     }
 
     protected function actionEnableDisableDelete($input, $output, $inputOutput, $action)
@@ -143,30 +75,31 @@ class LabstagUserCommand extends Command
         }
     }
 
-    protected function list($inputOutput, OutputInterface $output)
+    protected function actionState($input, $output, $inputOutput)
     {
-        $users = $this->userRepository->findBy([], ['username' => 'ASC']);
-        $table = [];
-        foreach ($users as $user) {
-            /* @var User $user */
-            $table[] = [
-                'username' => $user->getUsername(),
-                'email'    => $user->getEmail(),
-                'groupe'   => $user->getRefgroupe()->getName(),
-                'state'    => $user->getState(),
-            ];
-        }
-
-        $inputOutput->table(
-            [
-                'username',
-                'email',
-                'groupe',
-                'state',
-            ],
-            $table
+        $helper   = $this->getHelper('question');
+        $question = new ChoiceQuestion(
+            "Entrer le username de l'utilisateur : ",
+            $this->tableQuestionUser()
         );
-        $output->writeln('list');
+        $username = $helper->ask($input, $output, $question);
+        $this->state($helper, $username, $inputOutput, $input, $output);
+    }
+
+    protected function actionUpdatePassword($input, $output, $inputOutput)
+    {
+        $helper   = $this->getHelper('question');
+        $question = new ChoiceQuestion(
+            "Entrer le username de l'utilisateur : ",
+            $this->tableQuestionUser()
+        );
+        $username = $helper->ask($input, $output, $question);
+        $this->updatePassword($helper, $username, $inputOutput, $input, $output);
+    }
+
+    protected function configure()
+    {
+        $this->setDescription('command for admin user');
     }
 
     protected function create($helper, $inputOutput, InputInterface $input, OutputInterface $output)
@@ -220,73 +153,7 @@ class LabstagUserCommand extends Command
         $inputOutput->success('Utilisateur ajouté');
     }
 
-    protected function updatePassword($helper, $username, $inputOutput, InputInterface $input, OutputInterface $output)
-    {
-        $entity = $this->userRepository->findOneBy(['username' => $username]);
-        if (!$entity instanceof User || is_null($entity)) {
-            $inputOutput->warning(
-                ['Utilisateur introuvable']
-            );
-
-            return;
-        }
-
-        $question = new Question("Entrer le password de l'utilisateur : ");
-        $question->setHidden(true);
-        $password1 = $helper->ask($input, $output, $question);
-        $question  = new Question("Resaisir le password de l'utilisateur : ");
-        $question->setHidden(true);
-        $password2 = $helper->ask($input, $output, $question);
-        if ($password1 !== $password2) {
-            $inputOutput->error('Mot de passe incorrect');
-
-            return;
-        }
-
-        $old = clone $entity;
-        $entity->setPlainPassword($password1);
-        $this->userRH->handle($old, $entity);
-        $inputOutput->success('Mot de passe changé');
-    }
-
-    protected function state($helper, $username, $inputOutput, InputInterface $input, OutputInterface $output)
-    {
-        $entity = $this->userRepository->findOneBy(['username' => $username]);
-        if (!$entity instanceof User || is_null($entity)) {
-            $inputOutput->warning(
-                ['Utilisateur introuvable']
-            );
-
-            return;
-        }
-
-        $states      = [];
-        $workflow    = $this->workflows->get($entity);
-        $transitions = $workflow->getEnabledTransitions($entity);
-        foreach ($transitions as $transition) {
-            $name          = $transition->getName();
-            $states[$name] = $name;
-        }
-
-        $question = new ChoiceQuestion(
-            "Passer l'utilisateur à l'épage : ",
-            $states
-        );
-        $state    = $helper->ask($input, $output, $question);
-        if (!$workflow->can($entity, $state)) {
-            $inputOutput->warning(
-                ['Action impossible']
-            );
-
-            return;
-        }
-
-        $workflow->apply($entity, $state);
-        $this->entityManager->flush();
-        $inputOutput->success('Utilisateur passé au stade "'.$state.'"');
-    }
-
-    protected function enable($helper, $username, $inputOutput, InputInterface $input, OutputInterface $output)
+    protected function delete($helper, string $username, $inputOutput, InputInterface $input, OutputInterface $output)
     {
         $entity = $this->userRepository->findOneBy(['username' => $username]);
         if (!$entity instanceof User || is_null($entity)) {
@@ -298,7 +165,7 @@ class LabstagUserCommand extends Command
         }
 
         $question = new ChoiceQuestion(
-            "Êtes-vous sûr de bien vouloir activer l'utilisateur ".$username.' ?',
+            "Êtes-vous sûr de bien vouloir supprimer l'utilisateur ".$username.' ?',
             [
                 'non' => 'non',
                 'oui' => 'oui',
@@ -306,26 +173,13 @@ class LabstagUserCommand extends Command
         );
 
         $action = $helper->ask($input, $output, $question);
-        if ('oui' !== $action || !$this->workflows->has($entity)) {
-            $inputOutput->warning(
-                ['Action impossible']
-            );
-
+        if ('oui' !== $action) {
             return;
         }
 
-        $workflow = $this->workflows->get($entity);
-        if (!$workflow->can($entity, 'activer')) {
-            $inputOutput->warning(
-                ['Action impossible']
-            );
-
-            return;
-        }
-
-        $workflow->apply($entity, 'activer');
+        $this->entityManager->remove($entity);
         $this->entityManager->flush();
-        $inputOutput->success('Utilisateur activé');
+        $inputOutput->success('Utilisateur supprimé');
     }
 
     protected function disable($helper, $username, $inputOutput, InputInterface $input, OutputInterface $output)
@@ -370,7 +224,7 @@ class LabstagUserCommand extends Command
         $inputOutput->success('Utilisateur désactivé');
     }
 
-    protected function delete($helper, string $username, $inputOutput, InputInterface $input, OutputInterface $output)
+    protected function enable($helper, $username, $inputOutput, InputInterface $input, OutputInterface $output)
     {
         $entity = $this->userRepository->findOneBy(['username' => $username]);
         if (!$entity instanceof User || is_null($entity)) {
@@ -382,7 +236,7 @@ class LabstagUserCommand extends Command
         }
 
         $question = new ChoiceQuestion(
-            "Êtes-vous sûr de bien vouloir supprimer l'utilisateur ".$username.' ?',
+            "Êtes-vous sûr de bien vouloir activer l'utilisateur ".$username.' ?',
             [
                 'non' => 'non',
                 'oui' => 'oui',
@@ -390,13 +244,130 @@ class LabstagUserCommand extends Command
         );
 
         $action = $helper->ask($input, $output, $question);
-        if ('oui' !== $action) {
+        if ('oui' !== $action || !$this->workflows->has($entity)) {
+            $inputOutput->warning(
+                ['Action impossible']
+            );
+
             return;
         }
 
-        $this->entityManager->remove($entity);
+        $workflow = $this->workflows->get($entity);
+        if (!$workflow->can($entity, 'activer')) {
+            $inputOutput->warning(
+                ['Action impossible']
+            );
+
+            return;
+        }
+
+        $workflow->apply($entity, 'activer');
         $this->entityManager->flush();
-        $inputOutput->success('Utilisateur supprimé');
+        $inputOutput->success('Utilisateur activé');
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $inputOutput = new SymfonyStyle($input, $output);
+        $helper      = $this->getHelper('question');
+        $question    = new ChoiceQuestion(
+            'Action à effectué',
+            [
+                'list'           => 'list',
+                'create'         => 'create',
+                'enable'         => 'enable',
+                'disable'        => 'disable',
+                'delete'         => 'delete',
+                'state'          => 'state',
+                'updatepassword' => 'updatepassword',
+            ]
+        );
+
+        $action = $helper->ask($input, $output, $question);
+        switch ($action) {
+            case 'list':
+                $this->list($inputOutput, $output);
+                break;
+            case 'create':
+                $this->create($helper, $inputOutput, $input, $output);
+                break;
+            case 'updatepassword':
+                $this->actionUpdatePassword($input, $output, $inputOutput);
+                break;
+            case 'state':
+                $this->actionState($input, $output, $inputOutput);
+                break;
+            case 'enable':
+            case 'disable':
+            case 'delete':
+                $this->actionEnableDisableDelete($input, $output, $inputOutput, $action);
+                break;
+        }
+
+        return Command::SUCCESS;
+    }
+
+    protected function list($inputOutput, OutputInterface $output)
+    {
+        $users = $this->userRepository->findBy([], ['username' => 'ASC']);
+        $table = [];
+        foreach ($users as $user) {
+            /* @var User $user */
+            $table[] = [
+                'username' => $user->getUsername(),
+                'email'    => $user->getEmail(),
+                'groupe'   => $user->getRefgroupe()->getName(),
+                'state'    => $user->getState(),
+            ];
+        }
+
+        $inputOutput->table(
+            [
+                'username',
+                'email',
+                'groupe',
+                'state',
+            ],
+            $table
+        );
+        $output->writeln('list');
+    }
+
+    protected function state($helper, $username, $inputOutput, InputInterface $input, OutputInterface $output)
+    {
+        $entity = $this->userRepository->findOneBy(['username' => $username]);
+        if (!$entity instanceof User || is_null($entity)) {
+            $inputOutput->warning(
+                ['Utilisateur introuvable']
+            );
+
+            return;
+        }
+
+        $states      = [];
+        $workflow    = $this->workflows->get($entity);
+        $transitions = $workflow->getEnabledTransitions($entity);
+        foreach ($transitions as $transition) {
+            $name          = $transition->getName();
+            $states[$name] = $name;
+        }
+
+        $question = new ChoiceQuestion(
+            "Passer l'utilisateur à l'épage : ",
+            $states
+        );
+        $state    = $helper->ask($input, $output, $question);
+        if (!$workflow->can($entity, $state)) {
+            $inputOutput->warning(
+                ['Action impossible']
+            );
+
+            return;
+        }
+
+        $workflow->apply($entity, $state);
+        $this->entityManager->flush();
+        $inputOutput->success('Utilisateur passé au stade "'.$state.'"');
     }
 
     protected function tableQuestionUser()
@@ -416,5 +387,34 @@ class LabstagUserCommand extends Command
         }
 
         return $table;
+    }
+
+    protected function updatePassword($helper, $username, $inputOutput, InputInterface $input, OutputInterface $output)
+    {
+        $entity = $this->userRepository->findOneBy(['username' => $username]);
+        if (!$entity instanceof User || is_null($entity)) {
+            $inputOutput->warning(
+                ['Utilisateur introuvable']
+            );
+
+            return;
+        }
+
+        $question = new Question("Entrer le password de l'utilisateur : ");
+        $question->setHidden(true);
+        $password1 = $helper->ask($input, $output, $question);
+        $question  = new Question("Resaisir le password de l'utilisateur : ");
+        $question->setHidden(true);
+        $password2 = $helper->ask($input, $output, $question);
+        if ($password1 !== $password2) {
+            $inputOutput->error('Mot de passe incorrect');
+
+            return;
+        }
+
+        $old = clone $entity;
+        $entity->setPlainPassword($password1);
+        $this->userRH->handle($old, $entity);
+        $inputOutput->success('Mot de passe changé');
     }
 }

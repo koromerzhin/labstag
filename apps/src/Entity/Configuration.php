@@ -47,16 +47,16 @@ class Configuration
         return $this->name;
     }
 
+    public function getValue()
+    {
+        return $this->value;
+    }
+
     public function setName(string $name): self
     {
         $this->name = $name;
 
         return $this;
-    }
-
-    public function getValue()
-    {
-        return $this->value;
     }
 
     public function setValue($value): self

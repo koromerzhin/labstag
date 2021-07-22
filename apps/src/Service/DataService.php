@@ -11,13 +11,13 @@ use Symfony\Contracts\Cache\ItemInterface;
 class DataService
 {
 
-    protected array $oauthActivated = [];
+    protected CacheInterface $cache;
 
     protected array $config = [];
 
-    protected ConfigurationRepository $repository;
+    protected array $oauthActivated = [];
 
-    protected CacheInterface $cache;
+    protected ConfigurationRepository $repository;
 
     public function __construct(
         ConfigurationRepository $repository,
@@ -27,6 +27,18 @@ class DataService
         $this->cache      = $cache;
         $this->repository = $repository;
         $this->setData();
+    }
+
+    public function compute(ItemInterface $item): array
+    {
+        $item->expiresAfter(1800);
+
+        return $this->getConfiguration();
+    }
+
+    public function getConfig(): array
+    {
+        return $this->config;
     }
 
     public function getOauthActivated(?User $user = null): array
@@ -54,9 +66,18 @@ class DataService
         return $oauthActivateds;
     }
 
-    public function getConfig(): array
+    protected function getConfiguration()
     {
-        return $this->config;
+        $data   = $this->repository->findAll();
+        $config = [];
+        /** @var Configuration $row */
+        foreach ($data as $row) {
+            $key          = $row->getName();
+            $value        = $row->getValue();
+            $config[$key] = $value;
+        }
+
+        return $config;
     }
 
     protected function setData(): void
@@ -75,27 +96,6 @@ class DataService
         $this->config = $config;
 
         $this->setOauth($config);
-    }
-
-    public function compute(ItemInterface $item): array
-    {
-        $item->expiresAfter(1800);
-
-        return $this->getConfiguration();
-    }
-
-    protected function getConfiguration()
-    {
-        $data   = $this->repository->findAll();
-        $config = [];
-        /** @var Configuration $row */
-        foreach ($data as $row) {
-            $key          = $row->getName();
-            $value        = $row->getValue();
-            $config[$key] = $value;
-        }
-
-        return $config;
     }
 
     protected function setOauth(array $config): void

@@ -103,7 +103,7 @@
         <span class="{% if form is not rootform %}invalid-feedback{% else %}alert alert-danger{% endif %} d-block">
             {% for error in errors %}
                 {# <span class="d-block"> #}
-                    <span class="formError">{{ 'Error'|trans({}, 'validators') }}</span> <span class="form-error-message">{{ error.message }}</span>
+                    <span class="form-error">{{ 'Error'|trans({}, 'validators') }}</span> <span class="form-error-message">{{ error.message }}</span>
                 {# </span> #}
             {% endfor %}
         </span>
@@ -415,7 +415,7 @@
             {% endif %}
         {% endfor %}
         {% if required == true %}
-            <div class="RequireFormInfo">Les informations marquées d'un <span>*</span> sont obligatoires</div>
+            <div class="require-form-info">Les informations marquées d'un <span>*</span> sont obligatoires</div>
         {% endif %}
     </form>
 {% endblock form_end %}
@@ -467,7 +467,7 @@
 
 
 {% block collection_item_widget %}
-	<div class="CollectionRow">
+	<div class="collection-row">
         {% set template = formPrototype(prototype.vars.block_prefixes) %}
         {% if template == '' %}
             <div class="row">
@@ -496,11 +496,11 @@
 {% endblock %}
 
 {% block collection_widget %}
-    <div class="FieldRow">
+    <div class="field-row">
         {% for row in form %}
             {% set template = formClass(row) %}
             {% if prototype is defined %}
-                <div class="CollectionRow">
+                <div class="collection-row">
             {% endif %}
             {% if template == '' %}
                 <div class="row">
@@ -533,7 +533,7 @@
     {% else %}
         {% set form_method = "POST" %}
     {% endif %}
-    <form{% if name != '' %} name="{{ name }}"{% endif %} method="{{ form_method|lower }}"{% if action != '' %} action="{{ action }}"{% endif %}{{ block('attributes') }}{% if multipart %} enctype="multipart/form-data"{% endif %}>
+    <form{% if name != '' %} name="{{ name|e('html_attr') }}"{% endif %} method="{{ form_method|lower }}"{% if action != '' %} action="{{ action }}"{% endif %}{{ block('attributes') }}{% if multipart %} enctype="multipart/form-data"{% endif %}>
     {% if form_method != method %}
         <input type="hidden" name="_method" value="{{ method }}" />
     {% endif %}

@@ -29,11 +29,19 @@ class GeoCode
     use SoftDeleteableEntity;
 
     /**
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="UUID")
-     * @ORM\Column(type="guid", unique=true)
+     * @ORM\Column(type="integer")
      */
-    protected $id;
+    protected $accuracy;
+
+    /**
+     * @ORM\Column(type="string", length=20)
+     */
+    protected $communityCode;
+
+    /**
+     * @ORM\Column(type="string", length=100)
+     */
+    protected $communityName;
 
     /**
      * @ORM\Column(type="string", length=2)
@@ -42,44 +50,11 @@ class GeoCode
     protected $countryCode;
 
     /**
-     * @ORM\Column(type="string", length=20)
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="UUID")
+     * @ORM\Column(type="guid", unique=true)
      */
-    protected $postalCode;
-
-    /**
-     * @ORM\Column(type="string", length=180)
-     */
-    protected $placeName;
-
-    /**
-     * @ORM\Column(type="string", length=100)
-     */
-    protected $stateName;
-
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
-    protected $stateCode;
-
-    /**
-     * @ORM\Column(type="string", length=100)
-     */
-    protected $provinceName;
-
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
-    protected $provinceCode;
-
-    /**
-     * @ORM\Column(type="string", length=100)
-     */
-    protected $communityName;
-
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
-    protected $communityCode;
+    protected $id;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -92,97 +67,43 @@ class GeoCode
     protected $longitude;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="string", length=180)
      */
-    protected $accuracy;
+    protected $placeName;
 
-    public function getId(): ?string
+    /**
+     * @ORM\Column(type="string", length=20)
+     */
+    protected $postalCode;
+
+    /**
+     * @ORM\Column(type="string", length=20)
+     */
+    protected $provinceCode;
+
+    /**
+     * @ORM\Column(type="string", length=100)
+     */
+    protected $provinceName;
+
+    /**
+     * @ORM\Column(type="string", length=20)
+     */
+    protected $stateCode;
+
+    /**
+     * @ORM\Column(type="string", length=100)
+     */
+    protected $stateName;
+
+    public function getAccuracy(): ?int
     {
-        return $this->id;
+        return $this->accuracy;
     }
 
-    public function getCountryCode(): ?string
+    public function getCommunityCode(): ?string
     {
-        return $this->countryCode;
-    }
-
-    public function setCountryCode(string $countryCode): self
-    {
-        $this->countryCode = $countryCode;
-
-        return $this;
-    }
-
-    public function getPostalCode(): ?string
-    {
-        return $this->postalCode;
-    }
-
-    public function setPostalCode(string $postalCode): self
-    {
-        $this->postalCode = $postalCode;
-
-        return $this;
-    }
-
-    public function getPlaceName(): ?string
-    {
-        return $this->placeName;
-    }
-
-    public function setPlaceName(string $placeName): self
-    {
-        $this->placeName = $placeName;
-
-        return $this;
-    }
-
-    public function getStateName(): ?string
-    {
-        return $this->stateName;
-    }
-
-    public function setStateName(string $stateName): self
-    {
-        $this->stateName = $stateName;
-
-        return $this;
-    }
-
-    public function getStateCode(): ?string
-    {
-        return $this->stateCode;
-    }
-
-    public function setStateCode(string $stateCode): self
-    {
-        $this->stateCode = $stateCode;
-
-        return $this;
-    }
-
-    public function getProvinceName(): ?string
-    {
-        return $this->provinceName;
-    }
-
-    public function setProvinceName(string $provinceName): self
-    {
-        $this->provinceName = $provinceName;
-
-        return $this;
-    }
-
-    public function getProvinceCode(): ?string
-    {
-        return $this->provinceCode;
-    }
-
-    public function setProvinceCode(string $provinceCode): self
-    {
-        $this->provinceCode = $provinceCode;
-
-        return $this;
+        return $this->communityCode;
     }
 
     public function getCommunityName(): ?string
@@ -190,16 +111,61 @@ class GeoCode
         return $this->communityName;
     }
 
-    public function setCommunityName(string $communityName): self
+    public function getCountryCode(): ?string
     {
-        $this->communityName = $communityName;
-
-        return $this;
+        return $this->countryCode;
     }
 
-    public function getCommunityCode(): ?string
+    public function getId(): ?string
     {
-        return $this->communityCode;
+        return $this->id;
+    }
+
+    public function getLatitude(): ?string
+    {
+        return $this->latitude;
+    }
+
+    public function getLongitude(): ?string
+    {
+        return $this->longitude;
+    }
+
+    public function getPlaceName(): ?string
+    {
+        return $this->placeName;
+    }
+
+    public function getPostalCode(): ?string
+    {
+        return $this->postalCode;
+    }
+
+    public function getProvinceCode(): ?string
+    {
+        return $this->provinceCode;
+    }
+
+    public function getProvinceName(): ?string
+    {
+        return $this->provinceName;
+    }
+
+    public function getStateCode(): ?string
+    {
+        return $this->stateCode;
+    }
+
+    public function getStateName(): ?string
+    {
+        return $this->stateName;
+    }
+
+    public function setAccuracy($accuracy): self
+    {
+        $this->accuracy = $accuracy;
+
+        return $this;
     }
 
     public function setCommunityCode(string $communityCode): self
@@ -209,9 +175,18 @@ class GeoCode
         return $this;
     }
 
-    public function getLatitude(): ?string
+    public function setCommunityName(string $communityName): self
     {
-        return $this->latitude;
+        $this->communityName = $communityName;
+
+        return $this;
+    }
+
+    public function setCountryCode(string $countryCode): self
+    {
+        $this->countryCode = $countryCode;
+
+        return $this;
     }
 
     public function setLatitude(string $latitude): self
@@ -221,11 +196,6 @@ class GeoCode
         return $this;
     }
 
-    public function getLongitude(): ?string
-    {
-        return $this->longitude;
-    }
-
     public function setLongitude(string $longitude): self
     {
         $this->longitude = $longitude;
@@ -233,14 +203,44 @@ class GeoCode
         return $this;
     }
 
-    public function getAccuracy(): ?int
+    public function setPlaceName(string $placeName): self
     {
-        return $this->accuracy;
+        $this->placeName = $placeName;
+
+        return $this;
     }
 
-    public function setAccuracy($accuracy): self
+    public function setPostalCode(string $postalCode): self
     {
-        $this->accuracy = $accuracy;
+        $this->postalCode = $postalCode;
+
+        return $this;
+    }
+
+    public function setProvinceCode(string $provinceCode): self
+    {
+        $this->provinceCode = $provinceCode;
+
+        return $this;
+    }
+
+    public function setProvinceName(string $provinceName): self
+    {
+        $this->provinceName = $provinceName;
+
+        return $this;
+    }
+
+    public function setStateCode(string $stateCode): self
+    {
+        $this->stateCode = $stateCode;
+
+        return $this;
+    }
+
+    public function setStateName(string $stateName): self
+    {
+        $this->stateName = $stateName;
 
         return $this;
     }

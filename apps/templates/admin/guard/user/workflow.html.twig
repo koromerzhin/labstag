@@ -43,16 +43,16 @@
                 <td>
                     <guard-refgroupworkflow
                         data-state=0
-                        data-group="{{ user.refgroupe.code|e }}"
-                        data-entity="{{ workflow.entity|e }}"
-                        data-transition="{{ workflow.transition|e }}"
+                        data-group="{{ user.refgroupe.code|e('html_attr') }}"
+                        data-entity="{{ workflow.entity|e('html_attr') }}"
+                        data-transition="{{ workflow.transition|e('html_attr') }}"
                     ></guard-refgroupworkflow>
                 </td>
                 <td>
                     <guard-setworkflow
                         data-state=0
-                        data-entity="{{ workflow.entity|e }}"
-                        data-transition="{{ workflow.transition|e }}"
+                        data-entity="{{ workflow.entity|e('html_attr') }}"
+                        data-transition="{{ workflow.transition|e('html_attr') }}"
                         data-token="{{ csrf_token('guard') }}"
                         data-url="{{ path('api_guard_workflowsetuser', {'user' : user.id, 'workflow' : workflow.id}) }}"
                     ></guard-setworkflow>

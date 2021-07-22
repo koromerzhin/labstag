@@ -10,9 +10,9 @@ use Symfony\Component\Workflow\Event\Event;
 class UserWorkflowSubscriber implements EventSubscriberInterface
 {
 
-    protected UserMailService $userMailService;
-
     protected SessionInterface $session;
+
+    protected UserMailService $userMailService;
 
     public function __construct(
         UserMailService $userMailService,
@@ -21,6 +21,11 @@ class UserWorkflowSubscriber implements EventSubscriberInterface
     {
         $this->session         = $session;
         $this->userMailService = $userMailService;
+    }
+
+    public static function getSubscribedEvents()
+    {
+        return ['workflow.user.transition' => 'onTransition'];
     }
 
     public function onTransition(Event $event)
@@ -37,18 +42,6 @@ class UserWorkflowSubscriber implements EventSubscriberInterface
         }
     }
 
-    public function transitionSubmit(Event $event)
-    {
-        $entity = $event->getSubject();
-        $this->userMailService->newUser($entity);
-        /** @var Session $session */
-        $session = $this->session;
-        $session->getFlashBag()->add(
-            'success',
-            'Nouveau compte utilisateur créer'
-        );
-    }
-
     public function transitionPasswordLost(Event $event)
     {
         $entity = $event->getSubject();
@@ -61,8 +54,15 @@ class UserWorkflowSubscriber implements EventSubscriberInterface
         );
     }
 
-    public static function getSubscribedEvents()
+    public function transitionSubmit(Event $event)
     {
-        return ['workflow.user.transition' => 'onTransition'];
+        $entity = $event->getSubject();
+        $this->userMailService->newUser($entity);
+        /** @var Session $session */
+        $session = $this->session;
+        $session->getFlashBag()->add(
+            'success',
+            'Nouveau compte utilisateur créer'
+        );
     }
 }

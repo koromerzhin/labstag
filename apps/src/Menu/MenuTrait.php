@@ -15,9 +15,9 @@ trait MenuTrait
 
     protected FactoryInterface $factory;
 
-    protected MenuRepository $repository;
-
     protected GuardService $guardService;
+
+    protected MenuRepository $repository;
 
     protected TokenStorageInterface $token;
 
@@ -57,40 +57,6 @@ trait MenuTrait
         return $menu;
     }
 
-    protected function correctionMenu(MenuItem $menu)
-    {
-        $data = $menu->getChildren();
-        foreach ($data as $key => $row) {
-            $extras = $row->getExtras();
-            if (0 != count($extras)) {
-                continue;
-            }
-
-            $children = $row->getChildren();
-            if (0 == count($children)) {
-                $menu->removeChild($key);
-                continue;
-            }
-
-            $this->deleteParent($children, $key, $menu);
-        }
-    }
-
-    protected function deleteParent($children, $key, $menu)
-    {
-        $divider = 0;
-        foreach ($children as $child) {
-            $extras = $child->getExtras();
-            if (array_key_exists('divider', $extras) && true == $extras['divider']) {
-                ++$divider;
-            }
-        }
-
-        if ($divider == count($children)) {
-            $menu->removeChild($key);
-        }
-    }
-
     protected function addMenu(MenuItem &$parent, Menu $child): void
     {
         $data      = [];
@@ -122,6 +88,40 @@ trait MenuTrait
         $childrens = $child->getChildren();
         foreach ($childrens as $child) {
             $this->addMenu($menu, $child);
+        }
+    }
+
+    protected function correctionMenu(MenuItem $menu)
+    {
+        $data = $menu->getChildren();
+        foreach ($data as $key => $row) {
+            $extras = $row->getExtras();
+            if (0 != count($extras)) {
+                continue;
+            }
+
+            $children = $row->getChildren();
+            if (0 == count($children)) {
+                $menu->removeChild($key);
+                continue;
+            }
+
+            $this->deleteParent($children, $key, $menu);
+        }
+    }
+
+    protected function deleteParent($children, $key, $menu)
+    {
+        $divider = 0;
+        foreach ($children as $child) {
+            $extras = $child->getExtras();
+            if (array_key_exists('divider', $extras) && true == $extras['divider']) {
+                ++$divider;
+            }
+        }
+
+        if ($divider == count($children)) {
+            $menu->removeChild($key);
         }
     }
 }

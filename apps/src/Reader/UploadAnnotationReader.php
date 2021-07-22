@@ -17,15 +17,6 @@ class UploadAnnotationReader
         $this->reader = $reader;
     }
 
-    public function isUploadable($entity): bool
-    {
-        $reflection = $this->setReflection($entity);
-
-        $annotation = $this->reader->getClassAnnotation($reflection, Uploadable::class);
-
-        return !is_null($annotation);
-    }
-
     /**
      * Liste les champs uploadable d'une entité (sous forme de tableau associatif).
      */
@@ -45,6 +36,15 @@ class UploadAnnotationReader
         }
 
         return $properties;
+    }
+
+    public function isUploadable($entity): bool
+    {
+        $reflection = $this->setReflection($entity);
+
+        $annotation = $this->reader->getClassAnnotation($reflection, Uploadable::class);
+
+        return !is_null($annotation);
     }
 
     protected function setReflection($entity): ReflectionClass

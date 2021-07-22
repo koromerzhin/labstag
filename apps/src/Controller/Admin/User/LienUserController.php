@@ -22,6 +22,23 @@ class LienUserController extends AdminControllerLib
     protected string $urlHome = 'admin_lienuser_index';
 
     /**
+     * @Route("/{id}/edit", name="admin_lienuser_edit", methods={"GET","POST"})
+     */
+    public function edit(LienUser $lienUser, LienUserRequestHandler $requestHandler): Response
+    {
+        return $this->update(
+            LienUserType::class,
+            $lienUser,
+            $requestHandler,
+            [
+                'delete' => 'api_action_delete',
+                'list'   => 'admin_lienuser_index',
+                'show'   => 'admin_lienuser_show',
+            ]
+        );
+    }
+
+    /**
      * @Route("/trash", name="admin_lienuser_trash", methods={"GET"})
      * @Route("/", name="admin_lienuser_index", methods={"GET"})
      * @IgnoreSoftDelete
@@ -83,23 +100,6 @@ class LienUserController extends AdminControllerLib
                 'list'    => 'admin_lienuser_index',
                 'edit'    => 'admin_lienuser_edit',
                 'trash'   => 'admin_lienuser_trash',
-            ]
-        );
-    }
-
-    /**
-     * @Route("/{id}/edit", name="admin_lienuser_edit", methods={"GET","POST"})
-     */
-    public function edit(LienUser $lienUser, LienUserRequestHandler $requestHandler): Response
-    {
-        return $this->update(
-            LienUserType::class,
-            $lienUser,
-            $requestHandler,
-            [
-                'delete' => 'api_action_delete',
-                'list'   => 'admin_lienuser_index',
-                'show'   => 'admin_lienuser_show',
             ]
         );
     }

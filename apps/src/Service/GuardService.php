@@ -28,19 +28,19 @@ class GuardService
 
     const REGEX_CONTROLLER_ADMIN = '/(Controller\\\Admin)/';
 
-    protected RouterInterface $router;
-
-    protected RouteRepository $repositoryRoute;
-
     protected EntityManagerInterface $entityManager;
-
-    protected RouteUserRepository $routeUserRepo;
-
-    protected RouteGroupeRepository $routeGroupeRepo;
 
     protected GroupeRepository $groupeRepository;
 
+    protected RouteRepository $repositoryRoute;
+
+    protected RouteGroupeRepository $routeGroupeRepo;
+
+    protected RouterInterface $router;
+
     protected RouteRepository $routeRepository;
+
+    protected RouteUserRepository $routeUserRepo;
 
     protected Registry $workflows;
 
@@ -65,6 +65,45 @@ class GuardService
         $this->router           = $router;
     }
 
+    public function all(): array
+    {
+        $data       = [];
+        $collection = $this->router->getRouteCollection();
+        $all        = $collection->all();
+        foreach ($all as $name => $route) {
+            /** @var Routing $route */
+            $defaults = $route->getDefaults();
+            if (!isset($defaults['_controller'])) {
+                continue;
+            }
+
+            $matches = $this->regex($defaults['_controller']);
+            if (0 != count($matches)) {
+                continue;
+            }
+
+            $data[$name] = $route;
+        }
+
+        return $data;
+    }
+
+    public function delete(): void
+    {
+        $all    = $this->all();
+        $routes = [];
+        foreach (array_keys($all) as $name) {
+            $routes[] = $name;
+        }
+
+        $results = $this->repositoryRoute->findLost($routes);
+        foreach ($results as $route) {
+            $this->entityManager->remove($route);
+        }
+
+        $this->entityManager->flush();
+    }
+
     public function getGuardRoutesForGroupe(Groupe $groupe): array
     {
         $routes = $this->routesEnableGroupe($groupe);
@@ -83,6 +122,77 @@ class GuardService
         }
 
         return $routes;
+    }
+
+    public function guardRoute($route, $token)
+    {
+        $all = $this->all();
+        if (!array_key_exists($route, $all)) {
+            return true;
+        }
+
+        if (empty($token) || !$token->getUser() instanceof User) {
+            $groupe = $this->groupeRepository->findOneBy(['code' => 'visiteur']);
+
+            return !(!$this->searchRouteGroupe($groupe, $route));
+        }
+
+        /** @var User $user */
+        $user   = $token->getUser();
+        $groupe = $user->getRefgroupe();
+        if ('superadmin' == $groupe->getCode()) {
+            return true;
+        }
+
+        $state = $this->searchRouteUser($user, $route);
+
+        return !(!$state);
+    }
+
+    public function guardRouteEnableGroupe(string $route, Groupe $groupe): bool
+    {
+        return $this->isRouteGroupe(
+            $groupe,
+            $route
+        );
+    }
+
+    public function guardRouteEnableUser(string $route, User $user): bool
+    {
+        return $this->isRouteGroupe(
+            $user->getRefgroupe(),
+            $route
+        );
+    }
+
+    public function old()
+    {
+        $all    = $this->all();
+        $routes = [];
+        foreach (array_keys($all) as $name) {
+            $routes[] = $name;
+        }
+
+        $results = $this->repositoryRoute->findLost($routes);
+        $data    = [];
+        foreach ($results as $route) {
+            $data[] = [$route];
+        }
+
+        return $data;
+    }
+
+    public function regex(string $string)
+    {
+        $data = [];
+        foreach (self::REGEX as $regex) {
+            preg_match($regex, $string, $matches);
+            foreach ($matches as $info) {
+                $data[] = $info;
+            }
+        }
+
+        return $data;
     }
 
     public function routesEnableGroupe(Groupe $groupe): array
@@ -117,58 +227,6 @@ class GuardService
         return $routes;
     }
 
-    public function regex(string $string)
-    {
-        $data = [];
-        foreach (self::REGEX as $regex) {
-            preg_match($regex, $string, $matches);
-            foreach ($matches as $info) {
-                $data[] = $info;
-            }
-        }
-
-        return $data;
-    }
-
-    public function all(): array
-    {
-        $data       = [];
-        $collection = $this->router->getRouteCollection();
-        $all        = $collection->all();
-        foreach ($all as $name => $route) {
-            /** @var Routing $route */
-            $defaults = $route->getDefaults();
-            if (!isset($defaults['_controller'])) {
-                continue;
-            }
-
-            $matches = $this->regex($defaults['_controller']);
-            if (0 != count($matches)) {
-                continue;
-            }
-
-            $data[$name] = $route;
-        }
-
-        return $data;
-    }
-
-    public function tables()
-    {
-        $data = [];
-        $all  = $this->all();
-        foreach ($all as $name => $route) {
-            /** @var Routing $route */
-            $defaults = $route->getDefaults();
-            $data[]   = [
-                $name,
-                $defaults['_controller'],
-            ];
-        }
-
-        return $data;
-    }
-
     public function save($name): void
     {
         $search = ['name' => $name];
@@ -187,34 +245,17 @@ class GuardService
         $this->entityManager->flush();
     }
 
-    public function delete(): void
+    public function tables()
     {
-        $all    = $this->all();
-        $routes = [];
-        foreach (array_keys($all) as $name) {
-            $routes[] = $name;
-        }
-
-        $results = $this->repositoryRoute->findLost($routes);
-        foreach ($results as $route) {
-            $this->entityManager->remove($route);
-        }
-
-        $this->entityManager->flush();
-    }
-
-    public function old()
-    {
-        $all    = $this->all();
-        $routes = [];
-        foreach (array_keys($all) as $name) {
-            $routes[] = $name;
-        }
-
-        $results = $this->repositoryRoute->findLost($routes);
-        $data    = [];
-        foreach ($results as $route) {
-            $data[] = [$route];
+        $data = [];
+        $all  = $this->all();
+        foreach ($all as $name => $route) {
+            /** @var Routing $route */
+            $defaults = $route->getDefaults();
+            $data[]   = [
+                $name,
+                $defaults['_controller'],
+            ];
         }
 
         return $data;
@@ -237,47 +278,6 @@ class GuardService
         $stateUser   = ($entity instanceof RouteUser) ? $entity->isState() : false;
 
         return $stateGroupe || $stateUser;
-    }
-
-    public function guardRoute($route, $token)
-    {
-        $all = $this->all();
-        if (!array_key_exists($route, $all)) {
-            return true;
-        }
-
-        if (empty($token) || !$token->getUser() instanceof User) {
-            $groupe = $this->groupeRepository->findOneBy(['code' => 'visiteur']);
-
-            return !(!$this->searchRouteGroupe($groupe, $route));
-        }
-
-        /** @var User $user */
-        $user   = $token->getUser();
-        $groupe = $user->getRefgroupe();
-        if ('superadmin' == $groupe->getCode()) {
-            return true;
-        }
-
-        $state = $this->searchRouteUser($user, $route);
-
-        return !(!$state);
-    }
-
-    public function guardRouteEnableUser(string $route, User $user): bool
-    {
-        return $this->isRouteGroupe(
-            $user->getRefgroupe(),
-            $route
-        );
-    }
-
-    public function guardRouteEnableGroupe(string $route, Groupe $groupe): bool
-    {
-        return $this->isRouteGroupe(
-            $groupe,
-            $route
-        );
     }
 
     private function isRouteGroupe(

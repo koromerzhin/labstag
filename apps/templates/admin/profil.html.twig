@@ -29,8 +29,8 @@
                 <legend>Dissocier :</legend>
                 <div class="row">
                     {% for oauth in entity.oauthconnectusers %}
-                        <div class="itemConnect">
-                            <a href="{{ path('connect_lost', {'oauthCode': oauth.name}) }}" title="{{ oauth.name|e }}">
+                        <div class="item-connect">
+                            <a href="{{ path('connect_lost', {'oauthCode': oauth.name}) }}" title="{{ oauth.name|e('html_attr') }}">
                                 <i class="fab fa-{{ oauth.name }}"></i>
                                 {{ oauth.name }}
                             </a>
@@ -47,8 +47,8 @@
                 <legend>Se connecter avec :</legend>
                 <div class="row">
                 {% for oauth in oauthActivated %}
-                    <div class="itemConnect">
-                        <a href="{{ path('connect_start', {'oauthCode': oauth.type, 'link': 1}) }}" title="{{ oauth.type|e }}">
+                    <div class="item-connect">
+                        <a href="{{ path('connect_start', {'oauthCode': oauth.type, 'link': 1}) }}" title="{{ oauth.type|e('html_attr') }}">
                             <i class="fab fa-{{ oauth.type }}"></i>
                             {{ oauth.type }}
                         </a>

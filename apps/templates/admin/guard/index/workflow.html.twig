@@ -61,11 +61,11 @@
                     <td>
                         {% if 'superadmin' != group.code %}
                             <guard-setworkflow
-                                title="{{ group.name|e }}"
+                                title="{{ group.name|e('html_attr') }}"
                                 data-state=0
-                                data-groupe="{{ group.code|e }}"
-                                data-entity="{{ workflow.entity|e }}"
-                                data-transition="{{ workflow.transition|e }}"
+                                data-groupe="{{ group.code|e('html_attr') }}"
+                                data-entity="{{ workflow.entity|e('html_attr') }}"
+                                data-transition="{{ workflow.transition|e('html_attr') }}"
                                 data-url="{{ path('api_guard_workflowsetgroup', {'group' : group.id, 'workflow' : workflow.id}) }}"
                                 data-token="{{ csrf_token('guard') }}"
                             ></guard-setworkflow>

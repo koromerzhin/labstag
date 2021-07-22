@@ -18,6 +18,25 @@ class Menu
     use SoftDeleteableEntity;
 
     /**
+     * @ORM\OneToMany(
+     *  targetEntity="Menu",
+     *  mappedBy="parent",
+     *  cascade={"persist"}
+     * )
+     * @ORM\OrderBy({"position" = "ASC"})
+     */
+    protected $children;
+
+    /** @ORM\Column(type="string", length=255, nullable=true) */
+    protected $clef;
+
+    /** @ORM\Column(type="json", nullable=true) */
+    protected array $data = [];
+
+    /** @ORM\Column(type="string", length=255, nullable=true) */
+    protected $icon;
+
+    /**
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="UUID")
      * @ORM\Column(type="guid", unique=true)
@@ -26,24 +45,6 @@ class Menu
 
     /** @ORM\Column(type="string", length=255, nullable=true) */
     protected $libelle;
-
-    /** @ORM\Column(type="string", length=255, nullable=true) */
-    protected $icon;
-
-    /**
-     * @ORM\Column(type="integer")
-     * @Assert\NotNull
-     */
-    protected int $position;
-
-    /** @ORM\Column(type="json", nullable=true) */
-    protected array $data = [];
-
-    /** @ORM\Column(type="boolean") */
-    protected $separateur;
-
-    /** @ORM\Column(type="string", length=255, nullable=true) */
-    protected $clef;
 
     /**
      * @ORM\ManyToOne(targetEntity="Menu", inversedBy="children")
@@ -58,14 +59,19 @@ class Menu
     protected $parent;
 
     /**
-     * @ORM\OneToMany(
-     *  targetEntity="Menu",
-     *  mappedBy="parent",
-     *  cascade={"persist"}
-     * )
-     * @ORM\OrderBy({"position" = "ASC"})
+     * @ORM\Column(type="integer")
+     * @Assert\NotNull
      */
-    protected $children;
+    protected int $position;
+
+    /** @ORM\Column(type="boolean") */
+    protected $separateur;
+
+    public function __construct()
+    {
+        $this->children   = new ArrayCollection();
+        $this->separateur = false;
+    }
 
     public function __toString()
     {
@@ -81,10 +87,24 @@ class Menu
         );
     }
 
-    public function __construct()
+    public function getChildren()
     {
-        $this->children   = new ArrayCollection();
-        $this->separateur = false;
+        return $this->children;
+    }
+
+    public function getClef(): ?string
+    {
+        return $this->clef;
+    }
+
+    public function getData(): ?array
+    {
+        return $this->data;
+    }
+
+    public function getIcon(): ?string
+    {
+        return $this->icon;
     }
 
     public function getId(): ?string
@@ -97,23 +117,9 @@ class Menu
         return $this->libelle;
     }
 
-    public function setLibelle(string $libelle): self
+    public function getParent(): ?Menu
     {
-        $this->libelle = $libelle;
-
-        return $this;
-    }
-
-    public function getIcon(): ?string
-    {
-        return $this->icon;
-    }
-
-    public function setIcon(string $icon): self
-    {
-        $this->icon = $icon;
-
-        return $this;
+        return $this->parent;
     }
 
     public function getPosition(): ?int
@@ -121,40 +127,9 @@ class Menu
         return $this->position;
     }
 
-    public function setPosition(int $position): self
-    {
-        $this->position = $position;
-
-        return $this;
-    }
-
-    public function getData(): ?array
-    {
-        return $this->data;
-    }
-
-    public function setData(?array $data): self
-    {
-        $this->data = $data;
-
-        return $this;
-    }
-
     public function isSeparateur(): ?bool
     {
         return $this->separateur;
-    }
-
-    public function setSeparateur(bool $separateur): self
-    {
-        $this->separateur = $separateur;
-
-        return $this;
-    }
-
-    public function getClef(): ?string
-    {
-        return $this->clef;
     }
 
     public function setClef(string $clef): self
@@ -164,9 +139,25 @@ class Menu
         return $this;
     }
 
-    public function getChildren()
+    public function setData(?array $data): self
     {
-        return $this->children;
+        $this->data = $data;
+
+        return $this;
+    }
+
+    public function setIcon(string $icon): self
+    {
+        $this->icon = $icon;
+
+        return $this;
+    }
+
+    public function setLibelle(string $libelle): self
+    {
+        $this->libelle = $libelle;
+
+        return $this;
     }
 
     public function setParent(Menu $parent): void
@@ -174,8 +165,17 @@ class Menu
         $this->parent = $parent;
     }
 
-    public function getParent(): ?Menu
+    public function setPosition(int $position): self
     {
-        return $this->parent;
+        $this->position = $position;
+
+        return $this;
+    }
+
+    public function setSeparateur(bool $separateur): self
+    {
+        $this->separateur = $separateur;
+
+        return $this;
     }
 }

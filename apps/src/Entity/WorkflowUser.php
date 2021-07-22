@@ -19,11 +19,6 @@ class WorkflowUser
     private $id;
 
     /**
-     * @ORM\Column(type="boolean")
-     */
-    private $state;
-
-    /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="workflowUsers")
      */
     private $refuser;
@@ -33,26 +28,29 @@ class WorkflowUser
      */
     private $refworkflow;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $state;
+
     public function getId(): ?string
     {
         return $this->id;
     }
 
-    public function getState(): ?bool
-    {
-        return $this->state;
-    }
-
-    public function setState(bool $state): self
-    {
-        $this->state = $state;
-
-        return $this;
-    }
-
     public function getRefuser(): ?User
     {
         return $this->refuser;
+    }
+
+    public function getRefworkflow(): ?Workflow
+    {
+        return $this->refworkflow;
+    }
+
+    public function getState(): ?bool
+    {
+        return $this->state;
     }
 
     public function setRefuser(?User $refuser): self
@@ -62,14 +60,16 @@ class WorkflowUser
         return $this;
     }
 
-    public function getRefworkflow(): ?Workflow
-    {
-        return $this->refworkflow;
-    }
-
     public function setRefworkflow(?Workflow $refworkflow): self
     {
         $this->refworkflow = $refworkflow;
+
+        return $this;
+    }
+
+    public function setState(bool $state): self
+    {
+        $this->state = $state;
 
         return $this;
     }

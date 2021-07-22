@@ -1,0 +1,16 @@
+{% set bodyclass = 'body-landing' %}
+{% extends 'base.html.twig' %}
+{% import "macro.html.twig" as macro_site %}
+{% block stylesheets %}
+    {{ encore_entry_link_tags('front') }}
+{% endblock %}
+{% block content %}
+    <div class="box">
+        <h1>{% block box_title %}{% endblock %}</h1>
+        {{ macro_site.flashbag(app) }}
+        {% block box %}{% endblock %}
+    </div>
+{% endblock %}
+{% block javascripts %}
+    {{ encore_entry_script_tags('front') }}
+{% endblock %}

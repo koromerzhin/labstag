@@ -14,16 +14,16 @@ class Workflow
 {
 
     /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $entity;
+
+    /**
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="UUID")
      * @ORM\Column(type="guid", unique=true)
      */
     private $id;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $entity;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -46,9 +46,24 @@ class Workflow
         $this->workflowUsers   = new ArrayCollection();
     }
 
-    public function getId(): ?string
+    public function addWorkflowGroupe(WorkflowGroupe $workflowGroupe): self
     {
-        return $this->id;
+        if (!$this->workflowGroupes->contains($workflowGroupe)) {
+            $this->workflowGroupes[] = $workflowGroupe;
+            $workflowGroupe->setRefworkflow($this);
+        }
+
+        return $this;
+    }
+
+    public function addWorkflowUser(WorkflowUser $workflowUser): self
+    {
+        if (!$this->workflowUsers->contains($workflowUser)) {
+            $this->workflowUsers[] = $workflowUser;
+            $workflowUser->setRefworkflow($this);
+        }
+
+        return $this;
     }
 
     public function getEntity(): ?string
@@ -56,23 +71,14 @@ class Workflow
         return $this->entity;
     }
 
-    public function setEntity(string $entity): self
+    public function getId(): ?string
     {
-        $this->entity = $entity;
-
-        return $this;
+        return $this->id;
     }
 
     public function getTransition(): ?string
     {
         return $this->transition;
-    }
-
-    public function setTransition(string $transition): self
-    {
-        $this->transition = $transition;
-
-        return $this;
     }
 
     /**
@@ -83,14 +89,12 @@ class Workflow
         return $this->workflowGroupes;
     }
 
-    public function addWorkflowGroupe(WorkflowGroupe $workflowGroupe): self
+    /**
+     * @return Collection|WorkflowUser[]
+     */
+    public function getWorkflowUsers(): Collection
     {
-        if (!$this->workflowGroupes->contains($workflowGroupe)) {
-            $this->workflowGroupes[] = $workflowGroupe;
-            $workflowGroupe->setRefworkflow($this);
-        }
-
-        return $this;
+        return $this->workflowUsers;
     }
 
     public function removeWorkflowGroupe(WorkflowGroupe $workflowGroupe): self
@@ -105,24 +109,6 @@ class Workflow
         return $this;
     }
 
-    /**
-     * @return Collection|WorkflowUser[]
-     */
-    public function getWorkflowUsers(): Collection
-    {
-        return $this->workflowUsers;
-    }
-
-    public function addWorkflowUser(WorkflowUser $workflowUser): self
-    {
-        if (!$this->workflowUsers->contains($workflowUser)) {
-            $this->workflowUsers[] = $workflowUser;
-            $workflowUser->setRefworkflow($this);
-        }
-
-        return $this;
-    }
-
     public function removeWorkflowUser(WorkflowUser $workflowUser): self
     {
         if ($this->workflowUsers->removeElement($workflowUser)) {
@@ -131,6 +117,20 @@ class Workflow
                 $workflowUser->setRefworkflow(null);
             }
         }
+
+        return $this;
+    }
+
+    public function setEntity(string $entity): self
+    {
+        $this->entity = $entity;
+
+        return $this;
+    }
+
+    public function setTransition(string $transition): self
+    {
+        $this->transition = $transition;
 
         return $this;
     }

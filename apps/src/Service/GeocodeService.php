@@ -14,11 +14,11 @@ class GeocodeService
 
     protected HttpClientInterface $client;
 
+    protected EntityManagerInterface $entityManager;
+
     protected GeoCodeRequestHandler $geoCodeRH;
 
     protected GeoCodeRepository $repository;
-
-    protected EntityManagerInterface $entityManager;
 
     public function __construct(
         HttpClientInterface $client,
@@ -31,6 +31,35 @@ class GeocodeService
         $this->repository    = $repository;
         $this->entityManager = $entityManager;
         $this->geoCodeRH     = $geoCodeRH;
+    }
+
+    public function add(array $row)
+    {
+        $entity = $this->repository->findOneBy(
+            [
+                'countryCode' => $row[0],
+                'postalCode'  => $row[1],
+                'placeName'   => $row[2],
+            ]
+        );
+        if (!($entity instanceof GeoCode)) {
+            $entity = new GeoCode();
+            $entity->setCountryCode($row[0]);
+            $entity->setPostalCode($row[1]);
+            $entity->setPlaceName($row[2]);
+        }
+
+        $old = clone $entity;
+        $entity->setStateName($row[3]);
+        $entity->setStateCode($row[4]);
+        $entity->setProvinceName($row[5]);
+        $entity->setProvinceCode($row[6]);
+        $entity->setCommunityName($row[7]);
+        $entity->setCommunityCode($row[8]);
+        $entity->setLatitude($row[9]);
+        $entity->setLongitude($row[10]);
+        $entity->setAccuracy((int) $row[11]);
+        $this->geoCodeRH->handle($old, $entity);
     }
 
     public function csv(string $country)
@@ -71,34 +100,5 @@ class GeocodeService
         }
 
         return $data;
-    }
-
-    public function add(array $row)
-    {
-        $entity = $this->repository->findOneBy(
-            [
-                'countryCode' => $row[0],
-                'postalCode'  => $row[1],
-                'placeName'   => $row[2],
-            ]
-        );
-        if (!($entity instanceof GeoCode)) {
-            $entity = new GeoCode();
-            $entity->setCountryCode($row[0]);
-            $entity->setPostalCode($row[1]);
-            $entity->setPlaceName($row[2]);
-        }
-
-        $old = clone $entity;
-        $entity->setStateName($row[3]);
-        $entity->setStateCode($row[4]);
-        $entity->setProvinceName($row[5]);
-        $entity->setProvinceCode($row[6]);
-        $entity->setCommunityName($row[7]);
-        $entity->setCommunityCode($row[8]);
-        $entity->setLatitude($row[9]);
-        $entity->setLongitude($row[10]);
-        $entity->setAccuracy((int) $row[11]);
-        $this->geoCodeRH->handle($old, $entity);
     }
 }

@@ -19,11 +19,6 @@ class WorkflowGroupe
     private $id;
 
     /**
-     * @ORM\Column(type="boolean")
-     */
-    private $state;
-
-    /**
      * @ORM\ManyToOne(targetEntity=Groupe::class, inversedBy="workflowGroupes")
      */
     private $refgroupe;
@@ -33,26 +28,29 @@ class WorkflowGroupe
      */
     private $refworkflow;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $state;
+
     public function getId(): ?string
     {
         return $this->id;
     }
 
-    public function getState(): ?bool
-    {
-        return $this->state;
-    }
-
-    public function setState(bool $state): self
-    {
-        $this->state = $state;
-
-        return $this;
-    }
-
     public function getRefgroupe(): ?Groupe
     {
         return $this->refgroupe;
+    }
+
+    public function getRefworkflow(): ?Workflow
+    {
+        return $this->refworkflow;
+    }
+
+    public function getState(): ?bool
+    {
+        return $this->state;
     }
 
     public function setRefgroupe(?Groupe $refgroupe): self
@@ -62,14 +60,16 @@ class WorkflowGroupe
         return $this;
     }
 
-    public function getRefworkflow(): ?Workflow
-    {
-        return $this->refworkflow;
-    }
-
     public function setRefworkflow(?Workflow $refworkflow): self
     {
         $this->refworkflow = $refworkflow;
+
+        return $this;
+    }
+
+    public function setState(bool $state): self
+    {
+        $this->state = $state;
 
         return $this;
     }

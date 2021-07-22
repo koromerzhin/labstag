@@ -13,14 +13,14 @@ class PhoneService
 {
 
     /**
-     * @var PhoneNumberUtil
-     */
-    protected $phoneUtil;
-
-    /**
      * @var LoggerInterface
      */
     protected $logger;
+
+    /**
+     * @var PhoneNumberUtil
+     */
+    protected $phoneUtil;
 
     public function __construct(LoggerInterface $logger)
     {

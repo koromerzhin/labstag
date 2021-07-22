@@ -16,15 +16,15 @@ use Symfony\Component\Workflow\Event\GuardEvent;
 class WorkflowGuardSubscriber implements EventSubscriberInterface
 {
 
-    protected TokenStorageInterface $token;
+    protected GroupeRepository $groupeRepo;
 
-    protected WorkflowUserRepository $workflowUserRepo;
+    protected TokenStorageInterface $token;
 
     protected WorkflowGroupeRepository $workflowGroupeRepo;
 
-    protected GroupeRepository $groupeRepo;
-
     protected WorkflowRepository $workflowRepo;
+
+    protected WorkflowUserRepository $workflowUserRepo;
 
     public function __construct(
         TokenStorageInterface $token,
@@ -39,6 +39,11 @@ class WorkflowGuardSubscriber implements EventSubscriberInterface
         $this->workflowUserRepo   = $workflowUserRepo;
         $this->workflowGroupeRepo = $workflowGroupeRepo;
         $this->token              = $token;
+    }
+
+    public static function getSubscribedEvents()
+    {
+        return ['workflow.guard' => 'onWorkflowAttachmentGuard'];
     }
 
     public function onWorkflowAttachmentGuard(GuardEvent $event)
@@ -97,10 +102,5 @@ class WorkflowGuardSubscriber implements EventSubscriberInterface
         $stategroupe    = ($workflowUser instanceof WorkflowUser) ? $workflowUser->getState() : $stategroupe;
 
         $event->setBlocked(!$stategroupe || !$stateuser);
-    }
-
-    public static function getSubscribedEvents()
-    {
-        return ['workflow.guard' => 'onWorkflowAttachmentGuard'];
     }
 }

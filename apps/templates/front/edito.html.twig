@@ -1,0 +1,14 @@
+{% set mainclass = "main-edito" %}
+{% extends 'skeleton/home.html.twig' %}
+{% block header %}
+    {% set fond = attachment(edito.fond) %}
+    {% if fond != null %}
+        <picture class="header_edito_img">
+            <img src="{{ asset(fond.name) }}" />
+        </picture>
+    {% endif %}
+{% endblock %}
+{% block section %}
+    <h2 class="edito_title">{{ edito.title }}</h2>
+    <div class="edito_content">{{ edito.content|raw }}</div>
+{% endblock %}

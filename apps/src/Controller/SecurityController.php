@@ -3,6 +3,7 @@
 namespace Labstag\Controller;
 
 use Exception;
+use Knp\Component\Pager\PaginatorInterface;
 use Labstag\Entity\Email;
 use Labstag\Entity\OauthConnectUser;
 use Labstag\Entity\Phone;
@@ -37,9 +38,9 @@ use WhiteOctober\BreadcrumbsBundle\Model\Breadcrumbs;
 class SecurityController extends ControllerLib
 {
 
-    protected OauthService $oauthService;
-
     protected LoggerInterface $logger;
+
+    protected OauthService $oauthService;
 
     protected UserService $userService;
 
@@ -48,52 +49,203 @@ class SecurityController extends ControllerLib
         LoggerInterface $logger,
         DataService $dataService,
         Breadcrumbs $breadcrumbs,
+        PaginatorInterface $paginator,
         UserService $userService
     )
     {
         $this->userService  = $userService;
         $this->logger       = $logger;
         $this->oauthService = $oauthService;
-        parent::__construct($dataService, $breadcrumbs);
+        parent::__construct($dataService, $breadcrumbs, $paginator);
     }
 
     /**
-     * Link to this controller to start the "connect" process.
-     *
-     * @Route("/oauth/lost/{oauthCode}", name="connect_lost")
+     * @Route("/change-password/{id}", name="app_changepassword")
      */
-    public function oauthLost(
+    public function changePassword(
+        User $user,
         Request $request,
-        string $oauthCode,
-        Security $security,
-        OauthConnectUserRepository $repository
-    ): RedirectResponse
+        UserRequestHandler $requestHandler
+    ): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_USER');
-        /** @var User $user */
-        $user = $security->getUser();
-        /** @var string $referer */
-        $referer = $request->headers->get('referer');
-        $session = $request->getSession();
-        $session->set('referer', $referer);
-        /** @var string $url */
-        $url = $this->generateUrl('front');
-        if ('' == $referer) {
-            $referer = $url;
+        if ('lostpassword' != $user->getState()) {
+            $this->addFlash('danger', 'Demande de mot de passe non envoyé');
+
+            return $this->redirect($this->generateUrl('front'), 302);
         }
 
-        $entity  = $repository->findOneOauthByUser($oauthCode, $user);
-        $manager = $this->getDoctrine()->getManager();
-        if ($entity instanceof OauthConnectUser) {
-            $manager->remove($entity);
-            $manager->flush();
-            $this->addFlash(
-                'success',
-                'Connexion Oauh '.$oauthCode.' dissocié'
+        $form = $this->createForm(ChangePasswordType::class, $user);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $requestHandler->changeWorkflowState($user, ['valider']);
+
+            return $this->redirect($this->generateUrl('front'), 302);
+        }
+
+        return $this->render(
+            'security/change-password.html.twig',
+            [
+                'formChangePassword' => $form->createView(),
+            ]
+        );
+    }
+
+    /**
+     * @Route("/confirm/email/{id}", name="app_confirm_mail")
+     */
+    public function confirmEmail(
+        Email $email,
+        EmailRequestHandler $emailRequestHandler
+    ): RedirectResponse
+    {
+        if ('averifier' != $email->getState()) {
+            $this->addFlash('danger', 'Courriel déjà confirmé');
+
+            return $this->redirect($this->generateUrl('front'), 302);
+        }
+
+        $emailRequestHandler->changeWorkflowState($email, ['valider']);
+        $this->addFlash('success', 'Courriel confirmé');
+
+        return $this->redirect($this->generateUrl('front'), 302);
+    }
+
+    /**
+     * @Route("/confirm/phone/{id}", name="app_confirm_phone")
+     */
+    public function confirmPhone(
+        Phone $phone,
+        PhoneRequestHandler $emailRequestHandler
+    ): RedirectResponse
+    {
+        if ('averifier' != $phone->getState()) {
+            $this->addFlash('danger', 'Phone déjà confirmé');
+
+            return $this->redirect($this->generateUrl('front'), 302);
+        }
+
+        $emailRequestHandler->changeWorkflowState($phone, ['valider']);
+        $this->addFlash('success', 'Phone confirmé');
+
+        return $this->redirect($this->generateUrl('front'), 302);
+    }
+
+    /**
+     * @Route("/confirm/user/{id}", name="app_confirm_user")
+     */
+    public function confirmUser(
+        User $user,
+        UserRequestHandler $userRequestHandler
+    ): RedirectResponse
+    {
+        if ('avalider' != $user->getState()) {
+            $this->addFlash('danger', 'Utilisation déjà activé');
+
+            return $this->redirect($this->generateUrl('front'), 302);
+        }
+
+        $userRequestHandler->changeWorkflowState($user, ['validation']);
+        $this->addFlash('success', 'Utilisation activé');
+
+        return $this->redirect($this->generateUrl('front'), 302);
+    }
+
+    /**
+     * @Route("/disclaimer", name="disclaimer")
+     *
+     * @return RedirectResponse|Response
+     */
+    public function disclaimer(Request $request)
+    {
+        $form = $this->createForm(DisclaimerType::class, []);
+        $form->handleRequest($request);
+        $session = $request->getSession();
+        if ($form->isSubmitted()) {
+            $post = $request->request->get($form->getName());
+            if (isset($post['confirm'])) {
+                $session->set('disclaimer', 1);
+
+                return $this->redirect(
+                    $this->generateUrl('front')
+                );
+            }
+
+            $this->addFlash('danger', "Veuillez accepter l'énoncé");
+        }
+
+        if (1 == $session->get('disclaimer', 0)) {
+            return $this->redirect(
+                $this->generateUrl('front')
             );
         }
 
-        return $this->redirect($referer);
+        return $this->render(
+            'security/disclaimer.html.twig',
+            [
+                'class_body' => 'DisclaimerPage',
+                'form'       => $form->createView(),
+            ]
+        );
+    }
+
+    /**
+     * @Route("/login", name="app_login")
+     */
+    public function login(
+        AuthenticationUtils $authenticationUtils,
+        OauthConnectUserRepository $repository
+    ): Response
+    {
+        $this->denyAccessUnlessGranted('IS_ANONYMOUS');
+        // get the login error if there is one
+        $error = $authenticationUtils->getLastAuthenticationError();
+        // last username entered by the user
+        $lastUsername = $authenticationUtils->getLastUsername();
+        $form         = $this->createForm(
+            LoginType::class,
+            ['username' => $lastUsername]
+        );
+
+        $oauths = $repository->findDistinctAllOauth();
+
+        return $this->render(
+            'security/login.html.twig',
+            [
+                'oauths'    => $oauths,
+                'formLogin' => $form->createView(),
+                'error'     => $error,
+            ]
+        );
+    }
+
+    /**
+     * @Route("/logout", name="app_logout")
+     */
+    public function logout(): void
+    {
+    }
+
+    /**
+     * @Route("/lost", name="app_lost")
+     */
+    public function lost(Request $request): Response
+    {
+        $this->denyAccessUnlessGranted('IS_ANONYMOUS');
+        $form = $this->createForm(LostPasswordType::class);
+        $form->handleRequest($request);
+        if ($form->isSubmitted()) {
+            $post = $request->request->get($form->getName());
+            $this->userService->postLostPassword($post);
+
+            return $this->redirect($this->generateUrl('app_login'), 302);
+        }
+
+        return $this->render(
+            'security/lost-password.html.twig',
+            [
+                'formLostPassword' => $form->createView(),
+            ]
+        );
     }
 
     /**
@@ -225,191 +377,41 @@ class SecurityController extends ControllerLib
     }
 
     /**
-     * @Route("/disclaimer", name="disclaimer")
+     * Link to this controller to start the "connect" process.
      *
-     * @return RedirectResponse|Response
+     * @Route("/oauth/lost/{oauthCode}", name="connect_lost")
      */
-    public function disclaimer(Request $request)
+    public function oauthLost(
+        Request $request,
+        string $oauthCode,
+        Security $security,
+        OauthConnectUserRepository $repository
+    ): RedirectResponse
     {
-        $form = $this->createForm(DisclaimerType::class, []);
-        $form->handleRequest($request);
+        $this->denyAccessUnlessGranted('ROLE_USER');
+        /** @var User $user */
+        $user = $security->getUser();
+        /** @var string $referer */
+        $referer = $request->headers->get('referer');
         $session = $request->getSession();
-        if ($form->isSubmitted()) {
-            $post = $request->request->get($form->getName());
-            if (isset($post['confirm'])) {
-                $session->set('disclaimer', 1);
-
-                return $this->redirect(
-                    $this->generateUrl('front')
-                );
-            }
-
-            $this->addFlash('danger', "Veuillez accepter l'énoncé");
+        $session->set('referer', $referer);
+        /** @var string $url */
+        $url = $this->generateUrl('front');
+        if ('' == $referer) {
+            $referer = $url;
         }
 
-        if (1 == $session->get('disclaimer', 0)) {
-            return $this->redirect(
-                $this->generateUrl('front')
+        $entity  = $repository->findOneOauthByUser($oauthCode, $user);
+        $manager = $this->getDoctrine()->getManager();
+        if ($entity instanceof OauthConnectUser) {
+            $manager->remove($entity);
+            $manager->flush();
+            $this->addFlash(
+                'success',
+                'Connexion Oauh '.$oauthCode.' dissocié'
             );
         }
 
-        return $this->render(
-            'security/disclaimer.html.twig',
-            [
-                'class_body' => 'DisclaimerPage',
-                'form'       => $form->createView(),
-            ]
-        );
-    }
-
-    /**
-     * @Route("/login", name="app_login")
-     */
-    public function login(
-        AuthenticationUtils $authenticationUtils,
-        OauthConnectUserRepository $repository
-    ): Response
-    {
-        $this->denyAccessUnlessGranted('IS_ANONYMOUS');
-        // get the login error if there is one
-        $error = $authenticationUtils->getLastAuthenticationError();
-        // last username entered by the user
-        $lastUsername = $authenticationUtils->getLastUsername();
-        $form         = $this->createForm(
-            LoginType::class,
-            ['username' => $lastUsername]
-        );
-
-        $oauths = $repository->findDistinctAllOauth();
-
-        return $this->render(
-            'security/login.html.twig',
-            [
-                'oauths'    => $oauths,
-                'formLogin' => $form->createView(),
-                'error'     => $error,
-            ]
-        );
-    }
-
-    /**
-     * @Route("/confirm/phone/{id}", name="app_confirm_phone")
-     */
-    public function confirmPhone(
-        Phone $phone,
-        PhoneRequestHandler $emailRequestHandler
-    ): RedirectResponse
-    {
-        if ('averifier' != $phone->getState()) {
-            $this->addFlash('danger', 'Phone déjà confirmé');
-
-            return $this->redirect($this->generateUrl('front'), 302);
-        }
-
-        $emailRequestHandler->changeWorkflowState($phone, ['valider']);
-        $this->addFlash('success', 'Phone confirmé');
-
-        return $this->redirect($this->generateUrl('front'), 302);
-    }
-
-    /**
-     * @Route("/confirm/email/{id}", name="app_confirm_mail")
-     */
-    public function confirmEmail(
-        Email $email,
-        EmailRequestHandler $emailRequestHandler
-    ): RedirectResponse
-    {
-        if ('averifier' != $email->getState()) {
-            $this->addFlash('danger', 'Courriel déjà confirmé');
-
-            return $this->redirect($this->generateUrl('front'), 302);
-        }
-
-        $emailRequestHandler->changeWorkflowState($email, ['valider']);
-        $this->addFlash('success', 'Courriel confirmé');
-
-        return $this->redirect($this->generateUrl('front'), 302);
-    }
-
-    /**
-     * @Route("/confirm/user/{id}", name="app_confirm_user")
-     */
-    public function confirmUser(
-        User $user,
-        UserRequestHandler $userRequestHandler
-    ): RedirectResponse
-    {
-        if ('avalider' != $user->getState()) {
-            $this->addFlash('danger', 'Utilisation déjà activé');
-
-            return $this->redirect($this->generateUrl('front'), 302);
-        }
-
-        $userRequestHandler->changeWorkflowState($user, ['validation']);
-        $this->addFlash('success', 'Utilisation activé');
-
-        return $this->redirect($this->generateUrl('front'), 302);
-    }
-
-    /**
-     * @Route("/change-password/{id}", name="app_changepassword")
-     */
-    public function changePassword(
-        User $user,
-        Request $request,
-        UserRequestHandler $requestHandler
-    ): Response
-    {
-        if ('lostpassword' != $user->getState()) {
-            $this->addFlash('danger', 'Demande de mot de passe non envoyé');
-
-            return $this->redirect($this->generateUrl('front'), 302);
-        }
-
-        $form = $this->createForm(ChangePasswordType::class, $user);
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $requestHandler->changeWorkflowState($user, ['valider']);
-
-            return $this->redirect($this->generateUrl('front'), 302);
-        }
-
-        return $this->render(
-            'security/change-password.html.twig',
-            [
-                'formChangePassword' => $form->createView(),
-            ]
-        );
-    }
-
-    /**
-     * @Route("/lost", name="app_lost")
-     */
-    public function lost(Request $request): Response
-    {
-        $this->denyAccessUnlessGranted('IS_ANONYMOUS');
-        $form = $this->createForm(LostPasswordType::class);
-        $form->handleRequest($request);
-        if ($form->isSubmitted()) {
-            $post = $request->request->get($form->getName());
-            $this->userService->postLostPassword($post);
-
-            return $this->redirect($this->generateUrl('app_login'), 302);
-        }
-
-        return $this->render(
-            'security/lost-password.html.twig',
-            [
-                'formLostPassword' => $form->createView(),
-            ]
-        );
-    }
-
-    /**
-     * @Route("/logout", name="app_logout")
-     */
-    public function logout(): void
-    {
+        return $this->redirect($referer);
     }
 }
