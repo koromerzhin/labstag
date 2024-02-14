@@ -115,7 +115,7 @@
     "devDependencies": {
         "@symfony/stimulus-bridge": "2.0.*",
         "@symfony/webpack-encore": "1.6.*",
-        "core-js": "3.21.*",
+        "core-js": "3.36.*",
         "eslint": "7.12.*",
         "eslint-config-standard": "16.0.*",
         "eslint-plugin-import": "2.25.*",
