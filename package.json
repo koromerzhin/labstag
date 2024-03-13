@@ -124,7 +124,7 @@
         "file-loader": "6.2.*",
         "postcss-loader": "7.0.*",
         "regenerator-runtime": "0.13.*",
-        "sass": "1.49.*",
+        "sass": "1.72.*",
         "sass-loader": "12.4.*",
         "stimulus": "2.0.*",
         "stylelint": "13.13.*",
