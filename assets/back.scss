@@ -1,0 +1,655 @@
+@import '@nm/bootstrap/scss/bootstrap.scss';
+@import '@nm/@fortawesome/fontawesome-free/scss/brands.scss';
+@import '@nm/@fortawesome/fontawesome-free/scss/fontawesome.scss';
+@import '@nm/@fortawesome/fontawesome-free/scss/regular.scss';
+@import '@nm/@fortawesome/fontawesome-free/scss/solid.scss';
+@import '@nm/flag-icons/sass/flag-icons.scss';
+@import '@nm/tom-select/dist/css/tom-select.bootstrap5.css';
+
+a {
+  @extend .text-decoration-none;
+
+  &[href^="tel:"] {
+    &::before {
+      @extend .fas;
+      @extend .fa-phone;
+
+      color: #000;
+      padding-right: 5px;
+    }
+  }
+
+  &[href^="mailto:"] {
+    &::before {
+      @extend .fas;
+      @extend .fa-at;
+
+      color: #f00;
+      padding-right: 5px;
+    }
+  }
+}
+
+label {
+  &:not(.float-end label) {
+    &.required {
+      &::after {
+        content: " *";
+        color: red;
+      }
+    }
+  }
+}
+
+form {
+  background-color: #f1f1f1;
+  padding: 1em;
+  margin: 2em;
+}
+
+table {
+  @extend .table;
+  @extend .table-bordered;
+  @extend .table-hover;
+  @extend .table-striped;
+}
+
+legend {
+  font-weight: bold;
+}
+
+fieldset {
+  @extend .shadow;
+  @extend .p-3;
+  @extend .mb-5;
+  @extend .bg-white;
+}
+
+picture {
+  img {
+    display: block;
+    object-fit: cover;
+    width: 20em;
+    margin: 0 auto;
+  }
+}
+
+.form-error {
+  @extend .text-uppercase;
+}
+
+.require-forminfo {
+  text-align: right;
+
+  span {
+    font-weight: bold;
+    color: red;
+  }
+}
+
+.btn-addcollection {
+  @extend .btn;
+  @extend .btn-primary;
+
+  i {
+    @extend .fas;
+    @extend .fa-plus;
+  }
+}
+
+#delete-modal,
+#deleties-modal,
+#delete-attachment-modal,
+#destroy-modal,
+#empty-modal,
+#empties-modal,
+#emptyall-modal,
+#restore-modal,
+#restories-modal,
+#workflow-modal {
+  @extend .modal;
+  @extend .fade;
+}
+
+.gps-icon {
+  &::before {
+    @extend .fas;
+    @extend .fa-map-marker-alt;
+
+    padding-right: 5px;
+  }
+}
+
+.btn-togglefieldset {
+  @extend .btn;
+  @extend .btn-info;
+
+  .min {
+    @extend .fas;
+    @extend .fa-window-minimize;
+  }
+
+  .max {
+    @extend .far;
+    @extend .fa-window-maximize;
+  }
+}
+
+.form-group {
+  @extend .mb-1;
+}
+
+.collection-row {
+  @extend .shadow;
+  @extend .p-3;
+  @extend .mb-5;
+  @extend .bg-white;
+}
+
+.form-control {
+  appearance: revert;
+}
+
+.header-edito-img {
+  img {
+    height: 10vh;
+  }
+}
+
+.pagination {
+  @extend .justify-content-center;
+}
+
+.sortable-save {
+  border: 1px solid #f00;
+}
+
+
+header {
+  .row {
+    background-color: #f1f1f1;
+  }
+}
+
+.menu-admin {
+  @extend .me-auto;
+}
+
+.menu-admin-profil {
+  @extend .ms-auto;
+}
+
+.entity-move {
+  @extend .list-group;
+
+  li {
+    @extend .list-group-item;
+
+    cursor: move;
+
+    &::before {
+      @extend .fas;
+      @extend .fa-expand-arrows-alt;
+
+      width: 2rem;
+    }
+  }
+}
+
+.tree {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    margin-left: 10px;
+  }
+
+  li {
+    margin: 0;
+    padding: 0 7px;
+    line-height: 20px;
+    color: #369;
+    font-weight: bold;
+    border-left: 1px solid rgb(100 100 100);
+
+    &::before {
+      position: relative;
+      top: -0.3em;
+      height: 1em;
+      width: 12px;
+      color: white;
+      border-bottom: 1px solid rgb(100 100 100);
+      content: "";
+      display: inline-block;
+      left: -7px;
+    }
+
+    &:last-child {
+      border-left: none;
+
+      &::before {
+        border-left: 1px solid rgb(100 100 100);
+      }
+    }
+  }
+}
+
+.thactions {
+  @extend .text-center;
+
+  i {
+    @extend .btn-admin-table-action;
+  }
+}
+
+.list-btn-admin {
+  @extend .btn-group;
+  @extend .btn-group-lg;
+
+  .link-btnadmin {
+    @extend .btn;
+    @extend .btn-secondary;
+
+    a {
+      @extend .d-flex;
+      @extend .flex-column;
+      @extend .align-items-center;
+
+      color: white;
+    }
+  }
+}
+
+.btn-admin-header-destroy {
+  @extend .fas;
+  @extend .fa-trash;
+}
+
+.btn-admin-header-restore,
+.btn-admin-header-restories {
+  @extend .fas;
+  @extend .fa-trash-restore;
+}
+
+.btn-admin-header-trash {
+  @extend .fas;
+  @extend .fa-trash;
+}
+
+.btn-admin-header-empty,
+.btn-admin-header-emptyall,
+.btn-admin-header-empties {
+  @extend .fas;
+  @extend .fa-trash;
+}
+
+.btn-admin-header-guard {
+  @extend .fas;
+  @extend .fa-gavel;
+}
+
+.btn-admin-header-edit {
+  @extend .far;
+  @extend .fa-edit;
+}
+
+.btn-admin-header-delete,
+.btn-admin-header-deleties {
+  @extend .far;
+  @extend .fa-trash-alt;
+}
+
+.btn-admin-header-show {
+  @extend .far;
+  @extend .fa-eye;
+}
+
+.btn-admin-header-save {
+  @extend .fas;
+  @extend .fa-save;
+}
+
+.btn-admin-header-export {
+  @extend .fas;
+  @extend .fa-file-export;
+}
+
+.btn-admin-save-move {
+  @extend .fas;
+  @extend .fa-save;
+}
+
+.btn-admin-header-new {
+  @extend .fas;
+  @extend .fa-plus;
+}
+
+.btn-admin-header-import {
+  @extend .fas;
+  @extend .fa-file-import;
+}
+
+.btn-admin-header-list {
+  @extend .fas;
+  @extend .fa-list;
+}
+
+.btn-admin-table-action {
+  @extend .fas;
+  @extend .fa-cog;
+
+  i {
+    @extend .fas;
+    @extend .fa-plus;
+  }
+
+  span {
+    display: none;
+  }
+}
+
+.link-guard {
+  @extend .btn;
+  @extend .btn-outline-dark;
+  @extend .btn-sm;
+
+  i {
+    @extend .fas;
+    @extend .fa-gavel;
+  }
+
+  span {
+    display: none;
+  }
+}
+
+.link-trash {
+  @extend .btn;
+  @extend .btn-outline-success;
+  @extend .btn-sm;
+
+  i {
+    @extend .fas;
+    @extend .fa-trash;
+  }
+
+  span {
+    display: none;
+  }
+}
+
+.link-add {
+  @extend .btn;
+  @extend .btn-outline-info;
+  @extend .btn-sm;
+
+  i {
+    @extend .fas;
+    @extend .fa-plus;
+  }
+
+  span {
+    display: none;
+  }
+}
+
+.link-move {
+  @extend .btn;
+  @extend .btn-outline-dark;
+  @extend .btn-sm;
+
+  i {
+    @extend .fas;
+    @extend .fa-expand-arrows-alt;
+  }
+
+  span {
+    display: none;
+  }
+}
+
+.link-show {
+  @extend .btn;
+  @extend .btn-outline-primary;
+  @extend .btn-sm;
+
+  i {
+    @extend .far;
+    @extend .fa-eye;
+  }
+
+  span {
+    display: none;
+  }
+}
+
+.link-edit {
+  @extend .btn;
+  @extend .btn-outline-success;
+  @extend .btn-sm;
+
+  i {
+    @extend .fas;
+    @extend .fa-edit;
+  }
+
+  span {
+    display: none;
+  }
+}
+
+.link-empty {
+  @extend .btn;
+  @extend .btn-outline-danger;
+  @extend .btn-sm;
+
+  i {
+    @extend .fas;
+    @extend .fa-trash-restore;
+  }
+
+  span {
+    display: none;
+  }
+}
+
+.link-restore {
+  @extend .btn;
+  @extend .btn-outline-success;
+  @extend .btn-sm;
+
+  i {
+    @extend .fas;
+    @extend .fa-trash-restore;
+  }
+
+  span {
+    display: none;
+  }
+}
+
+.workflow-action {
+  @extend .btn;
+  @extend .btn-outline-info;
+  @extend .btn-sm;
+
+  i {
+    @extend .fas;
+    @extend .fa-sign-in-alt;
+  }
+
+  &:hover {
+    color: white;
+  }
+}
+
+.link-delete,
+.link-destroy {
+  @extend .btn;
+  @extend .btn-outline-danger;
+  @extend .btn-sm;
+
+  i {
+    @extend .fas;
+    @extend .fa-trash-alt;
+  }
+
+  span {
+    display: none;
+  }
+}
+
+.breadcrumb {
+  .separator {
+    @extend .me-1;
+    @extend .ms-1;
+  }
+}
+
+.btngrouptable {
+  @extend .btn-group;
+}
+
+#navbar-supported-content {
+  .navbar-nav {
+    &:last-child {
+      li {
+        &.last {
+          right: 25px;
+        }
+      }
+    }
+  }
+}
+
+.guard-set {
+  @extend .form-check;
+  @extend .form-switch;
+
+  input {
+    @extend .form-check-input;
+  }
+}
+
+.empty {
+  text-align: center;
+}
+
+.btn-delete,
+.attachment-delete {
+  @extend .btn;
+  @extend .btn-danger;
+
+  i {
+    @extend .fas;
+    @extend .fa-trash-alt;
+  }
+}
+
+.th-inner {
+  .asc,
+  .desc,
+  .both {
+    @extend .text-decoration-none;
+
+    background-image: none !important;
+  }
+}
+
+.check-ok {
+  @extend .fas;
+  @extend .fa-check;
+
+  color: green;
+}
+
+.check-ko {
+  @extend .fas;
+  @extend .fa-times;
+
+  color: red;
+}
+
+#searchform {
+  background: transparent;
+  margin: 0;
+  padding: 0;
+
+  button {
+    margin-top: 22px;
+  }
+}
+
+@media all and (width >= 992px) {
+  .nav-item {
+    .dropdown-menu {
+      display: none;
+      margin-top: 0;
+    }
+
+    &:hover {
+      .nav-link {
+        color: #fff;
+      }
+
+      .dropdown-menu {
+        display: block;
+      }
+    }
+  }
+}
+
+.modal-dialog {
+  @extend .modal-dialog-centered;
+
+  .btn-cancel {
+    @extend .btn;
+    @extend .btn-outline-success;
+
+    i {
+      @extend .fas;
+      @extend .fa-ban;
+    }
+  }
+
+  .confirm-delete,
+  .confirm-deleties,
+  .confirm-destroy,
+  .confirm-empty,
+  .confirm-empties,
+  .confirm-emptyall,
+  .confirm-deleteattachment {
+    @extend .btn;
+    @extend .btn-outline-danger;
+
+    i {
+      @extend .fas;
+      @extend .fa-trash-alt;
+    }
+  }
+
+  .confirm-restore,
+  .confirm-restories {
+    @extend .btn;
+    @extend .btn-outline-danger;
+
+    i {
+      @extend .fas;
+      @extend .fa-trash-restore;
+    }
+  }
+
+  .confirm-workflow {
+    @extend .btn;
+    @extend .btn-outline-danger;
+
+    i {
+      @extend .fas;
+      @extend .fa-sign-in-alt;
+    }
+  }
+}

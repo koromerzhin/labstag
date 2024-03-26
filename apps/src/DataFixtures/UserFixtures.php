@@ -44,14 +44,14 @@ class UserFixtures extends FixtureLib implements DependentFixtureInterface
     {
         $user = new User();
 
-        $user->setRefgroupe($this->getRefgroupe($groupes, $dataUser['groupe']));
+        $user->setRefgroupe($this->getGroupe($groupes, $dataUser['groupe']));
         $user->setUsername($dataUser['username']);
         $user->setPlainPassword($dataUser['password']);
         $user->setEmail($dataUser['email']);
 
-        $objectManager->persist($user);
-        $this->workflowService->changeState($user, $dataUser['state']);
         $this->upload($user, $generator);
+        $objectManager->persist($user);
         $this->addReference('user_'.$index, $user);
+        $this->workflowService->changeState($user, $dataUser['state']);
     }
 }

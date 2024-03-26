@@ -1,6 +1,7 @@
 {% import "macro.html.twig" as macro_site %}
-{% if app.flashes is defined and app.flashes|length != 0 %}
-    <section id="{{ block_id(block) }}" class="{{ block_class(block) }}">
-        {{ macro_site.flashbag(app) }}
+{% set flashes = app.flashes %}
+{% if flashes|length > 0 %}
+    <section id="{{ block|block_id }}" class="{{ block|block_class }}">
+        {{ macro_site.flashbag(flashes) }}
     </section>
 {% endif %}

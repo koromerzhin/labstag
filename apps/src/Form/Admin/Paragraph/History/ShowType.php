@@ -2,7 +2,7 @@
 
 namespace Labstag\Form\Admin\Paragraph\History;
 
-use Labstag\Entity\Paragraph\History\Show;
+use Labstag\Entity\Paragraph\History\Show as HistoryShow;
 use Labstag\Lib\ParagraphAbstractTypeLib;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -12,7 +12,7 @@ class ShowType extends ParagraphAbstractTypeLib
     {
         $optionsResolver->setDefaults(
             [
-                'data_class' => Show::class,
+                'data_class' => HistoryShow::class,
             ]
         );
     }

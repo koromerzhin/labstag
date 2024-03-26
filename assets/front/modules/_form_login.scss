@@ -1,0 +1,68 @@
+%login_footer {
+  padding: 20px;
+  background: #868686;
+}
+
+.form-login{
+  height: 100vh;
+  display: flex;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
+  div:has(> input[type='checkbox']) {
+    label {
+      cursor: pointer;
+    }
+  }
+  form {
+    width: 90vw;
+    
+    box-shadow: 5px 5px 20px 0px #000000;
+    @include media-breakpoint-up(sm) {
+      width: 30vw;
+    }
+    border: 1px solid #000;
+  }
+
+  .form-group {
+    flex-direction: column;
+  }
+
+  .require-forminfo {
+    @extend %login_footer;
+    color: white;
+  }
+}
+.login_title {
+  text-align: center;
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 10px;
+}
+.login_body {
+  min-height: 10vh;
+  padding: 10px;
+}
+
+.login_footer {
+  @extend %login_footer;
+  display: flex;
+  justify-content: space-evenly;
+  flex-direction: column;
+  @include media-breakpoint-up(sm) {
+    flex-direction: row;
+  }
+}
+.login_lost {
+  @extend .btn;
+  @extend .btn-danger;
+  text-wrap: nowrap;
+}
+.login_btns {
+  display: contents;
+  justify-content: space-evenly;
+  flex-direction: column;
+  @include media-breakpoint-up(sm) {
+    flex-direction: row;
+  }
+}

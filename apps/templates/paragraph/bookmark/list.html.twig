@@ -1,37 +1,37 @@
-<section id="{{ paragraph_id(paragraph) }}" class="{{ paragraph_class(paragraph) }}">
+<section id="{{ paragraph|paragraph_id }}" class="{{ paragraph|paragraph_class }}">
     {% for bookmark in pagination %}
-		<div class="bookmark_data">
-			<h2 class="bookmark_name">
+		<div class="bookmark-data">
+			<h2 class="bookmark-name">
 				<a href="{{ path('front_bookmark', {'slug': bookmark.slug}) }}" target="_blank">
 					{{ bookmark.name }}
 				</a>
 			</h2>
 			{% set img = attachment(bookmark.img) %}
 			{% if img is not null and img.name is not null %}
-				<picture class="bookmark_img">
+				<picture class="bookmark-img">
 					<img loading="lazy" alt="{{ bookmark.name|e('html_attr') }}" src="{{ asset(img.name) | imagefilter('my_thumb') }}"/>
 				</picture>
 			{% endif %}
-			<div class="bookmark_date">
+			<div class="bookmark-date">
 				{{ 'bookmark.infodate'|trans(
                     {
                         '%date%': bookmark.published|format_datetime(pattern=formatdatetime.public)
                     }
                 )|raw }}
-				{% set state = guard_route('admin_bookmark_edit') %}
+				{% set state = 'admin_bookmark_edit'|guard_route %}
 				{% if state == true %}
 					<a href="{{ path('admin_bookmark_edit', {'id': bookmark.id}) }}" target="_blank">Modifier</a>
 				{% endif %}
 			</div>
-			<div class="bookmark_content">
+			<div class="bookmark-content">
 				{{ bookmark.content|raw }}
 			</div>
-            <div class="bookmark_libcat">
+            <div class="bookmark-libcat">
                 {% for libelle in bookmark.libelles %}
-                    <a href="{{ path('front_bookmark_libelle', {'slug' : libelle.slug}) }}" class="bookmark_libelle">{{ libelle }}</a>
+                    <a href="{{ path('front_bookmark_libelle', {'slug' : libelle.slug}) }}" class="bookmark-libelle">{{ libelle }}</a>
                 {% endfor %}
                 {% if bookmark.refcategory %}
-                    <a href="{{ path('front_bookmark_category', {'slug': bookmark.refcategory.slug}) }}" class="bookmark_category">{{ bookmark.refcategory }}</a>
+                    <a href="{{ path('front_bookmark_category', {'slug': bookmark.refcategory.slug}) }}" class="bookmark-category">{{ bookmark.refcategory }}</a>
                 {% endif %}
             </div>
 		</div>

@@ -3,6 +3,7 @@
 namespace Labstag\Twig;
 
 use Labstag\Lib\ExtensionLib;
+use Twig\TwigFilter;
 
 class DebugExtension extends ExtensionLib
 {
@@ -18,9 +19,9 @@ class DebugExtension extends ExtensionLib
         return $this->beginDebug($data);
     }
 
-    public function debugBeginForm(mixed $class): string
+    public function debugBeginForm(mixed $class, string $state): string
     {
-        $data = $this->getformClassData($class);
+        $data = $this->getformClassData($class, $state);
         if (0 == (is_countable($data) ? count($data) : 0)) {
             return '';
         }
@@ -28,9 +29,9 @@ class DebugExtension extends ExtensionLib
         return $this->beginDebug($data);
     }
 
-    public function debugBeginPrototype(array $blockPrefixes): string
+    public function debugBeginPrototype(array $blockPrefixes, string $state): string
     {
-        $data = $this->formPrototypeData($blockPrefixes);
+        $data = $this->formPrototypeData($blockPrefixes, $state);
         if (0 == (is_countable($data) ? count($data) : 0)) {
             return '';
         }
@@ -47,9 +48,9 @@ class DebugExtension extends ExtensionLib
         return $this->endDebug($data);
     }
 
-    public function debugEndForm(mixed $class): string
+    public function debugEndForm(mixed $class, string $state): string
     {
-        $data = $this->getformClassData($class);
+        $data = $this->getformClassData($class, $state);
         if (0 == (is_countable($data) ? count($data) : 0)) {
             return '';
         }
@@ -57,9 +58,9 @@ class DebugExtension extends ExtensionLib
         return $this->endDebug($data);
     }
 
-    public function debugEndPrototype(array $blockPrefixes): string
+    public function debugEndPrototype(array $blockPrefixes, string $state): string
     {
-        $data = $this->formPrototypeData($blockPrefixes);
+        $data = $this->formPrototypeData($blockPrefixes, $state);
         if (0 == (is_countable($data) ? count($data) : 0)) {
             return '';
         }
@@ -67,31 +68,57 @@ class DebugExtension extends ExtensionLib
         return $this->endDebug($data);
     }
 
-    public function getFiltersFunctions(): array
+    /**
+     * @return TwigFilter[]
+     */
+    public function getFilters(): array
     {
         return [
-            'debug_begin_prototype' => 'debugBeginPrototype',
-            'debug_end_prototype'   => 'debugEndPrototype',
-            'debug_begin_form'      => 'debugBeginForm',
-            'debug_end_form'        => 'debugEndForm',
-            'debug_begin'           => 'debugBegin',
-            'debug_end'             => 'debugEnd',
+            new TwigFilter(
+                'debug_begin_prototype',
+                fn (array $blockPrefixes, $state): string => $this->debugBeginPrototype($blockPrefixes, $state),
+                ['is_safe' => ['all']]
+            ),
+            new TwigFilter(
+                'debug_end_prototype',
+                fn (array $blockPrefixes, $state): string => $this->debugEndPrototype($blockPrefixes, $state),
+                ['is_safe' => ['all']]
+            ),
+            new TwigFilter(
+                'debug_begin_form',
+                fn ($class, $state): string => $this->debugBeginForm($class, $state),
+                ['is_safe' => ['all']]
+            ),
+            new TwigFilter(
+                'debug_end_form',
+                fn ($class, $state): string => $this->debugEndForm($class, $state),
+                ['is_safe' => ['all']]
+            ),
+            new TwigFilter(
+                'debug_begin',
+                fn (array $data): string => $this->debugBegin($data),
+                ['is_safe' => ['all']]
+            ),
+            new TwigFilter(
+                'debug_end',
+                fn (array $data): string => $this->debugEnd($data),
+                ['is_safe' => ['all']]
+            ),
         ];
     }
 
     private function beginDebug(array $data): string
     {
-        $html = "<!--\nTHEME DEBUG\n";
-        $html .= "THEME HOOK : '".$data['hook']."'\n";
+        $html = "<!--\n\tTHEME DEBUG\n";
+        $html .= "\tTHEME HOOK : '".$data['hook']."'\n";
         if (0 != (is_countable($data['files']) ? count($data['files']) : 0)) {
-            $html .= "FILE NAME SUGGESTIONS: \n";
+            $html .= "\tFILE NAME SUGGESTIONS: \n";
             foreach ($data['files'] as $file) {
-                $checked = ($data['view'] == $file) ? 'X' : '*';
-                $html .= ' '.$checked.' '.$file."\n";
+                $html .= str_repeat("\t", 2).(($data['view'] == $file) ? 'x' : '*').' '.$file."\n";
             }
         }
 
-        return $html.("BEGIN OUTPUT from '".$data['view']."' -->\n");
+        return $html.("\tBEGIN OUTPUT from '".$data['view']."'\n-->\n");
     }
 
     private function endDebug(array $data): string

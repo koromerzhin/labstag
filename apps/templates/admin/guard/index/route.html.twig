@@ -1,7 +1,7 @@
-{% set state1 = guard_route('api_guard_route') %}
-{% set state2 = guard_route('api_guard_routegroup') %}
-{% set state3 = guard_route('api_guard_routegroups') %}
-{% set state4 = guard_route('api_guard_routesetgroup') %}
+{% set state1 = 'api_guard_route'|guard_route %}
+{% set state2 = 'api_guard_routegroup'|guard_route %}
+{% set state3 = 'api_guard_routegroups'|guard_route %}
+{% set state4 = 'api_guard_routesetgroup'|guard_route %}
 {% set state = state1 and state2 and state3 and state4 %}
 {% if state1 == false %}
     {{ 'guard.lost'|trans({}, 'admin.messages') }}
@@ -25,11 +25,11 @@
                 {% for group in groups %}
                     <th>
                         {% if 'superadmin' != group.code %}
-                            <guard-changeroute
-                                state=0
-                                url="{{ path('api_guard_routegroup', {'group' : group.id}) }}"
-                                token="{{ csrf_token('guard') }}"
-                            />
+                            {% embed "embed/guard/changeroute.html.twig" with {
+                                state: 0,
+                                url: path('api_guard_routegroup', {'group' : group.id}),
+                                token: csrf_token('guard')
+                            } %}{% endembed %}
                         {% else %}
                             ----
                         {% endif %}
@@ -44,26 +44,26 @@
                     {{ route.name }}
                 </td>
                 <td>
-                    <guard-allroute
-                        state=0
-                        check=0
-                        url="{{ path('api_guard_routegroups', {'route': route.id}) }}"
-                        route="{{ route.name|e('html_attr') }}"
-                        token="{{ csrf_token('guard') }}"
-                    />
+                    {% embed "embed/guard/allroute.html.twig" with {
+                        state: 0,
+                        check: 0,
+                        url: path('api_guard_routegroups', {'route': route.id}),
+                        route: route.name|e('html_attr'),
+                        token: csrf_token('guard')
+                    } %}{% endembed %}
                 </td>
                 {% for group in groups %}
                     <td>
                         {% set enable = guard_route_enable_group(route, group) %}
                         {% if 'superadmin' != group.code and enable %}
-                            <guard-setroute
-                                title="{{ group.name|e('html_attr') }}"
-                                state=0
-                                groupe="{{ group.code|e('html_attr') }}"
-                                route="{{ route.name|e('html_attr') }}"
-                                url="{{ path('api_guard_routesetgroup', {'group' : group.id, 'route': route.id}) }}"
-                                token="{{ csrf_token('guard') }}"
-                            />
+                            {% embed "embed/guard/setroute.html.twig" with {
+                                title: group.name|e('html_attr'),
+                                state: 0,
+                                groupe: group.code|e('html_attr'),
+                                route: route.name|e('html_attr'),
+                                url: path('api_guard_routesetgroup', {'group' : group.id, 'route': route.id}),
+                                token: csrf_token('guard')
+                            } %}{% endembed %}
                         {% else %}
                             ---
                         {% endif %}

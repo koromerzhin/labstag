@@ -71,10 +71,10 @@ class PostFront extends PageFront implements FrontInterface
             return $breadcrumb;
         }
 
-        /** @var CategoryRepository $repository */
-        $repository = $this->repositoryService->get(Category::class);
+        /** @var CategoryRepository $repositoryLib */
+        $repositoryLib = $this->repositoryService->get(Category::class);
         /** @var Category $category */
-        $category = $repository->findOneBy(
+        $category = $repositoryLib->findOneBy(
             [
                 'slug' => $params['slug'],
             ]
@@ -105,10 +105,10 @@ class PostFront extends PageFront implements FrontInterface
             return $breadcrumb;
         }
 
-        /** @var LibelleRepository $repository */
-        $repository = $this->repositoryService->get(Libelle::class);
+        /** @var LibelleRepository $repositoryLib */
+        $repositoryLib = $this->repositoryService->get(Libelle::class);
         /** @var Libelle $libelle */
-        $libelle = $repository->findOneBy(
+        $libelle = $repositoryLib->findOneBy(
             [
                 'slug' => $params['slug'],
             ]

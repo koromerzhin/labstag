@@ -46,7 +46,7 @@
 	    {% if entity.oauthconnectusers|length != 0 or oauthActivated|length != 0 %}
 		<div class="tab-pane fade" id="oauth" role="tabpanel" aria-labelledby="oauth-tab">
             <div class="row">
-                {% set state = guard_route('connect_lost') %}
+                {% set state = 'connect_lost'|guard_route %}
                 {% if state == true and entity.oauthconnectusers|length != 0 %}
                     <div class="col-12">
                         <fieldset>
@@ -64,7 +64,7 @@
                         </fieldset>
                     </div>
                 {% endif %}
-                {% set state = guard_route('connect_start') %}
+                {% set state = 'connect_start'|guard_route %}
                 {% if state == true and oauthActivated|length != 0 %}
                     <div class="col-12">
                         <fieldset>

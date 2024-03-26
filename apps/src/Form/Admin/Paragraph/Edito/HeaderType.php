@@ -2,7 +2,7 @@
 
 namespace Labstag\Form\Admin\Paragraph\Edito;
 
-use Labstag\Entity\Paragraph\Edito\Header;
+use Labstag\Entity\Paragraph\Edito\Header as EditoHeader;
 use Labstag\Lib\ParagraphAbstractTypeLib;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -12,7 +12,7 @@ class HeaderType extends ParagraphAbstractTypeLib
     {
         $optionsResolver->setDefaults(
             [
-                'data_class' => Header::class,
+                'data_class' => EditoHeader::class,
             ]
         );
     }

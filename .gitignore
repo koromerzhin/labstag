@@ -14,3 +14,4 @@ docker-compose-*.yml
 mariadb
 node_modules
 report
+storybook-static

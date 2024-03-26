@@ -65,6 +65,17 @@ class LayoutType extends AbstractTypeLib
                 'delete' => 'admin_layout_paragraph_delete',
             ]
         );
+
+        $formBuilder->add(
+            child: 'groupes',
+            options: [
+                'label' => $this->translator->trans('layout.groupes.label', [], 'admin.form'),
+                'help'  => $this->translator->trans('layout.groupes.help', [], 'admin.form'),
+                'attr'  => [
+                    'placeholder' => $this->translator->trans('layout.groupes.placeholder', [], 'admin.form'),
+                ],
+            ]
+        );
     }
 
     public function configureOptions(OptionsResolver $optionsResolver): void

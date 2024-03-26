@@ -15,30 +15,30 @@ class WorkflowRepository extends RepositoryLib
 
     public function toDeleteEntities(array $entities): mixed
     {
-        $query = $this->createQueryBuilder('u');
-        $query->where(
+        $queryBuilder = $this->createQueryBuilder('u');
+        $queryBuilder->where(
             'u.entity NOT IN (:entities)'
         );
-        $query->setParameters(
+        $queryBuilder->setParameters(
             ['entities' => $entities]
         );
 
-        return $query->getQuery()->getResult();
+        return $queryBuilder->getQuery()->getResult();
     }
 
     public function toDeletetransition(string $entity, array $transitions): mixed
     {
-        $query = $this->createQueryBuilder('u');
-        $query->where(
+        $queryBuilder = $this->createQueryBuilder('u');
+        $queryBuilder->where(
             'u.entity=:entity AND u.transition NOT IN (:transitions)'
         );
-        $query->setParameters(
+        $queryBuilder->setParameters(
             [
                 'entity'      => $entity,
                 'transitions' => $transitions,
             ]
         );
 
-        return $query->getQuery()->getResult();
+        return $queryBuilder->getQuery()->getResult();
     }
 }

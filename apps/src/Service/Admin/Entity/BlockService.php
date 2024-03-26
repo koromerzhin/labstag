@@ -27,10 +27,10 @@ class BlockService extends ViewService implements AdminEntityServiceInterface
         }
 
         $field      = $this->blockService->getEntityField($entity);
-        $parameters = array_merge(
-            $parameters,
-            ['field' => $field]
-        );
+        $parameters = [
+            ...$parameters,
+            'field' => $field,
+        ];
 
         return parent::edit($entity, $parameters);
     }
@@ -74,9 +74,9 @@ class BlockService extends ViewService implements AdminEntityServiceInterface
             ]
         );
 
-        /** @var BlockRepository $blockRepository */
-        $blockRepository = $this->repositoryService->get(Block::class);
-        $data            = $blockRepository->getDataByRegion();
+        /** @var BlockRepository $repositoryLib */
+        $repositoryLib = $this->repositoryService->get(Block::class);
+        $data          = $repositoryLib->getDataByRegion(null);
 
         $templates = $this->getDomain()->getTemplates();
         if (!isset($templates['move'])) {
@@ -168,7 +168,7 @@ class BlockService extends ViewService implements AdminEntityServiceInterface
         /** @var BlockRepository $serviceEntityRepositoryLib */
         $serviceEntityRepositoryLib = $domain->getRepository();
         $this->btnService->setBtnListOrTrash($domain, $routeType);
-        $data  = $serviceEntityRepositoryLib->getDataByRegion();
+        $data  = $serviceEntityRepositoryLib->getDataByRegion(null);
         $total = 0;
         foreach ($data as $region) {
             $total += is_countable($region) ? count($region) : 0;
@@ -178,14 +178,12 @@ class BlockService extends ViewService implements AdminEntityServiceInterface
             throw new AccessDeniedException();
         }
 
-        $parameters = array_merge(
-            $parameters,
-            [
-                'data'    => $data,
-                'actions' => $url,
-                'newform' => $form,
-            ]
-        );
+        $parameters = [
+            ...$parameters,
+            'data'    => $data,
+            'actions' => $url,
+            'newform' => $form,
+        ];
 
         return $this->render(
             $templates[$type],

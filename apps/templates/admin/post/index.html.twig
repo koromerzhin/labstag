@@ -1,39 +1,39 @@
 {% extends 'admin.html.twig' %}
 {% block body %}
-    {% embed "admin/table.html.twig" %}
+    {% embed "admin/table.html.twig" with {
+        theads: [
+            {
+                'field': 'a.title',
+                'name': 'post.title'|trans({}, 'admin.messages')
+            },
+            {
+                'name': 'post.user'|trans({}, 'admin.messages')
+            },
+            {
+                'name': 'post.paragraphs'|trans({}, 'admin.messages')
+            },
+            {
+                'name': 'post.category'|trans({}, 'admin.messages')
+            },
+            {
+                'field': 'a.published',
+                'name': 'post.published'|trans({}, 'admin.messages')
+            },
+            {
+                'field': 'a.state',
+                'name': 'workflow.state'|trans({}, 'admin.messages')
+            },
+            {
+                'name': 'post.url'|trans({}, 'admin.messages')
+            },
+            {
+                'name': 'post.workflow'|trans({}, 'admin.messages')
+            }
+        ],
+        pagination: pagination,
+        action: true
+    } %}
         {% import "admin/macro.html.twig" as macro_admin %}
-        {% block thead %}
-            {% set theads = [
-                {
-                    'field': 'a.title',
-                    'name': 'post.title'|trans({}, 'admin.messages')
-                },
-                {
-                    'name': 'post.user'|trans({}, 'admin.messages')
-                },
-                {
-                    'name': 'post.paragraphs'|trans({}, 'admin.messages')
-                },
-                {
-                    'name': 'post.category'|trans({}, 'admin.messages')
-                },
-                {
-                    'field': 'a.published',
-                    'name': 'post.published'|trans({}, 'admin.messages')
-                },
-                {
-                    'field': 'a.state',
-                    'name': 'workflow.state'|trans({}, 'admin.messages')
-                },
-                {
-                    'name': 'post.url'|trans({}, 'admin.messages')
-                },
-                {
-                    'name': 'post.workflow'|trans({}, 'admin.messages')
-                }
-            ] %}
-			{{ macro_admin.thead(theads, pagination, true) }}
-        {% endblock %}
         {% block tbody %}
             {% for entity in pagination %}
                 <tr data-id="{{ entity.id }}">

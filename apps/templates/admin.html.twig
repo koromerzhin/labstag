@@ -1,3 +1,4 @@
+
 {% set sitemetatags = sitemetatags|merge([
     {
         'name': 'robots',
@@ -48,9 +49,9 @@
 			</div>
 		</div>
 		{{ macro_site.breadcrumbs(breadcrumbs) }}
-		{{ macro_site.flashbag(app) }}
+		{{ macro_site.flashbag(app.flashes) }}
 		{% if searchform is defined %}
-		    {{ macro_site.searchform(searchform) }}
+            {{ macro_site.searchform(searchform) }}
 		{% endif %}
 		{% block body %}{% endblock %}
     </div>

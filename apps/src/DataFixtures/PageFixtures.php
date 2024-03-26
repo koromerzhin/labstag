@@ -43,8 +43,8 @@ class PageFixtures extends FixtureLib implements DependentFixtureInterface
         }
 
         $reference = 'page_'.$pageData['slug'];
-        $this->addReference($reference, $page);
         $objectManager->persist($page);
+        $this->addReference($reference, $page);
         if (!array_key_exists('pages', $pageData)) {
             return;
         }

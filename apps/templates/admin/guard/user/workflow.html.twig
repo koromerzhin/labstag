@@ -1,6 +1,6 @@
-{% set state1 = guard_route('api_guard_workflow') %}
-{% set state2 = guard_route('api_guard_workflowuser') %}
-{% set state3 = guard_route('api_guard_workflowsetuser') %}
+{% set state1 = 'api_guard_workflow'|guard_route %}
+{% set state2 = 'api_guard_workflowuser'|guard_route %}
+{% set state3 = 'api_guard_workflowsetuser'|guard_route %}
 {% set state = state1 and state2 and state3 %}
 {% if state1 == false %}
     {{ 'guard.lost'|trans({}, 'admin.messages') }}
@@ -23,11 +23,11 @@
             </tr>
             <tr>
                 <th>
-                    <guard-changeworkflow
-                        state=0
-                        token="{{ csrf_token('guard') }}"
-                        url="{{ path('api_guard_workflowuser', {'user' : user.id}) }}"
-                    />
+                    {% embed "embed/guard/changeworkflow.html.twig" with {
+                        state: 0,
+                        url: path('api_guard_workflowuser', {'user' : group.id}),
+                        token: csrf_token('guard')
+                    } %}{% endembed %}
                 </th>
             </tr>
         </thead>
@@ -41,21 +41,21 @@
                     {{ workflow.transition }}
                 </td>
                 <td>
-                    <guard-refgroupworkflow
-                        state=0
-                        group="{{ user.refgroupe.code|e('html_attr') }}"
-                        entity="{{ workflow.entity|e('html_attr') }}"
-                        transition="{{ workflow.transition|e('html_attr') }}"
-                    />
+                    {% embed "embed/guard/refgroupworkflow.html.twig" with {
+                        state: 0,
+                        group: user.refgroupe.code|e('html_attr'),
+                        entity: workflow.entity|e('html_attr'),
+                        transition: workflow.transition|e('html_attr')
+                    } %}{% endembed %}
                 </td>
                 <td>
-                    <guard-setworkflow
-                        state=0
-                        entity="{{ workflow.entity|e('html_attr') }}"
-                        transition="{{ workflow.transition|e('html_attr') }}"
-                        token="{{ csrf_token('guard') }}"
-                        url="{{ path('api_guard_workflowsetuser', {'user' : user.id, 'workflow' : workflow.id}) }}"
-                    />
+                    {% embed "embed/guard/setworkflow.html.twig" with {
+                        state: 0,
+                        entity: workflow.entity|e('html_attr'),
+                        transition: workflow.transition|e('html_attr'),
+                        url: path('api_guard_workflowsetuser', {'user' : user.id, 'workflow' : workflow.id}),
+                        token: csrf_token('guard')
+                    } %}{% endembed %}
                 </td>
             </tr>
         {% else %}

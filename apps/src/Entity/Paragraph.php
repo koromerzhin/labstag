@@ -2,10 +2,10 @@
 
 namespace Labstag\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Labstag\Entity\Paragraph\Form;
 use Labstag\Entity\Paragraph\Image;
 use Labstag\Entity\Paragraph\Text;
 use Labstag\Entity\Paragraph\TextImage;
@@ -19,7 +19,6 @@ use Labstag\Repository\ParagraphRepository;
 use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 
 #[ORM\Entity(repositoryClass: ParagraphRepository::class)]
-#[ApiResource]
 class Paragraph implements EntityInterface
 {
     use BookmarkEntity;
@@ -35,6 +34,9 @@ class Paragraph implements EntityInterface
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $color = null;
+
+    #[ORM\OneToMany(mappedBy: 'paragraph', targetEntity: Form::class)]
+    private Collection $forms;
 
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
@@ -96,6 +98,17 @@ class Paragraph implements EntityInterface
         $this->videos             = new ArrayCollection();
         $this->images             = new ArrayCollection();
         $this->textImages         = new ArrayCollection();
+        $this->forms              = new ArrayCollection();
+    }
+
+    public function addForm(Form $form): self
+    {
+        if (!$this->forms->contains($form)) {
+            $this->forms->add($form);
+            $form->setParagraph($this);
+        }
+
+        return $this;
     }
 
     public function addImage(Image $image): self
@@ -151,6 +164,14 @@ class Paragraph implements EntityInterface
     public function getColor(): ?string
     {
         return $this->color;
+    }
+
+    /**
+     * @return Collection<int, Form>
+     */
+    public function getForms(): Collection
+    {
+        return $this->forms;
     }
 
     public function getId(): ?string
@@ -213,6 +234,16 @@ class Paragraph implements EntityInterface
     public function getVideos(): Collection
     {
         return $this->videos;
+    }
+
+    public function removeForm(Form $form): self
+    {
+        // set the owning side to null (unless already changed)
+        if ($this->forms->removeElement($form) && $form->getParagraph() === $this) {
+            $form->setParagraph(null);
+        }
+
+        return $this;
     }
 
     public function removeImage(Image $image): self

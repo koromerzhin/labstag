@@ -11,6 +11,7 @@ use Labstag\Service\DataService;
 use Labstag\Service\FrontService;
 use Labstag\Service\RepositoryService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
 
@@ -40,7 +41,7 @@ abstract class FrontControllerLib extends AbstractController
         }
 
         return $this->render(
-            'front.html.twig',
+            'skeleton/front.html.twig',
             ['content' => $page]
         );
     }
@@ -51,25 +52,78 @@ abstract class FrontControllerLib extends AbstractController
         ?Response $response = null
     ): Response
     {
+        $redirect   = null;
         $parameters = $this->setParameters($parameters);
+        if (isset($parameters['blocks'])) {
+            $redirect = $this->getRedirection($parameters['blocks']);
+        }
+
+        if (!is_null($redirect)) {
+            return $redirect;
+        }
+
+        $parameters = $this->launchBlock($parameters);
 
         return parent::render($view, $parameters, $response);
+    }
+
+    private function getRedirection(array $blocks): ?RedirectResponse
+    {
+        $redirect = null;
+
+        foreach ($blocks as $block) {
+            foreach ($block as $row) {
+                if (!$row['args']['parameters'] instanceof RedirectResponse) {
+                    continue;
+                }
+
+                $redirect = $row['args']['parameters'];
+
+                break;
+            }
+        }
+
+        return $redirect;
+    }
+
+    private function launchBlock(array $parameters): array
+    {
+        $blocks = $parameters['blocks'];
+        foreach ($blocks as $key => $block) {
+            foreach ($block as $position => $row) {
+                if ($row['args']['parameters'] instanceof RedirectResponse) {
+                    continue;
+                }
+
+                $callable = [
+                    $row['class'],
+                    $row['execute'],
+                ];
+
+                $content = call_user_func_array($callable, $row['args']);
+
+                $blocks[$key][$position]['data'] = $content;
+            }
+        }
+
+        $parameters['blocks'] = $blocks;
+
+        return $parameters;
     }
 
     private function setParameters(array $parameters): array
     {
         /** @var BlockRepository $repositoryLib */
         $repositoryLib = $this->repositoryService->get(Block::class);
-        $blocksArray   = $repositoryLib->getDataByRegion();
         $content       = null;
         if (isset($parameters['content'])) {
             $content = $parameters['content'];
             unset($parameters['content']);
         }
 
-        $globals = $this->twigEnvironment->getGlobals();
-
-        $config = $globals['config'] ?? $this->dataService->getConfig();
+        $blocksArray = $repositoryLib->getDataByRegion($content);
+        $globals     = $this->twigEnvironment->getGlobals();
+        $config      = $globals['config'] ?? $this->dataService->getConfig();
         if (!is_array($config)) {
             $config = [];
         }
@@ -94,16 +148,21 @@ abstract class FrontControllerLib extends AbstractController
             $parameters['blocks'][$key] = [];
             foreach ($blocks as $block) {
                 /** @var Block $block */
-                $data = $this->blockService->showContent($block, $content);
-                if (is_null($data)) {
+                $context = $this->blockService->getContext($block, $content);
+                if (is_null($context)) {
                     continue;
                 }
 
                 $template = $this->blockService->showTemplate($block, $content);
 
                 $parameters['blocks'][$key][] = [
+                    'class'    => $this->blockService->getClass($block),
+                    'execute'  => 'view',
+                    'args'     => [
+                        'twig'       => $this->blockService->getTwigTemplate($block, $content),
+                        'parameters' => $context,
+                    ],
                     'template' => $template,
-                    'data'     => $data,
                 ];
             }
         }

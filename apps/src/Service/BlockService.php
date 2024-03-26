@@ -7,19 +7,27 @@ use Labstag\Entity\Block;
 use Labstag\Interfaces\BlockInterface;
 use Labstag\Interfaces\EntityBlockInterface;
 use Labstag\Interfaces\EntityFrontInterface;
+use Labstag\Queue\EnqueueMethod;
 use Labstag\Repository\BlockRepository;
+use Labstag\Repository\PageRepository;
 use ReflectionClass;
-use Symfony\Component\DependencyInjection\Argument\RewindableGenerator;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
 class BlockService
 {
+
+    protected $rewindableGenerator;
+
     public function __construct(
-        protected RewindableGenerator $rewindableGenerator,
+        #[TaggedIterator('blocksclass')]
+        iterable $rewindableGenerator,
+        protected EnqueueMethod $enqueueMethod,
+        protected PageRepository $pageRepository,
         protected BlockRepository $blockRepository
     )
     {
+        $this->rewindableGenerator = $rewindableGenerator;
     }
 
     public function getAll(): array
@@ -33,6 +41,74 @@ class BlockService
         }
 
         return $data;
+    }
+
+    public function getClass(
+        Block $block
+    ): ?BlockInterface
+    {
+        $type        = $block->getType();
+        $entityBlock = $this->getEntity($block);
+        if (!$entityBlock instanceof EntityBlockInterface || is_null($type)) {
+            return null;
+        }
+
+        $class = null;
+        foreach ($this->rewindableGenerator as $row) {
+            /** @var BlockInterface $row */
+            if ($type === $row->getType()) {
+                $class = $row;
+
+                break;
+            }
+        }
+
+        return $class;
+    }
+
+    public function getClassCSS(
+        array $dataClass,
+        Block $block
+    ): array
+    {
+        $type        = $block->getType();
+        $entityBlock = $this->getEntity($block);
+        if (!$entityBlock instanceof EntityBlockInterface || is_null($type)) {
+            return $dataClass;
+        }
+
+        foreach ($this->rewindableGenerator as $row) {
+            /** @var BlockInterface $row */
+            if ($type === $row->getType()) {
+                $dataClass = $row->getClassCSS($dataClass, $entityBlock);
+            }
+        }
+
+        return $dataClass;
+    }
+
+    public function getContext(
+        Block $block,
+        ?EntityFrontInterface $entityFront
+    ): mixed
+    {
+        $type        = $block->getType();
+        $entityBlock = $this->getEntity($block);
+        if (!$entityBlock instanceof EntityBlockInterface || is_null($type)) {
+            return null;
+        }
+
+        $context = null;
+        foreach ($this->rewindableGenerator as $row) {
+            /** @var BlockInterface $row */
+            if ($type === $row->getType()) {
+                $context = $row->context($entityBlock, $entityFront);
+
+                break;
+            }
+        }
+
+        return $context;
     }
 
     public function getCustomBlock(): array
@@ -139,6 +215,30 @@ class BlockService
         ];
     }
 
+    public function getTwigTemplate(
+        Block $block,
+        ?EntityFrontInterface $entityFront
+    ): ?string
+    {
+        $type        = $block->getType();
+        $entityBlock = $this->getEntity($block);
+        if (!$entityBlock instanceof EntityBlockInterface || is_null($type)) {
+            return null;
+        }
+
+        $template = null;
+        foreach ($this->rewindableGenerator as $row) {
+            /** @var BlockInterface $row */
+            if ($type === $row->getType()) {
+                $template = $row->twig($entityBlock, $entityFront);
+
+                break;
+            }
+        }
+
+        return $template;
+    }
+
     public function getTypeEntity(Block $block): ?string
     {
         $type = $block->getType();
@@ -199,28 +299,42 @@ class BlockService
         return $show;
     }
 
-    public function showContent(
-        Block $block,
-        ?EntityFrontInterface $entityFront
-    ): ?Response
+    public function process(string $region, int $position, array $notinpages): void
     {
-        $type   = $block->getType();
-        $entity = $this->getEntity($block);
-        if (!$entity instanceof EntityBlockInterface || is_null($type)) {
-            return null;
+        $block = $this->blockRepository->findOneBy(
+            [
+                'region'   => $region,
+                'position' => $position,
+            ]
+        );
+        if (!$block instanceof Block) {
+            return;
         }
 
-        $html = null;
-        foreach ($this->rewindableGenerator as $row) {
-            /** @var BlockInterface $row */
-            if ($type === $row->getType()) {
-                $html = $row->show($entity, $entityFront);
-
-                break;
+        $pages = $this->pageRepository->getBySlugs($notinpages);
+        if (0 != (is_countable($pages) ? count($pages) : 0)) {
+            foreach ($pages as $page) {
+                $block->addNotinpage($page);
             }
         }
 
-        return $html;
+        $this->blockRepository->save($block);
+    }
+
+    public function setEntity(Block $block, EntityBlockInterface $entityBlock): void
+    {
+        $field = $this->getEntityField($block);
+        if (is_null($field)) {
+            return;
+        }
+
+        $reflectionClass  = new ReflectionClass($block);
+        $propertyAccessor = PropertyAccess::createPropertyAccessor();
+        foreach ($reflectionClass->getProperties() as $reflectionProperty) {
+            if ($reflectionProperty->getName() === $field) {
+                $propertyAccessor->setValue($block, $field, [$entityBlock]);
+            }
+        }
     }
 
     public function showTemplate(
@@ -228,9 +342,9 @@ class BlockService
         ?EntityFrontInterface $entityFront
     ): ?array
     {
-        $type   = $block->getType();
-        $entity = $this->getEntity($block);
-        if (!$entity instanceof EntityBlockInterface || is_null($type)) {
+        $type        = $block->getType();
+        $entityBlock = $this->getEntity($block);
+        if (!$entityBlock instanceof EntityBlockInterface || is_null($type)) {
             return null;
         }
 
@@ -238,7 +352,7 @@ class BlockService
         foreach ($this->rewindableGenerator as $row) {
             /** @var BlockInterface $row */
             if ($type === $row->getType()) {
-                $template = $row->template($entity, $entityFront);
+                $template = $row->template($entityBlock, $entityFront);
             }
         }
 

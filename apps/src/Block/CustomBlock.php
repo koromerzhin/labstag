@@ -12,10 +12,31 @@ use Labstag\Interfaces\EntityFrontInterface;
 use Labstag\Lib\BlockLib;
 use Labstag\Repository\LayoutRepository;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class CustomBlock extends BlockLib implements BlockInterface
 {
+    public function context(EntityBlockInterface $entityBlock, ?EntityFrontInterface $entityFront): mixed
+    {
+        unset($entityFront);
+        if (!$entityBlock instanceof Custom) {
+            return null;
+        }
+
+        $paragraphs = $this->setParagraphs($entityBlock);
+        $redirect   = $this->setRedirect($paragraphs);
+
+        if (!is_null($redirect)) {
+            return $redirect;
+        }
+
+        $paragraphs = $this->launchParagraphs($paragraphs);
+
+        return [
+            'paragraphs' => $paragraphs,
+            'block'      => $entityBlock,
+        ];
+    }
+
     public function getCode(EntityBlockInterface $entityBlock, ?EntityFrontInterface $entityFront): string
     {
         unset($entityBlock, $entityFront);
@@ -46,23 +67,6 @@ class CustomBlock extends BlockLib implements BlockInterface
     public function isShowForm(): bool
     {
         return false;
-    }
-
-    public function show(EntityBlockInterface $entityBlock, ?EntityFrontInterface $entityFront): ?Response
-    {
-        if (!$entityBlock instanceof Custom) {
-            return null;
-        }
-
-        $paragraphs = $this->setParagraphs($entityBlock);
-
-        return $this->render(
-            $this->getTemplateFile($this->getCode($entityBlock, $entityFront)),
-            [
-                'paragraphs' => $paragraphs,
-                'block'      => $entityBlock,
-            ]
-        );
     }
 
     private function setParagraphs(Custom $custom): array

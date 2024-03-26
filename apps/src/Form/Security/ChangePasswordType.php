@@ -50,4 +50,9 @@ class ChangePasswordType extends AbstractTypeLib
             ['csrf_token_id' => 'changepassword']
         );
     }
+
+    public function getBlockPrefix(): string
+    {
+        return 'change-password';
+    }
 }

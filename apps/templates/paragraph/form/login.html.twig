@@ -1,0 +1,38 @@
+<section id="{{ paragraph|paragraph_id }}" class="{{ paragraph|paragraph_class }}">
+    {{ form_start(form) }}
+    <h1 class="login_title">{{ 'form.login.title'|trans }}</h1>
+    <div class="login_body">
+        {% if error %}
+            <div class="alert alert-danger" role="alert">
+                <p>
+                    {{ error.messageKey|trans(error.messageData, 'security') }}
+                </p>
+            </div>
+        {% endif %}
+        {{ form_row(form.username) }}
+        {{ form_row(form.password) }}
+        {{ form_row(form.remember_me) }}
+    </div>
+    <div class="login_footer">
+        {{ form_widget(form.submit) }}
+        {% set state = 'app_lost'|guard_route %}
+        {% if state == true %}
+            <a href="{{ path('app_lost') }}" class="login_lost">{{ 'user.lostpassword.link'|trans }}</a>
+        {% endif %}
+        {% set state = 'connect_start'|guard_route %}
+        {% if state == true and oauths|length != 0 %}
+            <div class="oauth">
+                <div class="oauth-title">{{ 'user.login.oauth'|trans }}</div>
+                <div class="oauth-btns">
+                {% for oauth in oauths %}
+                    <a href="{{ path('connect_start', {'oauthCode': oauth.name}) }}" title="{{ oauth.name|e('html_attr') }}">
+                        <i class="fab fa-{{ oauth.name }}"></i>
+                        {{ oauth.name }}
+                    </a>
+                {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    {{ form_end(form) }}
+</section>

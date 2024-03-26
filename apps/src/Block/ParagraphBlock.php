@@ -8,10 +8,30 @@ use Labstag\Interfaces\BlockInterface;
 use Labstag\Interfaces\EntityBlockInterface;
 use Labstag\Interfaces\EntityFrontInterface;
 use Labstag\Lib\BlockLib;
-use Symfony\Component\HttpFoundation\Response;
 
 class ParagraphBlock extends BlockLib implements BlockInterface
 {
+    public function context(EntityBlockInterface $entityBlock, ?EntityFrontInterface $entityFront): mixed
+    {
+        if (!$entityBlock instanceof Paragraph) {
+            return null;
+        }
+
+        $data     = $this->setParagraphs($entityFront);
+        $redirect = $this->setRedirect($data);
+
+        if (!is_null($redirect)) {
+            return $redirect;
+        }
+
+        $data = $this->launchParagraphs($data);
+
+        return [
+            'paragraphs' => $data,
+            'block'      => $entityBlock,
+        ];
+    }
+
     public function getCode(EntityBlockInterface $entityBlock, ?EntityFrontInterface $entityFront): string
     {
         unset($entityBlock, $entityFront);
@@ -42,23 +62,6 @@ class ParagraphBlock extends BlockLib implements BlockInterface
     public function isShowForm(): bool
     {
         return false;
-    }
-
-    public function show(EntityBlockInterface $entityBlock, ?EntityFrontInterface $entityFront): ?Response
-    {
-        if (!$entityBlock instanceof Paragraph) {
-            return null;
-        }
-
-        $data = $this->setParagraphs($entityFront);
-
-        return $this->render(
-            $this->getTemplateFile($this->getCode($entityBlock, $entityFront)),
-            [
-                'paragraphs' => $data,
-                'block'      => $entityBlock,
-            ]
-        );
     }
 
     private function setParagraphs(?EntityFrontInterface $entityFront): array

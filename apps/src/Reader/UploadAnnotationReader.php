@@ -2,7 +2,6 @@
 
 namespace Labstag\Reader;
 
-use Doctrine\Common\Annotations\AnnotationReader;
 use Labstag\Annotation\Uploadable;
 use Labstag\Annotation\UploadableField;
 use Labstag\Interfaces\EntityInterface;
@@ -11,10 +10,6 @@ use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 
 class UploadAnnotationReader
 {
-    public function __construct(protected AnnotationReader $annotationReader)
-    {
-    }
-
     public function enableAttachment(array $annotations, array $fields): bool
     {
         $enable = false;

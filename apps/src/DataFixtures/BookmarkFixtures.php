@@ -50,8 +50,8 @@ class BookmarkFixtures extends FixtureLib implements DependentFixtureInterface
         $bookmark->setUrl($generator->url());
         $bookmark->setPublished($generator->unique()->dateTime('now'));
         $this->upload($bookmark, $generator);
-        $this->addReference('bookmark_'.$index, $bookmark);
         $objectManager->persist($bookmark);
+        $this->addReference('bookmark_'.$index, $bookmark);
         $this->workflowService->changeState($bookmark, $states);
     }
 }

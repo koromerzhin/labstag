@@ -17,22 +17,22 @@
 
 {% macro form_img(entity, field, name, url) %}
     {% set file = attachment(field) %}
-    {% set state = guard_route(url) %}
+    {% set state = url|guard_route %}
     {% if state == false %}
         {% set url = '#' %}
     {% endif %}
     {% if file is not null and file.name is not null %}
-        <attachment-img
-            src="{{ asset(file.name) | imagefilter('my_thumb') }}"
-            name="{{ name|e('html_attr') }}"
-            url="{{ url }}"
-            token="{{ csrf_token('attachment-img-' ~ entity.id) }}"
-        ></attachment-img>
+        {% embed "embed/attachment/img.html.twig" with {
+            src: asset(file.name) | imagefilter('my_thumb'),
+            name: name|e('html_attr'),
+            url: url,
+            token: csrf_token('attachment-img-' ~ entity.id)
+        } %}{% endembed %}
     {% endif %}
 {% endmacro %}
 
 {% macro show(entity, url, title) %}
-    {% set state = guard_route(url) %}
+    {% set state = url|guard_route %}
     {% if state == true %}
         <link-show
             href="{{ path(url, {'id': entity.id}) }}"
@@ -41,11 +41,11 @@
     {% endif %}
 {% endmacro %}
 {% macro guard(entity, url, title) %}
-    {% set state1 = guard_route(url) %}
+    {% set state1 = url|guard_route %}
     {% if entity.refgroupe is defined %}
-        {% set state2 = guard_user_access(entity) %}
+        {% set state2 = entity|guard_user_access %}
     {% else %}
-        {% set state2 = guard_group_access(entity) %}
+        {% set state2 = entity|guard_group_access %}
     {% endif %}
     {% if state1 == true and state2 == true %}
         <link-guard
@@ -55,7 +55,7 @@
     {% endif %}
 {% endmacro %}
 {% macro edit(entity, url) %}
-    {% set state1 = guard_route(url) %}
+    {% set state1 = url|guard_route %}
     {% set state2 = is_granted('edit', entity) %}
     {% if state1 == true and state2 == true %}
         <link-edit
@@ -65,7 +65,7 @@
     {% endif %}
 {% endmacro %}
 {% macro move(entity, url) %}
-    {% set state1 = guard_route(url) %}
+    {% set state1 = url|guard_route %}
     {% set state2 = is_granted('move', entity) %}
     {% if state1 == true and state2 == true %}
         <link-move
@@ -75,11 +75,11 @@
     {% endif %}
 {% endmacro %}
 {% macro delete(entity, urlDelete, urlList) %}
-    {% set state1 = guard_route(urlDelete) %}
-    {% set state2 = guard_route(urlList) %}
+    {% set state1 = urlDelete|guard_route %}
+    {% set state2 = urlList|guard_route %}
     {% if state1 == true and state2 == true %}
         <link-delete
-            url="{{ path(urlDelete, {'id': entity.id, 'entity': class_entity(entity)}) }}"
+            url="{{ path(urlDelete, {'id': entity.id, 'entity': entity|class_entity}) }}"
             token="{{ csrf_token('delete' ~ entity.id) }}"
             title="{{ 'link.delete'|trans({}, 'admin.messages')|e('html_attr') }}"
             {% if urlList != '' %}
@@ -89,11 +89,11 @@
     {% endif %}
 {% endmacro %}
 {% macro destroy(entity, urlDelete, urlList) %}
-    {% set state1 = guard_route(urlDelete) %}
-    {% set state2 = guard_route(urlList) %}
+    {% set state1 = urlDelete|guard_route %}
+    {% set state2 = urlList|guard_route %}
     {% if state1 == true and state2 == true %}
         <link-destroy
-            url="{{ path(urlDelete, {'id': entity.id, 'entity': class_entity(entity)}) }}"
+            url="{{ path(urlDelete, {'id': entity.id, 'entity': entity|class_entity}) }}"
             token="{{ csrf_token('destroy' ~ entity.id) }}"
             title="{{ 'link.destroy'|trans({}, 'admin.messages')|e('html_attr') }}"
             {% if urlList != '' %}
@@ -103,11 +103,11 @@
     {% endif %}
 {% endmacro %}
 {% macro restore(entity, urlDelete, urlList) %}
-    {% set state1 = guard_route(urlDelete) %}
-    {% set state2 = guard_route(urlList) %}
+    {% set state1 = urlDelete|guard_route %}
+    {% set state2 = urlList|guard_route %}
     {% if state1 == true and state2 == true %}
         <link-restore
-            url="{{ path(urlDelete, {'id': entity.id, 'entity': class_entity(entity)}) }}"
+            url="{{ path(urlDelete, {'id': entity.id, 'entity': entity|class_entity}) }}"
             token="{{ csrf_token('restore' ~ entity.id) }}"
             title="{{ 'link.restore'|trans({}, 'admin.messages')|e('html_attr') }}"
             {% if urlList != '' %}
@@ -118,18 +118,18 @@
 {% endmacro %}
 {% macro workflow(entity, actions) %}
     {% set trash = app.request.attributes.get('_route')|split('trash')|length-1 %}
-    {% if workflow_has(entity) and actions['workflow'] is defined and 0 == trash %}
-        {% set state1 = guard_route(actions['list']) %}
-        {% set state2 = guard_route(actions['workflow']) %}
+    {% if entity|workflow_has and actions['workflow'] is defined and 0 == trash %}
+        {% set state1 = actions['list']|guard_route %}
+        {% set state2 = actions['workflow']|guard_route %}
         {% if state1 == true  and state2 == true%}
             <div class="btngrouptable" role="group">
             {% for transition in workflow_transitions(entity) %}
-                <workflow-action
-                    url="{{ path(actions['workflow'], {'id': entity.id, 'state': transition.name, 'entity': class_entity(entity)}) }}"
-                    name="{{ transition.name|e('html_attr') }}"
-                    token="{{ csrf_token('workflow-' ~ transition.name ~ entity.id) }}"
-                    redirect="{{ path(actions['list']) }}"
-                ></workflow-action>
+                {% embed "embed/workflow/action.html.twig" with {
+                    url: path(actions['workflow'], {'id': entity.id, 'state': transition.name, 'entity': entity|class_entity}),
+                    name: transition.name|e('html_attr'),
+                    token: csrf_token('workflow-' ~ transition.name ~ entity.id),
+                    redirect: path(actions['list'])
+                } %}{% endembed %}
             {% endfor %}
             </div>
         {% endif %}

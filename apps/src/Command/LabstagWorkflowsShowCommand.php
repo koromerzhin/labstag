@@ -71,25 +71,25 @@ class LabstagWorkflowsShowCommand extends CommandLib
 
     private function delete(array $entities, array $data): void
     {
-        /** @var WorkflowRepository $repository */
-        $repository = $this->repositoryService->get(Workflow::class);
-        $toDelete   = $repository->toDeleteEntities($entities);
+        /** @var WorkflowRepository $repositoryLib */
+        $repositoryLib = $this->repositoryService->get(Workflow::class);
+        $toDelete      = $repositoryLib->toDeleteEntities($entities);
         if (!is_iterable($toDelete)) {
             return;
         }
 
         foreach ($toDelete as $entity) {
-            $repository->remove($entity);
+            $repositoryLib->remove($entity);
         }
 
         foreach ($data as $entity => $transitions) {
-            $toDelete = $repository->toDeleteTransition($entity, $transitions);
+            $toDelete = $repositoryLib->toDeleteTransition($entity, $transitions);
             if (!is_iterable($toDelete)) {
                 continue;
             }
 
             foreach ($toDelete as $entity) {
-                $repository->remove($entity);
+                $repositoryLib->remove($entity);
             }
         }
     }

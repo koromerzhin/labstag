@@ -66,4 +66,9 @@ class LoginType extends AbstractTypeLib
             ]
         );
     }
+
+    public function getBlockPrefix(): string
+    {
+        return 'login';
+    }
 }

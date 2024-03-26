@@ -60,6 +60,21 @@ class BlockType extends BlockAbstractTypeLib
             );
         }
 
+        $formBuilder->add(
+            child: 'groupes',
+            options: [
+                'label' => $this->translator->trans('block.groupes.label', [], 'admin.form'),
+                'help'  => $this->translator->trans('block.groupes.help', [], 'admin.form'),
+                'attr'  => [
+                    'placeholder' => $this->translator->trans('block.groupes.placeholder', [], 'admin.form'),
+                ],
+            ]
+        );
+
+        $formBuilder->add(
+            'notinpages',
+        );
+
         unset($options);
     }
 

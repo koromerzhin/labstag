@@ -3,14 +3,19 @@
 namespace Labstag\Service;
 
 use Labstag\Interfaces\DomainInterface;
-use Symfony\Component\DependencyInjection\Argument\RewindableGenerator;
+use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
 
 class DomainService
 {
+
+    protected $rewindableGenerator;
+
     public function __construct(
-        protected RewindableGenerator $rewindableGenerator
+        #[TaggedIterator('domainsclass')]
+        iterable $rewindableGenerator
     )
     {
+        $this->rewindableGenerator = $rewindableGenerator;
     }
 
     public function getDomain(string $entity): ?DomainInterface

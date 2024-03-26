@@ -10,6 +10,54 @@
         ],
         "pages": [
             {
+                "slug": "disclaimer",
+                "name": "disclaimer",
+                "paragraphs": [
+                    {
+                        "name": "form",
+                        "config": {
+                            "form": "disclaimer"
+                        }
+                    }
+                ]
+            },
+            {
+                "slug": "lost",
+                "name": "lost",
+                "paragraphs": [
+                    {
+                        "name": "form",
+                        "config": {
+                            "form": "lost-password"
+                        }
+                    }
+                ]
+            },
+            {
+                "slug": "change-password",
+                "name": "change-password",
+                "paragraphs": [
+                    {
+                        "name": "form",
+                        "config": {
+                            "form": "change-password"
+                        }
+                    }
+                ]
+            },
+            {
+                "slug": "login",
+                "name": "login",
+                "paragraphs": [
+                    {
+                        "name": "form",
+                        "config": {
+                            "form": "login"
+                        }
+                    }
+                ]
+            },
+            {
                 "slug": "mes-articles",
                 "name": "Mes articles",
                 "paragraphs": [

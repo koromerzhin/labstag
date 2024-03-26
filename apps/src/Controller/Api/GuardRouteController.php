@@ -251,7 +251,7 @@ class GuardRouteController extends ApiControllerLib
 
     private function setRouteUser(
         RouteUserRepository $routeUserRepository,
-        guardService $guardService,
+        GuardService $guardService,
         array $data,
         ?UserInterface $user,
         bool $state,

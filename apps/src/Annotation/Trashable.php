@@ -23,7 +23,7 @@ final class Trashable implements MappingAttribute
         ?string $url = null
     )
     {
-        if (empty($url)) {
+        if (null === $url || '' === $url) {
             throw new InvalidArgumentException("L'annotation Trashable doit avoir un attribut 'url'");
         }
 

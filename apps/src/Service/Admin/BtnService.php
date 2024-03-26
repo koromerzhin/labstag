@@ -588,7 +588,7 @@ class BtnService
     ): void
     {
         $this->setBtnList($url);
-        if (empty($entity->getId())) {
+        if (null === $entity->getId() || '' === $entity->getId()) {
             return;
         }
 
@@ -799,7 +799,7 @@ class BtnService
         string $title = 'Restaurer',
     ): void
     {
-        $token = $this->csrfTokenManager->getToken($code)->getValue();
+        $value = $this->csrfTokenManager->getToken($code)->getValue();
         if ($this->arrayKeyExistsRedirect($routes) || $this->arrayKeyExistsUrl($routes)) {
             return;
         }
@@ -817,7 +817,7 @@ class BtnService
             $title,
             [
                 'is'       => 'link-btnadmin'.$codemodal,
-                'token'    => $token,
+                'token'    => $value,
                 'redirect' => $this->router->generate(
                     $routes['redirect']['href'],
                     $routes['redirect']['params']

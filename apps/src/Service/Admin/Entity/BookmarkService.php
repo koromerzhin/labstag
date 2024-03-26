@@ -74,7 +74,7 @@ class BookmarkService extends ViewService implements AdminEntityServiceInterface
         $user   = $security->getUser();
         $userId = $user->getId();
         foreach ($domNodeList as $tag) {
-            $enqueueMethod->enqueue(
+            $enqueueMethod->async(
                 BookmarkService::class,
                 'process',
                 [

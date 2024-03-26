@@ -1,30 +1,30 @@
 {% extends 'admin.html.twig' %}
 {% block body %}
-    {% embed "admin/table.html.twig" %}
+    {% embed "admin/table.html.twig" with {
+        theads: [
+            {
+                'field': 'a.address',
+                'name': 'user.email.address'|trans({}, 'admin.messages'),
+            },
+            {
+                'field': 'a.principal',
+                'name': 'user.email.principal'|trans({}, 'admin.messages'),
+            },
+            {
+                'name': 'user.email.user'|trans({}, 'admin.messages'),
+            },
+            {
+                'field': 'a.state',
+                'name': 'workflow.state'|trans({}, 'admin.messages'),
+            },
+            {
+                'name': 'user.email.workflow'|trans({}, 'admin.messages'),
+            }
+        ],
+        pagination: pagination,
+        action: true
+    } %}
         {% import "admin/macro.html.twig" as macro_admin %}
-        {% block thead %}
-            {% set theads = [
-                {
-                    'field': 'a.address',
-                    'name': 'user.email.address'|trans({}, 'admin.messages'),
-                },
-                {
-                    'field': 'a.principal',
-                    'name': 'user.email.principal'|trans({}, 'admin.messages'),
-                },
-                {
-                    'name': 'user.email.user'|trans({}, 'admin.messages'),
-                },
-                {
-                    'field': 'a.state',
-                    'name': 'workflow.state'|trans({}, 'admin.messages'),
-                },
-                {
-                    'name': 'user.email.workflow'|trans({}, 'admin.messages'),
-                }
-            ] %}
-			{{ macro_admin.thead(theads, pagination, true) }}
-        {% endblock %}
         {% block tbody %}
             {% for entity in pagination %}
                 <tr data-id="{{ entity.id }}">

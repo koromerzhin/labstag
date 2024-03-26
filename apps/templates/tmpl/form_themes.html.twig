@@ -32,16 +32,16 @@
         {{ form_help(form) }}
         {% if field is defined and field is not null and field.id is not null %}
             {% set file = attachment(field) %}
-            {% set state = guard_route(url) %}
+            {% set state = url|guard_route %}
             {% if state == false %}
                 {% set url = '#' %}
             {% endif %}
             {% if file is not null and file.name is not null %}
-                <attachment-img
-                    src="{{ asset(file.name) | imagefilter('my_thumb') }}"
-                    url="{{ url }}"
-                    token="{{ csrf_token('attachment-img-' ~ file.id) }}"
-                ></attachment-img>
+                {% embed "embed/attachment/img.html.twig" with {
+                    src: asset(file.name)|imagefilter('my_thumb'),
+                    url: url,
+                    token: csrf_token('attachment-img-' ~ file.id)
+                } %}{% endembed %}
             {% endif %}
         {% endif %}
     </fieldset>
@@ -64,13 +64,13 @@
 {% endblock %}
 
 {% block form_rows %}
-    {% set template = formClass(form) %}
-    {{ debug_begin_form(form) }}
+    {% set template = form|form_class('back') %}
+    {{ form|debug_begin_form('back') }}
     {% include template with {
         'row': form|filter(child => not child.rendered),
         'allow_delete': false
     } %}
-    {{ debug_end_form(form) }}
+    {{ form|debug_end_form('back') }}
 {% endblock %}
 
 {% block fieldset_widget %}
@@ -373,7 +373,7 @@
                     'allow_add': true
                 }) %}
                 {% set element_attr = element_attr|merge({
-                    'data-prototype': block('collection_item_widget')|replace({'"': "'", "\n": "", "\t": ""})
+                    'data-prototype': block('collection_item_widget')|prototype
                 }) %}
             {% endif %}
         {% endif %}
@@ -404,7 +404,7 @@
             {% endif %}
         {% endfor %}
         {% if required == true %}
-            <div class="require-form-info">{{ 'form.requireinfo'|trans({"%span%": "<span>*</span>"})|raw }}</div>
+            <div class="require-forminfo">{{ 'form.requireinfo'|trans({"%span%": "<span>*</span>"})|raw }}</div>
         {% endif %}
     </form>
 {% endblock form_end %}
@@ -444,10 +444,10 @@
 			{{ label }}
             <div class="btn-group float-end" role="group">
                 {% if allow_add is defined and allow_add == true %}
-                    <btn-addcollection title="Ajouter"></btn-addcollection>
+                    {% embed "embed/btn/addcollection.html.twig" %}{% endembed %}
                 {% endif %}
                 {% if element|default('label') == 'legend' and "collection" in form.vars.block_prefixes and "minmax" in row_attr %}
-                    <btn-togglefieldset></btn-togglefieldset>
+                    {% embed "embed/btn/togglefieldset.html.twig" %}{% endembed %}
                 {% endif %}
             </div>
 		</{{ element|default('label') }}>
@@ -457,30 +457,24 @@
 
 {% block collection_item_widget %}
 	<div class="collection-row">
-        {{ debug_begin_prototype(prototype.vars.block_prefixes) }}
-        {% set template = formPrototype(prototype.vars.block_prefixes) %}
+        {% set template = prototype.vars.block_prefixes|form_prototype('back') %}
         {% include template with {
             'allow_delete': allow_delete,
             'prototype': prototype
         } %}
-        {{ debug_end_prototype(prototype.vars.block_prefixes) }}
 	</div>
-{% endblock %}
-
-{% block collection_delete %}
-    <btn-delete title="Supprimer" />
 {% endblock %}
 
 {% block collection_widget %}
     <div class="field-row">
         {% for row in form %}
-            {% set template = formClass(row) %}
+            {% set template = row|form_class('back') %}
             {% if prototype is defined %}
                 <div class="collection-row">
             {% endif %}
-            {{ debug_begin_form(row) }}
+            {{ row|debug_begin_form('back') }}
             {% include template with {'row': row, 'allow_delete': allow_delete} %}
-            {{ debug_end_form(row) }}
+            {{ row|debug_end_form('back') }}
             {% if prototype is defined %}
                 </div>
             {% endif %}

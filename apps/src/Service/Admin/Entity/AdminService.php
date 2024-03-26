@@ -38,7 +38,7 @@ class AdminService extends ViewService implements AdminEntityServiceInterface
         );
     }
 
-    public function themes(): Response
+    public function themes(string $state): Response
     {
         $data = [
             'buttons'     => [[]],
@@ -48,11 +48,12 @@ class AdminService extends ViewService implements AdminEntityServiceInterface
             'extra'       => [[]],
             'other'       => [[]],
             'text'        => [[]],
+            'collection'  => [[]],
         ];
         $form = $this->createForm(FormType::class, $data);
 
         return $this->render(
-            'admin/form.html.twig',
+            $state.'/form.html.twig',
             ['form' => $form]
         );
     }

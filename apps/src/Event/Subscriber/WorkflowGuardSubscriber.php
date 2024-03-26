@@ -30,8 +30,8 @@ class WorkflowGuardSubscriber extends EventSubscriberLib
         $token        = $this->tokenStorage->getToken();
         $workflowName = $guardEvent->getWorkflowName();
         $name         = $guardEvent->getTransition()->getName();
-        /** @var WorkflowRepository $repositoryWorkflow */
-        $repositoryWorkflow = $this->repositoryService->get(Workflow::class);
+        /** @var WorkflowRepository $repositoryLib */
+        $repositoryLib = $this->repositoryService->get(Workflow::class);
         /** @var GroupeRepository $repositoryGroupe */
         $repositoryGroupe = $this->repositoryService->get(Groupe::class);
         /** @var WorkflowGroupeRepository $repositoryWorkflowGroupe */
@@ -39,13 +39,13 @@ class WorkflowGuardSubscriber extends EventSubscriberLib
         /** @var WorkflowUserRepository $repositoryWorkflowUser */
         $repositoryWorkflowUser = $this->repositoryService->get(WorkflowUser::class);
         $testRepo               = $this->testrepo(
-            $repositoryWorkflow,
+            $repositoryLib,
             $repositoryGroupe,
             $repositoryWorkflowGroupe,
             $repositoryWorkflowUser
         );
 
-        $workflow = $repositoryWorkflow->findOneBy(
+        $workflow = $repositoryLib->findOneBy(
             [
                 'entity'     => $workflowName,
                 'transition' => $name,

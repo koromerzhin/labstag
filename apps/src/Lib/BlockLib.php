@@ -11,14 +11,18 @@ use Labstag\Service\ParagraphService;
 use Labstag\Service\RepositoryService;
 use Symfony\Bridge\Twig\AppVariable;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 
 abstract class BlockLib extends AbstractController
 {
     public function __construct(
+        protected CacheInterface $cache,
         protected RepositoryService $repositoryService,
         protected MenuService $menuService,
         protected ParagraphService $paragraphService,
@@ -30,6 +34,17 @@ abstract class BlockLib extends AbstractController
         protected array $template = []
     )
     {
+    }
+
+    public function getClassCSS(
+        array $dataClass,
+        EntityBlockInterface $entityBlock
+    ): array
+    {
+        $block       = $entityBlock->getBlock();
+        $dataClass[] = $block->getRegion().'-block-'.$block->getType();
+
+        return $dataClass;
     }
 
     public function getCode(EntityBlockInterface $entityBlock, ?EntityFrontInterface $entityFront): string
@@ -47,6 +62,19 @@ abstract class BlockLib extends AbstractController
         return $this->showTemplateFile($this->getCode($entityBlock, $entityFront));
     }
 
+    public function twig(EntityBlockInterface $entityBlock, ?EntityFrontInterface $entityFront): string
+    {
+        return $this->getTemplateFile($this->getCode($entityBlock, $entityFront));
+    }
+
+    public function view(string $twig, array $parameters = []): ?Response
+    {
+        return $this->render(
+            $twig,
+            $parameters
+        );
+    }
+
     protected function getParagraphsArray(
         ParagraphService $paragraphService,
         EntityFrontInterface $entityFront,
@@ -61,16 +89,21 @@ abstract class BlockLib extends AbstractController
         $paragraphsArray = $entityFront->getParagraphs();
         foreach ($paragraphsArray as $paragraphArray) {
             /** @var Paragraph $paragraphArray */
-            $data = $paragraphService->showContent($paragraphArray);
-            if (is_null($data)) {
+            $context = $paragraphService->getContext($paragraphArray);
+            if (is_null($context)) {
                 continue;
             }
 
             $template = $paragraphService->showTemplate($paragraphArray);
 
             $paragraphs[] = [
+                'class'    => $paragraphService->getClass($paragraphArray),
+                'execute'  => 'view',
+                'args'     => [
+                    'twig'       => $paragraphService->getTwigTemplate($paragraphArray),
+                    'parameters' => $context,
+                ],
                 'template' => $template,
-                'data'     => $data,
             ];
         }
 
@@ -118,6 +151,42 @@ abstract class BlockLib extends AbstractController
         $data = $this->getTemplateData($type);
 
         return $data['view'];
+    }
+
+    protected function launchParagraphs(array $paragraphs): array
+    {
+        foreach ($paragraphs as $position => $row) {
+            if ($row['args']['parameters'] instanceof RedirectResponse) {
+                continue;
+            }
+
+            $callable = [
+                $row['class'],
+                $row['execute'],
+            ];
+
+            $content = call_user_func_array($callable, $row['args']);
+
+            $paragraphs[$position]['data'] = $content;
+        }
+
+        return $paragraphs;
+    }
+
+    protected function setRedirect(array $paragraphs): mixed
+    {
+        $redirect = null;
+        foreach ($paragraphs as $paragraph) {
+            if (!$paragraph['args']['parameters'] instanceof RedirectResponse) {
+                continue;
+            }
+
+            $redirect = $paragraph['args']['parameters'];
+
+            break;
+        }
+
+        return $redirect;
     }
 
     protected function showTemplateFile(string $type): array

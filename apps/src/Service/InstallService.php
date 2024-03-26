@@ -28,10 +28,10 @@ class InstallService
     {
     }
 
-    public function config(array $serverEnv): void
+    public function config(): void
     {
         $config = $this->getData('config');
-        $this->setOauth($serverEnv, $config);
+        $this->setOauth($config);
         foreach ($config as $key => $row) {
             $this->addConfig($key, $row);
         }
@@ -59,7 +59,7 @@ class InstallService
         return $data;
     }
 
-    public function getEnv(array $serverEnv): array
+    public function getEnv(): array
     {
         $file   = dirname(__DIR__, 2).'/.env';
         $data   = [];
@@ -68,7 +68,6 @@ class InstallService
             $data = $dotenv->parse((string) file_get_contents($file));
         }
 
-        $data = array_merge($serverEnv, $data);
         ksort($data);
 
         return $data;
@@ -116,9 +115,9 @@ class InstallService
         $this->userService->create($groupes, $dataUser);
     }
 
-    protected function setOauth(array $serverEnv, array &$data): void
+    protected function setOauth(array &$data): void
     {
-        $env   = $this->getEnv($serverEnv);
+        $env   = $this->getEnv();
         $oauth = [];
         foreach ($env as $key => $val) {
             if (0 == substr_count((string) $key, 'OAUTH_')) {

@@ -4,12 +4,21 @@ namespace Labstag\Twig;
 
 use Labstag\Interfaces\EntityInterface;
 use Labstag\Lib\ExtensionLib;
+use Twig\TwigFilter;
 
 class WorkflowExtension extends ExtensionLib
 {
-    public function getFiltersFunctions(): array
+    /**
+     * @return TwigFilter[]
+     */
+    public function getFilters(): array
     {
-        return ['workflow_has' => 'workflowHas'];
+        return [
+            new TwigFilter(
+                'workflow_has',
+                fn (EntityInterface $entity): bool => $this->workflowHas($entity)
+            ),
+        ];
     }
 
     public function workflowHas(EntityInterface $entity): bool

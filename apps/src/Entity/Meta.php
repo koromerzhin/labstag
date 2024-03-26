@@ -2,7 +2,6 @@
 
 namespace Labstag\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
 use Labstag\Interfaces\EntityInterface;
 use Labstag\Repository\MetaRepository;
@@ -10,7 +9,6 @@ use Stringable;
 use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 
 #[ORM\Entity(repositoryClass: MetaRepository::class)]
-#[ApiResource]
 class Meta implements Stringable, EntityInterface
 {
 

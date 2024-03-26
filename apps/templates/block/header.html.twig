@@ -1,6 +1,6 @@
 {% if imageglobal is not null and imageglobal.name is not null %}
-    <section id="{{ block_id(block) }}" class="{{ block_class(block) }}">
-        <picture class="home_logo">
+    <section id="{{ block|block_id }}" class="{{ block|block_class }}">
+        <picture class="home-logo">
             <img loading="lazy" alt="{{ config.site_title|e('html_attr') }}" src="{{ asset(imageglobal.name) | imagefilter('my_thumb') }}" />
         </picture>
     </section>

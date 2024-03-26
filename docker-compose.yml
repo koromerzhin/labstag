@@ -16,7 +16,7 @@ services:
     networks:
       - net
   phpfpm:
-    image: koromerzhin/php:8.2.5-fpm
+    image: koromerzhin/php:8.3.4-fpm-symfony
     command: sh -c "composer install && php-fpm"
     depends_on:
       - mariadb

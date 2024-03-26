@@ -1,5 +1,5 @@
 {% import "macro.html.twig" as macro_site %}
-<section id="{{ paragraph_id(paragraph) }}" class="{{ paragraph_class(paragraph) }}">
+<section id="{{ paragraph|paragraph_id }}" class="{{ paragraph|paragraph_class }}">
     <h2 class="history_name">
         {{ history.name }}
         <a href="{{ path('front_history_pdf', {'slug': history.slug}) }}" target="_blank">
@@ -13,7 +13,7 @@
                 '%user%': macro_site.user(history.refuser, path('front_history_user', {'username': history.refuser.username}))
             }
         )|raw }}
-        {% set state = guard_route('admin_history_edit') %}
+        {% set state = 'admin_history_edit'|guard_route %}
         {% if state == true %}
             <a href="{{ path('admin_history_edit', {'id': history.id}) }}" target="_blank">Modifier</a>
         {% endif %}

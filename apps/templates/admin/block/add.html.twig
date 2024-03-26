@@ -14,7 +14,7 @@
                 {{ form_end(newform) }}
             </div>
             <div class="modal-footer">
-                <confirm-close title="{{ 'modal.button.cancel'|trans|e('html_attr') }}" />
+                {% embed "embed/confirm/close.html.twig" %}{% endembed %}
             </div>
         </div>
     </div>

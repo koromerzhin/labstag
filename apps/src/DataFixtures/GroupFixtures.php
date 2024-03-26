@@ -28,7 +28,8 @@ class GroupFixtures extends DataFixtureLib implements DependentFixtureInterface
         $groupe = new Groupe();
         $groupe->setCode($row);
         $groupe->setName($row);
-        $this->addReference('groupe_'.$key, $groupe);
+
         $objectManager->persist($groupe);
+        $this->addReference('groupe_'.$key, $groupe);
     }
 }

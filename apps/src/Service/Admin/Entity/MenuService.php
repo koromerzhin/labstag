@@ -28,9 +28,9 @@ class MenuService extends ViewService implements AdminEntityServiceInterface
             return new RedirectResponse($url);
         }
 
-        /** @var MenuRepository $menuRepository */
-        $menuRepository = $this->repositoryService->get(Menu::class);
-        $parent         = $menuRepository->find($get['id']);
+        /** @var MenuRepository $repositoryLib */
+        $repositoryLib = $this->repositoryService->get(Menu::class);
+        $parent        = $repositoryLib->find($get['id']);
         if (!$parent instanceof Menu) {
             return new RedirectResponse($url);
         }
@@ -81,11 +81,11 @@ class MenuService extends ViewService implements AdminEntityServiceInterface
         array $parameters = []
     ): Response
     {
-        /** @var MenuRepository $menuRepository */
-        $menuRepository = $this->repositoryService->get(Menu::class);
-        $all            = $menuRepository->findAllCode();
-        $globals        = $this->twigEnvironment->getGlobals();
-        $modal          = $globals['modal'] ?? [];
+        /** @var MenuRepository $repositoryLib */
+        $repositoryLib = $this->repositoryService->get(Menu::class);
+        $all           = $repositoryLib->findAllCode();
+        $globals       = $this->twigEnvironment->getGlobals();
+        $modal         = $globals['modal'] ?? [];
         if (!is_array($modal)) {
             $modal = [];
         }
@@ -99,10 +99,10 @@ class MenuService extends ViewService implements AdminEntityServiceInterface
             throw new Exception('Template not found');
         }
 
-        $parameters = array_merge(
-            $parameters,
-            ['all' => $all]
-        );
+        $parameters = [
+            ...$parameters,
+            'all' => $all,
+        ];
 
         return $this->render(
             'admin/menu/index.html.twig',
@@ -145,10 +145,10 @@ class MenuService extends ViewService implements AdminEntityServiceInterface
             ]
         );
 
-        $parameters = array_merge(
-            $parameters,
-            ['menu' => $menu]
-        );
+        $parameters = [
+            ...$parameters,
+            'menu' => $menu,
+        ];
 
         $templates = $this->getDomain()->getTemplates();
         if (!array_key_exists('move', $templates)) {

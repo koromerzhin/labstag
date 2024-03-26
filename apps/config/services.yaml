@@ -21,7 +21,6 @@ services:
       - '../src/DependencyInjection/'
       - '../src/Entity/'
       - '../src/Kernel.php'
-      - "../src/Reader/"
   Labstag\Paragraph\:
       resource: "../src/Paragraph/"
       public: true
@@ -42,6 +41,14 @@ services:
       resource: "../src/Front/"
       public: true
       tags: [frontclass]
+  Labstag\Form\Front\:
+      resource: "../src/Form/Front/"
+      public: true
+      tags: [frontform]
+  Labstag\Form\Security\:
+      resource: "../src/Form/Security/"
+      public: true
+      tags: [securityform]
   Labstag\PostForm\:
     resource: "../src/PostForm/"
     public: true
@@ -60,35 +67,6 @@ services:
   Labstag\Controller\:
     resource: "../src/Controller/"
     tags: ["controller.service_arguments"]
-  Labstag\Command\:
-    resource: "../src/Command/"
-    arguments:  
-      - serverenv: "env"
-      - !tagged_iterator entitiesclass
-  Labstag\Service\RepositoryService:
-    arguments:  
-      - !tagged_iterator repositories
-  Labstag\Service\TrashService:
-    arguments:  
-      - !tagged_iterator repositories
-  Labstag\Service\FormService:
-    arguments:
-      - !tagged_iterator postform
-  Labstag\Service\BlockService:
-    arguments:
-      - !tagged_iterator blocksclass
-  Labstag\Service\DomainService:
-    arguments:
-      - !tagged_iterator domainsclass
-  Labstag\Service\ParagraphService:
-    arguments:
-      - !tagged_iterator paragraphsclass
-  Labstag\Service\AdminService:
-    arguments:
-      - !tagged_iterator entitiesadminservice
-  Labstag\Service\FrontService:
-    arguments:
-      - !tagged_iterator frontclass
   Labstag\OpenApi\ActionsOpenApi:
     decorates: api_platform.openapi.factory
   Labstag\OpenApi\AttachmentOpenApi:
@@ -99,8 +77,6 @@ services:
     decorates: api_platform.openapi.factory
   Labstag\OpenApi\SearchOpenApi:
     decorates: api_platform.openapi.factory
-  Labstag\Reader\UploadAnnotationReader:
-    arguments: ["@annotations.reader"]
 
   # add more service definitions when explicit configuration is needed
   # please note that last definitions always *replace* previous ones

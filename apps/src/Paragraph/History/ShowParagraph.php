@@ -11,15 +11,37 @@ use Labstag\Interfaces\ParagraphInterface;
 use Labstag\Lib\ParagraphLib;
 use Labstag\Repository\HistoryRepository;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class ShowParagraph extends ParagraphLib implements ParagraphInterface
 {
-    public function getCode(EntityParagraphInterface $entityParagraph): string
+    public function context(EntityParagraphInterface $entityParagraph): mixed
+    {
+        /** @var Request $request */
+        $request    = $this->requestStack->getCurrentRequest();
+        $all        = $request->attributes->all();
+        $routeParam = $all['_route_params'];
+        $slug       = $routeParam['slug'] ?? null;
+        /** @var HistoryRepository $repositoryLib */
+        $repositoryLib = $this->repositoryService->get(History::class);
+        $history       = $repositoryLib->findOneBy(
+            ['slug' => $slug]
+        );
+
+        if (!$history instanceof History) {
+            return null;
+        }
+
+        return [
+            'history'   => $history,
+            'paragraph' => $entityParagraph,
+        ];
+    }
+
+    public function getCode(EntityParagraphInterface $entityParagraph): array
     {
         unset($entityParagraph);
 
-        return 'history/show';
+        return ['history/show'];
     }
 
     public function getEntity(): string
@@ -45,32 +67,6 @@ class ShowParagraph extends ParagraphLib implements ParagraphInterface
     public function isShowForm(): bool
     {
         return false;
-    }
-
-    public function show(EntityParagraphInterface $entityParagraph): ?Response
-    {
-        /** @var Request $request */
-        $request    = $this->requestStack->getCurrentRequest();
-        $all        = $request->attributes->all();
-        $routeParam = $all['_route_params'];
-        $slug       = $routeParam['slug'] ?? null;
-        /** @var HistoryRepository $repositoryLib */
-        $repositoryLib = $this->repositoryService->get(History::class);
-        $history       = $repositoryLib->findOneBy(
-            ['slug' => $slug]
-        );
-
-        if (!$history instanceof History) {
-            return null;
-        }
-
-        return $this->render(
-            $this->getTemplateFile($this->getCode($entityParagraph)),
-            [
-                'history'   => $history,
-                'paragraph' => $entityParagraph,
-            ]
-        );
     }
 
     /**

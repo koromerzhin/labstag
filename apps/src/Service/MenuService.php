@@ -144,7 +144,7 @@ class MenuService
             }
         }
 
-        if ($divider == (is_countable($children) ? count($children) : 0)) {
+        if ($divider === (is_countable($children) ? count($children) : 0)) {
             $menuItem->removeChild($key);
         }
     }

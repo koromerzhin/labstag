@@ -1,4 +1,4 @@
-<section id="{{ paragraph_id(paragraph) }}" class="{{ paragraph_class(paragraph) }}{% if paragraph.leftimage %} leftimage{% endif %}">
+<section id="{{ paragraph|paragraph_id }}" class="{{ paragraph|paragraph_class }}{% if paragraph.leftimage %} leftimage{% endif %}">
     <div>
         {{ paragraph.content|raw }}
     </div>

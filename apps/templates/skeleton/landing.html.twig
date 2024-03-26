@@ -3,6 +3,9 @@
 {% import "macro.html.twig" as macro_site %}
 {% block stylesheets %}
     {{ encore_entry_link_tags('front') }}
+    {% if config.tarteaucitron is defined %}
+        <link rel="stylesheet" href="{{ asset('assets/tarteaucitron/css/tarteaucitron.css') }}">
+    {% endif %}
 {% endblock %}
 {% block content %}
     <div class="box">
@@ -12,10 +15,22 @@
                 <img loading="lazy" alt="{{ config.site_title|e('html_attr') }}" src="{{ asset(imageglobal.name) | imagefilter('my_thumb') }}" />
             </picture>
         {% endif %}{% block box_title %}{% endblock %}</h1>
-        {{ macro_site.flashbag(app) }}
+        {{ macro_site.flashbag(app.flashes) }}
         {% block box %}{% endblock %}
     </div>
 {% endblock %}
 {% block javascripts %}
     {{ encore_entry_script_tags('front') }}
+    {% if config.tarteaucitron is defined %}
+        <script type="text/javascript" src="{{ asset('assets/tarteaucitron/tarteaucitron.js') }}"></script>
+        <script type="text/javascript">
+    tarteaucitron.init(
+    {{ configtarteaucitron|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}
+    );
+    tarteaucitron.job = tarteaucitron.job || [];
+    {% if config.tarteaucitron.job is defined %}
+{{ config.tarteaucitron.job|raw }}
+    {% endif %}
+        </script>
+    {% endif %}
 {% endblock %}

@@ -17,41 +17,41 @@ class LibelleRepository extends RepositoryLib
 
     public function findByBookmark(): mixed
     {
-        $query = $this->createQueryBuilder('a');
-        $query->innerJoin('a.bookmarks', 'b');
-        $query->where('b.state LIKE :state');
-        $query->setParameters(
+        $queryBuilder = $this->createQueryBuilder('a');
+        $queryBuilder->innerJoin('a.bookmarks', 'b');
+        $queryBuilder->where('b.state LIKE :state');
+        $queryBuilder->setParameters(
             ['state' => '%publie%']
         );
 
-        return $query->getQuery()->getResult();
+        return $queryBuilder->getQuery()->getResult();
     }
 
     public function findByPost(): mixed
     {
-        $query = $this->createQueryBuilder('a');
-        $query->innerJoin('a.posts', 'p');
-        $query->innerjoin('p.user', 'u');
-        $query->where('p.state LIKE :state');
-        $query->setParameters(
+        $queryBuilder = $this->createQueryBuilder('a');
+        $queryBuilder->innerJoin('a.posts', 'p');
+        $queryBuilder->innerjoin('p.user', 'u');
+        $queryBuilder->where('p.state LIKE :state');
+        $queryBuilder->setParameters(
             ['state' => '%publie%']
         );
 
-        return $query->getQuery()->getResult();
+        return $queryBuilder->getQuery()->getResult();
     }
 
     public function findName(string $field): mixed
     {
-        $query = $this->createQueryBuilder('u');
-        $query->where(
+        $queryBuilder = $this->createQueryBuilder('u');
+        $queryBuilder->where(
             'u.name LIKE :name'
         );
-        $query->setParameters(
+        $queryBuilder->setParameters(
             [
                 'name' => '%'.$field.'%',
             ]
         );
 
-        return $query->getQuery()->getResult();
+        return $queryBuilder->getQuery()->getResult();
     }
 }

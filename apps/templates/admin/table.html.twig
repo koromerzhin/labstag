@@ -1,18 +1,38 @@
 <table
-    is="table-datatable"
-    data-action="{{ 'table.admin.action'|trans({}, 'admin.messages')|e('html_attr') }}"
-    data-multiple
-    data-multipleall="{{ 'table.admin.multipleall'|trans({}, 'admin.messages')|e('html_attr') }}"
-    data-multipleelement="{{ 'table.admin.mutipleelement'|trans({}, 'admin.messages')|e('html_attr') }}"
-    data-empty="{{ 'table.admin.empty'|trans({}, 'admin.messages')|e('html_attr') }}"
-    {% if pagination is defined %}
-        data-count={{ pagination|length }}
+    {% if notajax is not defined %}
+        is="table-datatable"
+        data-action="{{ 'table.admin.action'|trans({}, 'admin.messages')|e('html_attr') }}"
+        data-multiple
+        data-multipleall="{{ 'table.admin.multipleall'|trans({}, 'admin.messages')|e('html_attr') }}"
+        data-multipleelement="{{ 'table.admin.mutipleelement'|trans({}, 'admin.messages')|e('html_attr') }}"
+        data-empty="{{ 'table.admin.empty'|trans({}, 'admin.messages')|e('html_attr') }}"
+        {% if pagination is defined %}
+            data-count={{ pagination|length }}
+        {% endif %}
     {% endif %}
 >
-	<thead>
-        {% block thead %}{% endblock %}
-	</thead>
+    {% if theads is defined %}
+        <thead>
+            {% import "admin/macro.html.twig" as macro_admin %}
+            <tr>
+                {% for thead in theads %}
+                    <th{% if pagination is defined and thead.field is defined and pagination.isSorted(thead.field) %} class="sorted"{% endif %}>
+                        {% if thead.field is defined and pagination is defined %}
+                            {{ knp_pagination_sortable(pagination, thead.name, thead.field) }}
+                        {% elseif thead.name is defined %}
+                            {{ thead.name }}
+                        {% endif %}
+                    </th>
+                {% endfor %}
+                {% if actions is defined and actions == true %}
+                    <th></th>
+                {% endif %}
+            </tr>
+        </thead>
+    {% endif %}
+    {% if block('tbody') is defined %}
 	<tbody>
         {% block tbody %}{% endblock %}
 	</tbody>
+    {% endif %}
 </table>

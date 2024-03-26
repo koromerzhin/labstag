@@ -2,6 +2,7 @@
 
 namespace Labstag\Event\Listener;
 
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\Events;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Labstag\Entity\Chapter;
@@ -9,17 +10,11 @@ use Labstag\Entity\History;
 use Labstag\Lib\EventListenerLib;
 use Labstag\Service\HistoryService;
 
+#[AsDoctrineListener(event: Events::postPersist)]
+#[AsDoctrineListener(event: Events::postRemove)]
+#[AsDoctrineListener(event: Events::postUpdate)]
 class ChapterListener extends EventListenerLib
 {
-    public function getSubscribedEvents(): array
-    {
-        return [
-            Events::postPersist,
-            Events::postRemove,
-            Events::postUpdate,
-        ];
-    }
-
     public function postPersist(LifecycleEventArgs $lifecycleEventArgs): void
     {
         $this->logActivity('persist', $lifecycleEventArgs);
@@ -46,7 +41,7 @@ class ChapterListener extends EventListenerLib
         $this->verifMetas($object);
         /** @var History $history */
         $history = $object->getHistory();
-        $this->enqueueMethod->enqueue(
+        $this->enqueueMethod->async(
             HistoryService::class,
             'process',
             [

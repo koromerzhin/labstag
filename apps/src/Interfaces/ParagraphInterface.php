@@ -7,6 +7,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 interface ParagraphInterface
 {
+    public function context(EntityParagraphInterface $entityParagraph): mixed;
+
+    public function getClassCSS(array $dataClass, EntityParagraphInterface $entityParagraph): array;
+
     public function getEntity(): string;
 
     public function getForm(): string;
@@ -19,9 +23,11 @@ interface ParagraphInterface
 
     public function setData(Paragraph $paragraph): void;
 
-    public function show(EntityParagraphInterface $entityParagraph): ?Response;
-
     public function template(EntityParagraphInterface $entityParagraph): array;
 
+    public function twig(EntityParagraphInterface $entityParagraph): string;
+
     public function useIn(): array;
+
+    public function view(string $twig, array $parameters = []): ?Response;
 }

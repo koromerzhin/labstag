@@ -10,15 +10,30 @@ use Labstag\Interfaces\EntityParagraphInterface;
 use Labstag\Interfaces\ParagraphInterface;
 use Labstag\Lib\ParagraphLib;
 use Labstag\Repository\PostRepository;
-use Symfony\Component\HttpFoundation\Response;
 
 class PostParagraph extends ParagraphLib implements ParagraphInterface
 {
-    public function getCode(EntityParagraphInterface $entityParagraph): string
+    public function context(EntityParagraphInterface $entityParagraph): mixed
+    {
+        /** @var PostRepository $repositoryLib */
+        $repositoryLib = $this->repositoryService->get(EntityPost::class);
+        $posts         = $repositoryLib->getLimitOffsetResult(
+            $repositoryLib->findPublier(),
+            5,
+            0
+        );
+
+        return [
+            'posts'     => $posts,
+            'paragraph' => $entityParagraph,
+        ];
+    }
+
+    public function getCode(EntityParagraphInterface $entityParagraph): array
     {
         unset($entityParagraph);
 
-        return 'post';
+        return ['post'];
     }
 
     public function getEntity(): string
@@ -44,25 +59,6 @@ class PostParagraph extends ParagraphLib implements ParagraphInterface
     public function isShowForm(): bool
     {
         return false;
-    }
-
-    public function show(EntityParagraphInterface $entityParagraph): Response
-    {
-        /** @var PostRepository $repositoryLib */
-        $repositoryLib = $this->repositoryService->get(EntityPost::class);
-        $posts         = $repositoryLib->getLimitOffsetResult(
-            $repositoryLib->findPublier(),
-            5,
-            0
-        );
-
-        return $this->render(
-            $this->getTemplateFile($this->getCode($entityParagraph)),
-            [
-                'posts'     => $posts,
-                'paragraph' => $entityParagraph,
-            ]
-        );
     }
 
     public function useIn(): array

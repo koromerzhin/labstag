@@ -18,58 +18,58 @@ class CategoryRepository extends RepositoryLib
 
     public function findAllParentForAdmin(array $get): QueryBuilder
     {
-        $query = $this->createQueryBuilder('a');
-        $query->where('a.category IS NULL');
+        $queryBuilder = $this->createQueryBuilder('a');
+        $queryBuilder->where('a.category IS NULL');
 
-        return $this->setQuery($query, $get);
+        return $this->setQuery($queryBuilder, $get);
     }
 
     public function findByBookmark(): mixed
     {
-        $query = $this->createQueryBuilder('a');
-        $query->leftJoin('a.bookmarks', 'b');
-        $query->where('b.state LIKE :state');
-        $query->setParameters(
+        $queryBuilder = $this->createQueryBuilder('a');
+        $queryBuilder->leftJoin('a.bookmarks', 'b');
+        $queryBuilder->where('b.state LIKE :state');
+        $queryBuilder->setParameters(
             ['state' => '%publie%']
         );
 
-        return $query->getQuery()->getResult();
+        return $queryBuilder->getQuery()->getResult();
     }
 
     public function findByPost(): mixed
     {
-        $query = $this->createQueryBuilder('a');
-        $query->leftJoin('a.posts', 'p');
-        $query->innerJoin('p.user', 'u');
-        $query->where('p.state LIKE :state');
-        $query->setParameters(
+        $queryBuilder = $this->createQueryBuilder('a');
+        $queryBuilder->leftJoin('a.posts', 'p');
+        $queryBuilder->innerJoin('p.user', 'u');
+        $queryBuilder->where('p.state LIKE :state');
+        $queryBuilder->setParameters(
             ['state' => '%publie%']
         );
 
-        return $query->getQuery()->getResult();
+        return $queryBuilder->getQuery()->getResult();
     }
 
     public function findName(string $field): mixed
     {
-        $query = $this->createQueryBuilder('u');
-        $query->where(
+        $queryBuilder = $this->createQueryBuilder('u');
+        $queryBuilder->where(
             'u.name LIKE :name'
         );
-        $query->setParameters(
+        $queryBuilder->setParameters(
             [
                 'name' => '%'.$field.'%',
             ]
         );
 
-        return $query->getQuery()->getResult();
+        return $queryBuilder->getQuery()->getResult();
     }
 
     public function findTrashParentForAdmin(array $get): QueryBuilder
     {
-        $query = $this->createQueryBuilder('a');
-        $query->where('a.deletedAt IS NOT NULL');
-        $query->andwhere('a.category IS NULL');
+        $queryBuilder = $this->createQueryBuilder('a');
+        $queryBuilder->where('a.deletedAt IS NOT NULL');
+        $queryBuilder->andwhere('a.category IS NULL');
 
-        return $this->setQuery($query, $get);
+        return $this->setQuery($queryBuilder, $get);
     }
 }

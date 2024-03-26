@@ -1,29 +1,29 @@
 {% import "macro.html.twig" as macro_site %}
-<section id="{{ paragraph_id(paragraph) }}" class="{{ paragraph_class(paragraph) }}">
-    <h2 class="post_title">{{ post.title }}</h2>
-    <div class="post_date">
+<section id="{{ paragraph|paragraph_id }}" class="{{ paragraph|paragraph_class }}">
+    <h2 class="post-title">{{ post.title }}</h2>
+    <div class="post-date">
         {{ 'post.infodateuser'|trans(
                 {
                     '%date%': post.published|format_datetime(pattern=formatdatetime.public),
                     '%user%': macro_site.user(post.refuser, path('front_article_user', {'username': post.refuser.username}))
                 }
             )|raw }}
-        {% set state = guard_route('admin_post_edit') %}
+        {% set state = 'admin_post_edit'|guard_route %}
         {% if state == true %}
             <a href="{{ path('admin_post_edit', {'id': post.id}) }}" target="_blank">{{ 'post.update'|trans }}</a>
         {% endif %}
     </div>
-    <div class="post_content">
+    <div class="post-content">
         {{ post.content|raw }}
     </div>
-    <div class="post_libcat">
+    <div class="post-libcat">
         {% for libelle in post.libelles %}
-            <a href="{{ path('front_article_libelle', {'slug' : libelle.slug}) }}" class="post_libelle">{{ libelle }}</a>
+            <a href="{{ path('front_article_libelle', {'slug' : libelle.slug}) }}" class="post-libelle">{{ libelle }}</a>
         {% endfor %}
     </div>
-    <div class="post_libcat">
+    <div class="post-libcat">
         {% if post.refcategory %}
-            <a href="{{ path('front_article_category', {'slug': post.refcategory.slug}) }}" class="post_category">{{ post.refcategory }}</a>
+            <a href="{{ path('front_article_category', {'slug': post.refcategory.slug}) }}" class="post-category">{{ post.refcategory }}</a>
         {% endif %}
     </div>
 </section>

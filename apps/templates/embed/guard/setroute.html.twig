@@ -1,0 +1,8 @@
+<guard-setroute
+    {% if title is defined %}title="{{ title }}"{% endif %}
+    state={{ state }}
+    {% if groupe is defined %}groupe="{{ groupe }}"{% endif %}
+    route="{{ route }}"
+    url="{{ url }}"
+    token="{{ token }}"
+/>

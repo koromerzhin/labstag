@@ -1,5 +1,5 @@
-{% macro flashbag(app) %}
-	{% for label, messages in app.flashes %}
+{% macro flashbag(flashes) %}
+	{% for label, messages in flashes %}
 		<div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
 			<p>
                 {% if messages|length >= 2%}

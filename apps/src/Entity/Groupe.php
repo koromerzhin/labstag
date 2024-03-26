@@ -2,7 +2,6 @@
 
 namespace Labstag\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -16,10 +15,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[Gedmo\SoftDeleteable(fieldName: 'deletedAt', timeAware: false)]
 #[ORM\Entity(repositoryClass: GroupeRepository::class)]
-#[ApiResource]
 class Groupe implements Stringable, EntityTrashInterface
 {
     use SoftDeleteableEntity;
+
+    #[ORM\ManyToMany(targetEntity: Block::class, mappedBy: 'groupes')]
+    private Collection $blocks;
 
     #[Gedmo\Slug(updatable: false, fields: ['name'])]
     #[ORM\Column(type: 'string', length: 255, unique: true)]
@@ -30,6 +31,9 @@ class Groupe implements Stringable, EntityTrashInterface
     #[ORM\Column(type: 'guid', unique: true)]
     #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
     private ?string $id = null;
+
+    #[ORM\ManyToMany(targetEntity: Layout::class, mappedBy: 'groupes')]
+    private Collection $layouts;
 
     #[ORM\Column(type: 'string', length: 255)]
     #[Assert\NotBlank]
@@ -46,7 +50,7 @@ class Groupe implements Stringable, EntityTrashInterface
 
     #[ORM\OneToMany(
         targetEntity: User::class,
-        mappedBy: 'groupe',
+        mappedBy: 'refgroupe',
         cascade: ['persist'],
         orphanRemoval: true
     )
@@ -67,11 +71,33 @@ class Groupe implements Stringable, EntityTrashInterface
         $this->routes          = new ArrayCollection();
         $this->workflowGroupes = new ArrayCollection();
         $this->users           = new ArrayCollection();
+        $this->blocks          = new ArrayCollection();
+        $this->layouts         = new ArrayCollection();
     }
 
     public function __toString(): string
     {
         return (string) $this->getName();
+    }
+
+    public function addBlock(Block $block): self
+    {
+        if (!$this->blocks->contains($block)) {
+            $this->blocks->add($block);
+            $block->addGroupe($this);
+        }
+
+        return $this;
+    }
+
+    public function addLayout(Layout $layout): self
+    {
+        if (!$this->layouts->contains($layout)) {
+            $this->layouts->add($layout);
+            $layout->addGroupe($this);
+        }
+
+        return $this;
     }
 
     public function addRoute(RouteGroupe $routeGroupe): self
@@ -104,6 +130,14 @@ class Groupe implements Stringable, EntityTrashInterface
         return $this;
     }
 
+    /**
+     * @return Collection<int, Block>
+     */
+    public function getBlocks(): Collection
+    {
+        return $this->blocks;
+    }
+
     public function getCode(): ?string
     {
         return $this->code;
@@ -112,6 +146,14 @@ class Groupe implements Stringable, EntityTrashInterface
     public function getId(): ?string
     {
         return $this->id;
+    }
+
+    /**
+     * @return Collection<int, Layout>
+     */
+    public function getLayouts(): Collection
+    {
+        return $this->layouts;
     }
 
     public function getName(): ?string
@@ -132,6 +174,24 @@ class Groupe implements Stringable, EntityTrashInterface
     public function getWorkflowGroupes(): Collection
     {
         return $this->workflowGroupes;
+    }
+
+    public function removeBlock(Block $block): self
+    {
+        if ($this->blocks->removeElement($block)) {
+            $block->removeGroupe($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLayout(Layout $layout): self
+    {
+        if ($this->layouts->removeElement($layout)) {
+            $layout->removeGroupe($this);
+        }
+
+        return $this;
     }
 
     public function removeRoute(RouteGroupe $routeGroupe): self

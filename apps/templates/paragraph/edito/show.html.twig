@@ -1,5 +1,5 @@
 {% import "macro.html.twig" as macro_site %}
-<section id="{{ paragraph_id(paragraph) }}" class="{{ paragraph_class(paragraph) }}">
+<section id="{{ paragraph|paragraph_id }}" class="{{ paragraph|paragraph_class }}">
     <h2 class="edito_title">{{ edito.title }}</h2>
     <div class="edito_date">
         {{ 'edito.infodateuser'|trans(
@@ -8,7 +8,7 @@
                     '%user%': macro_site.user(edito.refuser, path('front_article_user', {'username': edito.refuser.username}))
                 }
             )|raw }}
-        {% set state = guard_route('admin_edito_edit') %}
+        {% set state = 'admin_edito_edit'|guard_route %}
         {% if state == true %}
             <a href="{{ path('admin_edito_edit', {'id': edito.id}) }}" target="_blank">{{ 'edito.update'|trans }}</a>
         {% endif %}

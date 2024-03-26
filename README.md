@@ -56,11 +56,11 @@ npm run cmd:install:dev
 
 | Username   | Password | Email               | enable | Check | Lost  |
 | ---------- | -------- | ------------------- | ------ | ----- | ----- |
-| disable    | password | disable@email.fr    | FALSE  | TRUE  | FALSE |
-| unverif    | password | unverif@email.fr    | FALSE  | FALSE | FALSE |
-| lost       | password | lost@email.fr       | FALSE  | TRUE  | TRUE  |
-| admin      | password | admin@email.fr      | TRUE   | TRUE  | FALSE |
-| superadmin | password | superadmin@email.fr | TRUE   | TRUE  | FALSE |
+| disable    | password | <disable@email.fr>    | FALSE  | TRUE  | FALSE |
+| unverif    | password | <unverif@email.fr>    | FALSE  | FALSE | FALSE |
+| lost       | password | <lost@email.fr>       | FALSE  | TRUE  | TRUE  |
+| admin      | password | <admin@email.fr>      | TRUE   | TRUE  | FALSE |
+| superadmin | password | <superadmin@email.fr> | TRUE   | TRUE  | FALSE |
 
 ## Author
 

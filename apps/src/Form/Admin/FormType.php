@@ -4,6 +4,7 @@ namespace Labstag\Form\Admin;
 
 use Labstag\Form\Admin\Collections\Form\ButtonsFieldsType;
 use Labstag\Form\Admin\Collections\Form\ChoiceFieldsType;
+use Labstag\Form\Admin\Collections\Form\CollectionFieldsType;
 use Labstag\Form\Admin\Collections\Form\DateAndTimeFieldsType;
 use Labstag\Form\Admin\Collections\Form\ExtraFieldsFieldsType;
 use Labstag\Form\Admin\Collections\Form\HiddenFieldsType;
@@ -73,7 +74,14 @@ class FormType extends AbstractTypeLib
             'text',
             MinMaxCollectionType::class,
             [
-                'entry_type'   => TextFieldsType::class,
+                'entry_type' => TextFieldsType::class,
+            ]
+        );
+        $formBuilder->add(
+            'collection',
+            MinMaxCollectionType::class,
+            [
+                'entry_type'   => CollectionFieldsType::class,
                 'allow_add'    => true,
                 'allow_delete' => true,
             ]

@@ -28,16 +28,49 @@ use Psr\Http\Message\UriInterface;
 use Symfony\Component\Asset\Package;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 
 class VideoParagraph extends ParagraphLib implements ParagraphInterface
 {
-    public function getCode(EntityParagraphInterface $entityParagraph): string
+    public function context(EntityParagraphInterface $entityParagraph): mixed
+    {
+        if (!$entityParagraph instanceof Video) {
+            return null;
+        }
+
+        $extractor = $this->getData($entityParagraph);
+        if (is_null($extractor)) {
+            return null;
+        }
+
+        $package    = new Package(new EmptyVersionStrategy());
+        $attachment = $entityParagraph->getImage();
+        $image      = ($attachment instanceof Attachment) ? $package->getUrl('/'.$attachment->getName()) : null;
+
+        if (is_null($image)) {
+            /** @var UriInterface $extractorImage */
+            $extractorImage = $extractor->image;
+            $image          = $extractorImage->__toString();
+        }
+
+        $metas = $extractor->getMetas();
+
+        $datas = $metas->get('og:video:url');
+        $embed = (0 != (is_countable($datas) ? count($datas) : 0)) ? $datas[0] : null;
+
+        return [
+            'paragraph' => $entityParagraph,
+            'image'     => $image,
+            'data'      => $extractor,
+            'embed'     => $embed,
+        ];
+    }
+
+    public function getCode(EntityParagraphInterface $entityParagraph): array
     {
         unset($entityParagraph);
 
-        return 'video';
+        return ['video'];
     }
 
     public function getEntity(): string
@@ -67,8 +100,8 @@ class VideoParagraph extends ParagraphLib implements ParagraphInterface
 
     public function setData(Paragraph $paragraph): void
     {
-        /** @var VideoRepository $videoRepository */
-        $videoRepository = $this->repositoryService->get(Video::class);
+        /** @var VideoRepository $repositoryLib */
+        $repositoryLib = $this->repositoryService->get(Video::class);
         /** @var AttachmentRepository $attachmentRepository */
         $attachmentRepository = $this->repositoryService->get(Attachment::class);
         $videos               = $paragraph->getVideos();
@@ -92,7 +125,7 @@ class VideoParagraph extends ParagraphLib implements ParagraphInterface
             $video->setTitle($title);
             $slug = (string) $asciiSlugger->slug($title);
             $video->setSlug($slug);
-            $videoRepository->save($video);
+            $repositoryLib->save($video);
         } catch (Exception) {
             $image = '';
         }
@@ -114,45 +147,8 @@ class VideoParagraph extends ParagraphLib implements ParagraphInterface
         $annotations = $this->uploadAnnotationReader->getUploadableFields($video);
         foreach ($annotations as $annotation) {
             /** @var UploadableField $annotation */
-            $this->setDataAnnotation($annotation, $image, $video, $videoRepository, $slug);
+            $this->setDataAnnotation($annotation, $image, $video, $repositoryLib, $slug);
         }
-    }
-
-    public function show(EntityParagraphInterface $entityParagraph): ?Response
-    {
-        if (!$entityParagraph instanceof Video) {
-            return null;
-        }
-
-        $extractor = $this->getData($entityParagraph);
-        if (is_null($extractor)) {
-            return null;
-        }
-
-        $package    = new Package(new EmptyVersionStrategy());
-        $attachment = $entityParagraph->getImage();
-        $image      = ($attachment instanceof Attachment) ? $package->getUrl('/'.$attachment->getName()) : null;
-
-        if (is_null($image)) {
-            /** @var UriInterface $extractorImage */
-            $extractorImage = $extractor->image;
-            $image          = $extractorImage->__toString();
-        }
-
-        $metas = $extractor->getMetas();
-
-        $datas = $metas->get('og:video:url');
-        $embed = (0 != count($datas)) ? $datas[0] : null;
-
-        return $this->render(
-            $this->getTemplateFile($this->getCode($entityParagraph)),
-            [
-                'paragraph' => $entityParagraph,
-                'image'     => $image,
-                'data'      => $extractor,
-                'embed'     => $embed,
-            ]
-        );
     }
 
     public function useIn(): array

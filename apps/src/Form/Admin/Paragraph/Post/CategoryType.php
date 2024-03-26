@@ -2,7 +2,7 @@
 
 namespace Labstag\Form\Admin\Paragraph\Post;
 
-use Labstag\Entity\Paragraph\Post\Category;
+use Labstag\Entity\Paragraph\Post\Category as PostCategory;
 use Labstag\Lib\ParagraphAbstractTypeLib;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -12,7 +12,7 @@ class CategoryType extends ParagraphAbstractTypeLib
     {
         $optionsResolver->setDefaults(
             [
-                'data_class' => Category::class,
+                'data_class' => PostCategory::class,
             ]
         );
     }

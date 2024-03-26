@@ -2,7 +2,7 @@
 
 namespace Labstag\Form\Admin\Paragraph\Post;
 
-use Labstag\Entity\Paragraph\Post\Header;
+use Labstag\Entity\Paragraph\Post\Header as PostHeader;
 use Labstag\Lib\ParagraphAbstractTypeLib;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -12,7 +12,7 @@ class HeaderType extends ParagraphAbstractTypeLib
     {
         $optionsResolver->setDefaults(
             [
-                'data_class' => Header::class,
+                'data_class' => PostHeader::class,
             ]
         );
     }

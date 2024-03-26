@@ -2,7 +2,7 @@
 
 namespace Labstag\Form\Admin\Paragraph\History;
 
-use Labstag\Entity\Paragraph\History\Liste;
+use Labstag\Entity\Paragraph\History\Liste as HistoryListe;
 use Labstag\Lib\ParagraphAbstractTypeLib;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -12,7 +12,7 @@ class ListType extends ParagraphAbstractTypeLib
     {
         $optionsResolver->setDefaults(
             [
-                'data_class' => Liste::class,
+                'data_class' => HistoryListe::class,
             ]
         );
     }

@@ -30,13 +30,11 @@ abstract class AbstractTypeLib extends AbstractType
         $formBuilder->add(
             'paragraph',
             ParagraphType::class,
-            array_merge(
-                $urls,
-                [
-                    'mapped'   => false,
-                    'required' => false,
-                ]
-            )
+            [
+                ...$urls,
+                'mapped'   => false,
+                'required' => false,
+            ]
         );
     }
 

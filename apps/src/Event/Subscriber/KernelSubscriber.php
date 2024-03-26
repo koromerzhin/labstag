@@ -4,6 +4,9 @@ namespace Labstag\Event\Subscriber;
 
 use Labstag\Lib\EventSubscriberLib;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
+use Symfony\Component\HttpKernel\Event\ExceptionEvent;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\KernelEvents;
 use tidy;
 
 class KernelSubscriber extends EventSubscriberLib
@@ -111,7 +114,22 @@ class KernelSubscriber extends EventSubscriberLib
      */
     public static function getSubscribedEvents(): array
     {
-        return ['kernel.response' => 'onKernelResponse'];
+        return [
+            KernelEvents::EXCEPTION => 'onKernelException',
+            KernelEvents::RESPONSE => 'onKernelResponse'
+        ];
+    }
+
+    public function onKernelException(ExceptionEvent $exceptionEvent): void
+    {
+        $throwable = $exceptionEvent->getThrowable();
+        if (!$throwable instanceof NotFoundHttpException) {
+            return;
+        }
+
+        $statusCode = (string) $throwable->getStatusCode();
+
+        $this->httpErrorService->set($statusCode);
     }
 
     public function onKernelResponse(ResponseEvent $responseEvent): void
@@ -137,9 +155,9 @@ class KernelSubscriber extends EventSubscriberLib
         $content = $response->getContent();
         $content = preg_replace('#<script>#i', '<script type="text/javascript">', (string) $content);
 
+        // config https://api.html-tidy.org/tidy/quickref_5.6.0.html
         $config = [
             'indent'                      => true,
-            'indent-spaces'               => 2,
             'output-xhtml'                => true,
             'drop-empty-elements'         => false,
             'drop-proprietary-attributes' => false,

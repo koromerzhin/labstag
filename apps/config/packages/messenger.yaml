@@ -26,5 +26,6 @@ framework:
 
     routing:
       # Route your messages to the transports
-      Labstag\Queue\Message\ServiceMethodMessage: async
+      Labstag\Queue\Message\AsyncMethodMessage: async
+      Labstag\Queue\Message\SyncMethodMessage: sync
       # 'App\Message\YourMessage': async

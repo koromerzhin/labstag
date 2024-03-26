@@ -42,7 +42,7 @@ class HistoryController extends FrontControllerLib
         }
 
         return $this->render(
-            'front.html.twig',
+            'skeleton/front.html.twig',
             ['content' => $history]
         );
     }
@@ -84,7 +84,7 @@ class HistoryController extends FrontControllerLib
         }
 
         return $this->render(
-            'front.html.twig',
+            'skeleton/front.html.twig',
             ['content' => $chapter]
         );
     }
@@ -144,7 +144,7 @@ class HistoryController extends FrontControllerLib
         );
 
         return $this->render(
-            'front.html.twig',
+            'skeleton/front.html.twig',
             ['content' => $render]
         );
     }

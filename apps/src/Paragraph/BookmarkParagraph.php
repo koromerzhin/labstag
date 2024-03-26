@@ -10,15 +10,30 @@ use Labstag\Interfaces\EntityParagraphInterface;
 use Labstag\Interfaces\ParagraphInterface;
 use Labstag\Lib\ParagraphLib;
 use Labstag\Repository\BookmarkRepository;
-use Symfony\Component\HttpFoundation\Response;
 
 class BookmarkParagraph extends ParagraphLib implements ParagraphInterface
 {
-    public function getCode(EntityParagraphInterface $entityParagraph): string
+    public function context(EntityParagraphInterface $entityParagraph): mixed
+    {
+        /** @var BookmarkRepository $repositoryLib */
+        $repositoryLib = $this->repositoryService->get(EntityBookmark::class);
+        $bookmarks     = $repositoryLib->getLimitOffsetResult(
+            $repositoryLib->findPublier(),
+            5,
+            0
+        );
+
+        return [
+            'paragraph' => $entityParagraph,
+            'bookmarks' => $bookmarks,
+        ];
+    }
+
+    public function getCode(EntityParagraphInterface $entityParagraph): array
     {
         unset($entityParagraph);
 
-        return 'bookmark';
+        return ['bookmark'];
     }
 
     public function getEntity(): string
@@ -44,25 +59,6 @@ class BookmarkParagraph extends ParagraphLib implements ParagraphInterface
     public function isShowForm(): bool
     {
         return false;
-    }
-
-    public function show(EntityParagraphInterface $entityParagraph): Response
-    {
-        /** @var BookmarkRepository $repositoryLib */
-        $repositoryLib = $this->repositoryService->get(EntityBookmark::class);
-        $bookmarks     = $repositoryLib->getLimitOffsetResult(
-            $repositoryLib->findPublier(),
-            5,
-            0
-        );
-
-        return $this->render(
-            $this->getTemplateFile($this->getcode($entityParagraph)),
-            [
-                'paragraph' => $entityParagraph,
-                'bookmarks' => $bookmarks,
-            ]
-        );
     }
 
     public function useIn(): array

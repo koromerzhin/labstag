@@ -2,7 +2,6 @@
 
 namespace Labstag\Entity\Block;
 
-use ApiPlatform\Metadata\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
 use Labstag\Entity\Block;
 use Labstag\Interfaces\EntityBlockInterface;
@@ -12,7 +11,6 @@ use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 
 #[ORM\Entity(repositoryClass: HtmlRepository::class)]
 #[ORM\Table(name: 'block_html')]
-#[ApiResource(routePrefix: '/block')]
 class Html implements Stringable, EntityBlockInterface
 {
 

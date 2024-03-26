@@ -50,9 +50,9 @@ class LayoutService extends ViewService implements AdminEntityServiceInterface
             throw new Exception('Route list not found');
         }
 
-        /** @var CustomRepository $customRepository */
-        $customRepository = $this->repositoryService->get(Custom::class);
-        $custom           = $customRepository->findOneBy(
+        /** @var CustomRepository $repositoryLib */
+        $repositoryLib = $this->repositoryService->get(Custom::class);
+        $custom        = $repositoryLib->findOneBy(
             [
                 'id' => $post['custom'],
             ]

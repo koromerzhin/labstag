@@ -37,8 +37,8 @@ class CategoryFixtures extends DataFixtureLib implements DependentFixtureInterfa
             $category->setParent($parent);
         }
 
-        $this->addReference('category_'.$index, $category);
         $objectManager->persist($category);
+        $this->addReference('category_'.$index, $category);
 
         return $category;
     }

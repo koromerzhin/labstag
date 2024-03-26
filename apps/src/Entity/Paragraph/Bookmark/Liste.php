@@ -2,7 +2,6 @@
 
 namespace Labstag\Entity\Paragraph\Bookmark;
 
-use ApiPlatform\Metadata\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
 use Labstag\Entity\Paragraph;
 use Labstag\Interfaces\EntityInterface;
@@ -13,7 +12,6 @@ use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 
 #[ORM\Entity(repositoryClass: ListeRepository::class)]
 #[ORM\Table(name: 'paragraph_bookmark_list')]
-#[ApiResource(routePrefix: '/paragraph/bookmark')]
 class Liste implements Stringable, EntityParagraphInterface, EntityInterface
 {
 

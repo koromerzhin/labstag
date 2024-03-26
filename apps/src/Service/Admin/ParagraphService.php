@@ -14,7 +14,6 @@ use Labstag\Repository\ParagraphRepository;
 use Labstag\Service\AttachFormService;
 use Labstag\Service\ParagraphService as ServiceParagraphService;
 use Labstag\Service\SessionService;
-use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -71,8 +70,8 @@ class ParagraphService
 
     public function delete(Paragraph $paragraph): Response
     {
-        $edito = $paragraph->getEdito();
-        if (!$edito instanceof PublicInterface) {
+        $public = $this->serviceParagraphService->getParent($paragraph);
+        if (!$public instanceof PublicInterface) {
             throw new Exception('entity is not public interface');
         }
 
@@ -85,7 +84,7 @@ class ParagraphService
         return $this->redirectToRoute(
             (string) $this->urls['edit'],
             [
-                'id'        => $edito->getId(),
+                'id'        => $public->getId(),
                 '_fragment' => 'paragraph-list',
             ]
         );
@@ -134,11 +133,11 @@ class ParagraphService
         /** @var Request $request */
         $request = $this->requeststack->getCurrentRequest();
         $form->handleRequest($request);
-        /** @var EntityInterface $entity */
-        $entity = $this->serviceParagraphService->getEntity($paragraph);
+        /** @var EntityInterface $entityParagraph */
+        $entityParagraph = $this->serviceParagraphService->getEntity($paragraph);
         if ($form->isSubmitted() && $form->isValid()) {
             $this->paragraphRepository->save($paragraph);
-            $this->attachFormService->upload($entity);
+            $this->attachFormService->upload($entityParagraph);
             $this->sessionService->flashBagAdd('success', 'Paragraph sauvegardé.');
             $referer = (string) $request->headers->get('referer');
 
@@ -209,12 +208,12 @@ class ParagraphService
 
     private function modalAttachmentDelete(Paragraph $paragraph, FormInterface $form): void
     {
-        /** @var EntityInterface $entity */
-        $entity      = $this->serviceParagraphService->getEntity($paragraph);
-        $annotations = array_merge(
-            $this->uploadAnnotationReader->getUploadableFields($paragraph),
-            $this->uploadAnnotationReader->getUploadableFields($entity),
-        );
+        /** @var EntityInterface $entityParagraph */
+        $entityParagraph = $this->serviceParagraphService->getEntity($paragraph);
+        $annotations     = [
+            ...$this->uploadAnnotationReader->getUploadableFields($paragraph),
+            ...$this->uploadAnnotationReader->getUploadableFields($entityParagraph),
+        ];
         if (0 == count($annotations)) {
             return;
         }

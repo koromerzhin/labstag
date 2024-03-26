@@ -1,7 +1,7 @@
 {% set img = attachment(post.img) %}
 {% if img is not null and img.name is not null %}
-    <section id="{{ paragraph_id(paragraph) }}" class="{{ paragraph_class(paragraph) }}">
-		<picture class="header_post_img">
+    <section id="{{ paragraph|paragraph_id }}" class="{{ paragraph|paragraph_class }}">
+		<picture class="header-post-img">
 			<img loading="lazy" alt="{{ post.title|e('html_attr') }}" src="{{ asset(img.name) | imagefilter('my_thumb') }}"/>
 		</picture>
     </section>

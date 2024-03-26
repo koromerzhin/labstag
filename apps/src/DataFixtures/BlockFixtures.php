@@ -8,6 +8,7 @@ use Labstag\Entity\Block;
 use Labstag\Entity\Block\Navbar;
 use Labstag\Entity\Menu;
 use Labstag\Lib\FixtureLib;
+use Labstag\Service\BlockService;
 
 class BlockFixtures extends FixtureLib implements DependentFixtureInterface
 {
@@ -42,25 +43,20 @@ class BlockFixtures extends FixtureLib implements DependentFixtureInterface
         $block->setRegion($region);
         $block->setType($type);
         $block->setPosition($position + 1);
-        if (array_key_exists('code-menu', $blockData)) {
-            /** @var Menu $menu */
-            $menu        = $this->getReference('menu_'.$blockData['code-menu']);
-            $classentity = $this->blockService->getTypeEntity($block);
-            $entity      = $this->blockService->getEntity($block);
-            if (!is_null($entity) || is_null($classentity)) {
-                return;
-            }
-
-            /** @var Navbar $entity */
-            $entity = new $classentity();
-            $entity->setBlock($block);
-            $entity->setMenu($menu);
-            $block->addMenu($entity);
-        }
-
-        $this->addReference('block_'.$region.'-'.$type, $block);
-
+        $this->addSubBlock($block, $blockData);
         $objectManager->persist($block);
+        $this->addReference('block_'.$region.'-'.$type, $block);
+        if (array_key_exists('notinpages', $blockData)) {
+            $this->enqueueMethod->async(
+                BlockService::class,
+                'process',
+                [
+                    'region'     => $region,
+                    'position'   => $position + 1,
+                    'notinpages' => $blockData['notinpages'],
+                ]
+            );
+        }
     }
 
     protected function addBlocks(
@@ -72,5 +68,29 @@ class BlockFixtures extends FixtureLib implements DependentFixtureInterface
         foreach ($blocks as $position => $block) {
             $this->addBlock($region, $position, $block, $objectManager);
         }
+    }
+
+    protected function addSubBlock(
+        Block $block,
+        array $blockData
+    ): void
+    {
+        $classentity = $this->blockService->getTypeEntity($block);
+        $entity      = $this->blockService->getEntity($block);
+        if (!is_null($entity) || is_null($classentity)) {
+            return;
+        }
+
+        $entity = new $classentity();
+        $entity->setBlock($block);
+        if (array_key_exists('code-menu', $blockData)) {
+            /** @var Menu $menu */
+            $menu = $this->getReference('menu_'.$blockData['code-menu']);
+
+            /** @var Navbar $entity */
+            $entity->setMenu($menu);
+        }
+
+        $this->blockService->setEntity($block, $entity);
     }
 }

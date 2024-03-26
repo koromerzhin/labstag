@@ -18,50 +18,50 @@ class BookmarkRepository extends RepositoryLib
 
     public function findPublier(): Query
     {
-        $query = $this->createQueryBuilder('p');
-        $query->innerjoin('p.user', 'u');
-        $query->where(
+        $queryBuilder = $this->createQueryBuilder('p');
+        $queryBuilder->innerjoin('p.user', 'u');
+        $queryBuilder->where(
             'p.state LIKE :state'
         );
-        $query->orderBy('p.published', 'DESC');
-        $query->setParameters(
+        $queryBuilder->orderBy('p.published', 'DESC');
+        $queryBuilder->setParameters(
             ['state' => '%publie%']
         );
 
-        return $query->getQuery();
+        return $queryBuilder->getQuery();
     }
 
     public function findPublierCategory(string $code): Query
     {
-        $query = $this->createQueryBuilder('b');
-        $query->where('b.state LIKE :state');
-        $query->orderBy('b.published', 'DESC');
-        $query->leftJoin('b.category', 'c');
-        $query->andWhere('c.slug=:slug');
-        $query->setParameters(
+        $queryBuilder = $this->createQueryBuilder('b');
+        $queryBuilder->where('b.state LIKE :state');
+        $queryBuilder->orderBy('b.published', 'DESC');
+        $queryBuilder->leftJoin('b.category', 'c');
+        $queryBuilder->andWhere('c.slug=:slug');
+        $queryBuilder->setParameters(
             [
                 'slug'  => $code,
                 'state' => '%publie%',
             ]
         );
 
-        return $query->getQuery();
+        return $queryBuilder->getQuery();
     }
 
     public function findPublierLibelle(string $code): Query
     {
-        $query = $this->createQueryBuilder('b');
-        $query->where('b.state LIKE :state');
-        $query->orderBy('b.published', 'DESC');
-        $query->leftJoin('b.libelles', 'l');
-        $query->andWhere('l.slug=:slug');
-        $query->setParameters(
+        $queryBuilder = $this->createQueryBuilder('b');
+        $queryBuilder->where('b.state LIKE :state');
+        $queryBuilder->orderBy('b.published', 'DESC');
+        $queryBuilder->leftJoin('b.libelles', 'l');
+        $queryBuilder->andWhere('l.slug=:slug');
+        $queryBuilder->setParameters(
             [
                 'slug'  => $code,
                 'state' => '%publie%',
             ]
         );
 
-        return $query->getQuery();
+        return $queryBuilder->getQuery();
     }
 }

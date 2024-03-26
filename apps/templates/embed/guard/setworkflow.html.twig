@@ -1,0 +1,9 @@
+<guard-setworkflow
+    {% if title is defined %}title="{{ title }}"{% endif %}
+    state={{ state }}
+    {% if groupe is defined %}groupe="{{ groupe }}"{% endif %}
+    entity="{{ entity }}"
+    transition="{{ transition }}"
+    url="{{ url }}"
+    token="{{ token }}"
+/>

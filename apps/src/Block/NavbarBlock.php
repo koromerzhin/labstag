@@ -10,10 +10,27 @@ use Labstag\Interfaces\BlockInterface;
 use Labstag\Interfaces\EntityBlockInterface;
 use Labstag\Interfaces\EntityFrontInterface;
 use Labstag\Lib\BlockLib;
-use Symfony\Component\HttpFoundation\Response;
 
 class NavbarBlock extends BlockLib implements BlockInterface
 {
+    public function context(EntityBlockInterface $entityBlock, ?EntityFrontInterface $entityFront): mixed
+    {
+        unset($entityFront);
+        if (!$entityBlock instanceof Navbar) {
+            return null;
+        }
+
+        $menu = $entityBlock->getMenu();
+        $item = ($menu instanceof Menu) ? $this->menuService->createMenu($menu) : '';
+        $show = ($item instanceof ItemInterface) ? (0 != count($item->getChildren())) : false;
+
+        return [
+            'show'  => $show,
+            'item'  => $item,
+            'block' => $entityBlock,
+        ];
+    }
+
     public function getCode(EntityBlockInterface $entityBlock, ?EntityFrontInterface $entityFront): string
     {
         unset($entityBlock, $entityFront);
@@ -44,25 +61,5 @@ class NavbarBlock extends BlockLib implements BlockInterface
     public function isShowForm(): bool
     {
         return true;
-    }
-
-    public function show(EntityBlockInterface $entityBlock, ?EntityFrontInterface $entityFront): ?Response
-    {
-        if (!$entityBlock instanceof Navbar) {
-            return null;
-        }
-
-        $menu = $entityBlock->getMenu();
-        $item = ($menu instanceof Menu) ? $this->menuService->createMenu($menu) : '';
-        $show = ($item instanceof ItemInterface) ? (0 != count($item->getChildren())) : false;
-
-        return $this->render(
-            $this->getTemplateFile($this->getCode($entityBlock, $entityFront)),
-            [
-                'show'  => $show,
-                'item'  => $item,
-                'block' => $entityBlock,
-            ]
-        );
     }
 }

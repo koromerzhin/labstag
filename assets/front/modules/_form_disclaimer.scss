@@ -1,0 +1,53 @@
+.form-disclaimer {
+  height: 100vh;
+  display: flex;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
+  div:has(> input[type='checkbox']) {
+    label {
+      cursor: pointer;
+    }
+  }
+  form {
+    width: 90vw;
+    box-shadow: 5px 5px 20px 0px #000000;
+    @include media-breakpoint-up(sm) {
+      width: 30vw;
+    }
+    border: 1px solid #000;
+  }
+}
+.disclaimer_title {
+  text-align: center;
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 10px;
+}
+.disclaimer_body {
+  min-height: 20vh;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.disclaimer_message {
+  padding: 10px;
+  text-align: justify;
+}
+
+.disclaimer_confirm {
+  padding: 10px;
+}
+
+.disclaimer_footer {
+  padding: 20px;
+  background: #868686;
+  a {
+    @extend .btn;
+    @extend .btn-danger;
+  }
+  .row {
+    text-align: center;
+  }
+}

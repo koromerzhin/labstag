@@ -31,7 +31,7 @@ abstract class DomainLib
     public function getRepository(): RepositoryLib
     {
         $entity = $this->getEntity();
-        if (empty($entity)) {
+        if ('' === $entity) {
             throw new Exception('Entity is empty');
         }
 

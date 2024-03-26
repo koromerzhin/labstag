@@ -11,15 +11,35 @@ use Labstag\Interfaces\ParagraphInterface;
 use Labstag\Lib\ParagraphLib;
 use Labstag\Repository\PostRepository;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class YearParagraph extends ParagraphLib implements ParagraphInterface
 {
-    public function getCode(EntityParagraphInterface $entityParagraph): string
+    public function context(EntityParagraphInterface $entityParagraph): mixed
+    {
+        /** @var Request $request */
+        $request    = $this->requestStack->getCurrentRequest();
+        $all        = $request->attributes->all();
+        $routeParam = $all['_route_params'];
+        $year       = $routeParam['year'] ?? null;
+        /** @var PostRepository $repositoryLib */
+        $repositoryLib = $this->repositoryService->get(Post::class);
+        $pagination    = $this->paginator->paginate(
+            $repositoryLib->findPublierArchive((int) $year),
+            $request->query->getInt('page', 1),
+            10
+        );
+
+        return [
+            'pagination' => $pagination,
+            'paragraph'  => $entityParagraph,
+        ];
+    }
+
+    public function getCode(EntityParagraphInterface $entityParagraph): array
     {
         unset($entityParagraph);
 
-        return 'post/year';
+        return ['post/year'];
     }
 
     public function getEntity(): string
@@ -45,30 +65,6 @@ class YearParagraph extends ParagraphLib implements ParagraphInterface
     public function isShowForm(): bool
     {
         return false;
-    }
-
-    public function show(EntityParagraphInterface $entityParagraph): Response
-    {
-        /** @var Request $request */
-        $request    = $this->requestStack->getCurrentRequest();
-        $all        = $request->attributes->all();
-        $routeParam = $all['_route_params'];
-        $year       = $routeParam['year'] ?? null;
-        /** @var PostRepository $repositoryLib */
-        $repositoryLib = $this->repositoryService->get(Post::class);
-        $pagination    = $this->paginator->paginate(
-            $repositoryLib->findPublierArchive($year),
-            $request->query->getInt('page', 1),
-            10
-        );
-
-        return $this->render(
-            $this->getTemplateFile($this->getCode($entityParagraph)),
-            [
-                'pagination' => $pagination,
-                'paragraph'  => $entityParagraph,
-            ]
-        );
     }
 
     /**

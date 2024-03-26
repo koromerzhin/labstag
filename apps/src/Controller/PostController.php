@@ -38,7 +38,7 @@ class PostController extends FrontControllerLib
         }
 
         return $this->render(
-            'front.html.twig',
+            'skeleton/front.html.twig',
             ['content' => $post]
         );
     }
@@ -59,7 +59,7 @@ class PostController extends FrontControllerLib
         );
 
         return $this->render(
-            'front.html.twig',
+            'skeleton/front.html.twig',
             ['content' => $render]
         );
     }
@@ -80,7 +80,7 @@ class PostController extends FrontControllerLib
         );
 
         return $this->render(
-            'front.html.twig',
+            'skeleton/front.html.twig',
             ['content' => $render]
         );
     }
@@ -101,7 +101,7 @@ class PostController extends FrontControllerLib
         );
 
         return $this->render(
-            'front.html.twig',
+            'skeleton/front.html.twig',
             ['content' => $render]
         );
     }
@@ -122,7 +122,7 @@ class PostController extends FrontControllerLib
         );
 
         return $this->render(
-            'front.html.twig',
+            'skeleton/front.html.twig',
             ['content' => $render]
         );
     }

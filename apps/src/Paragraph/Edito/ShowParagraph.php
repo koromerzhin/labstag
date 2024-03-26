@@ -10,15 +10,30 @@ use Labstag\Interfaces\EntityParagraphInterface;
 use Labstag\Interfaces\ParagraphInterface;
 use Labstag\Lib\ParagraphLib;
 use Labstag\Repository\EditoRepository;
-use Symfony\Component\HttpFoundation\Response;
 
 class ShowParagraph extends ParagraphLib implements ParagraphInterface
 {
-    public function getCode(EntityParagraphInterface $entityParagraph): string
+    public function context(EntityParagraphInterface $entityParagraph): mixed
+    {
+        /** @var EditoRepository $repositoryLib */
+        $repositoryLib = $this->repositoryService->get(Edito::class);
+        $edito         = $repositoryLib->findOnePublier();
+
+        if (!$edito instanceof Edito) {
+            return null;
+        }
+
+        return [
+            'edito'     => $edito,
+            'paragraph' => $entityParagraph,
+        ];
+    }
+
+    public function getCode(EntityParagraphInterface $entityParagraph): array
     {
         unset($entityParagraph);
 
-        return 'edito/show';
+        return ['edito/show'];
     }
 
     public function getEntity(): string
@@ -44,25 +59,6 @@ class ShowParagraph extends ParagraphLib implements ParagraphInterface
     public function isShowForm(): bool
     {
         return false;
-    }
-
-    public function show(EntityParagraphInterface $entityParagraph): ?Response
-    {
-        /** @var EditoRepository $repositoryLib */
-        $repositoryLib = $this->repositoryService->get(Edito::class);
-        $edito         = $repositoryLib->findOnePublier();
-
-        if (!$edito instanceof Edito) {
-            return null;
-        }
-
-        return $this->render(
-            $this->getTemplateFile($this->getCode($entityParagraph)),
-            [
-                'edito'     => $edito,
-                'paragraph' => $entityParagraph,
-            ]
-        );
     }
 
     /**

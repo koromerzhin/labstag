@@ -3,15 +3,21 @@
     <div>
         <p>{{ 'oauth.message'|trans({}, 'admin.messages')|raw }}</p>
     </div>
-    <table>
-        <thead>
-            <tr>
-                <th>{{ 'oauth.service'|trans({}, 'admin.messages') }}</th>
-                <th>{{ 'oauth.url'|trans({}, 'admin.messages') }}</th>
-                <th>{{ 'oauth.urltoshare'|trans({}, 'admin.messages') }}</th>
-            </tr>
-        </thead>
-        <tbody>
+    {% embed "admin/table.html.twig" with {
+        theads: [
+            {
+                'name': 'oauth.service'|trans({}, 'admin.messages')
+            },
+            {
+                'name': 'oauth.url'|trans({}, 'admin.messages')
+            },
+            {
+                'name': 'oauth.urltoshare'|trans({}, 'admin.messages')
+            }
+        ],
+        notajax: false
+    } %}
+        {% block tbody %}
             {% for service, data in types %}
                 {% if data.config is defined %}
                 <tr>
@@ -27,6 +33,6 @@
                 </tr>
                 {% endif %}
             {% endfor %}
-        </tbody>
-    </table>
+        {% endblock %}
+    {% endembed %}
 {% endblock %}

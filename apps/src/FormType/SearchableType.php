@@ -117,17 +117,17 @@ class SearchableType extends FormTypeLib
             return $ids;
         }
 
-        /** @var RepositoryLib $entityRepository */
-        $entityRepository = $this->repositoryService->get($options['class']);
+        /** @var RepositoryLib $repositoryLib */
+        $repositoryLib = $this->repositoryService->get($options['class']);
         foreach ($ids as $id => $key) {
-            $entity = $entityRepository->find($key);
+            $entity = $repositoryLib->find($key);
             if ($entity instanceof $options['class']) {
                 continue;
             }
 
             $entity = clone $options['new'];
             $entity->setString($key);
-            $entityRepository->save($entity);
+            $repositoryLib->save($entity);
             $ids[$id] = $entity->getId();
         }
 

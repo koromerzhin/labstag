@@ -7,7 +7,7 @@ use Labstag\Interfaces\AdminEntityServiceInterface;
 use Labstag\Interfaces\DomainInterface;
 use Labstag\Service\Admin\ParagraphService;
 use Labstag\Service\Admin\ViewService;
-use Symfony\Component\DependencyInjection\Argument\RewindableGenerator;
+use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
 
 class AdminService
 {
@@ -18,12 +18,16 @@ class AdminService
 
     protected ?DomainInterface $domain = null;
 
+    protected $rewindableGenerator;
+
     public function __construct(
-        protected RewindableGenerator $rewindableGenerator,
+        #[TaggedIterator('entitiesadminservice')]
+        iterable $rewindableGenerator,
         protected ParagraphService $paragraphService,
         protected ViewService $viewService
     )
     {
+        $this->rewindableGenerator = $rewindableGenerator;
     }
 
     public function paragraph(): ParagraphService

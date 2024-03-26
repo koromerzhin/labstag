@@ -2,7 +2,6 @@
 
 namespace Labstag\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -12,7 +11,6 @@ use Stringable;
 use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 
 #[ORM\Entity(repositoryClass: RouteRepository::class)]
-#[ApiResource]
 class Route implements Stringable, EntityInterface
 {
 

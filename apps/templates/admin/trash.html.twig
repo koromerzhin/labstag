@@ -1,13 +1,16 @@
 {% extends 'admin.html.twig' %}
 {% block body %}
-    {% embed "admin/table.html.twig" %}
-        {% block thead %}
-            <tr>
-                <th>{{ 'trash.entite'|trans({}, 'admin.messages') }}</th>
-                <th>{{ 'trash.count'|trans({}, 'admin.messages') }}</th>
-                <th></th>
-            </tr>
-        {% endblock %}
+    {% embed "admin/table.html.twig" with {
+        theads: [
+            {
+                'name': 'trash.entite'|trans({}, 'admin.messages')
+            },
+            {
+                'name': 'trash.count'|trans({}, 'admin.messages')
+            }
+        ],
+        action: true
+    } %}
         {% block tbody %}
             {% for data in trash %}
                 <tr data-id="{{ data.name|e('html_attr') }}">
@@ -18,14 +21,14 @@
                         {{ data.total }}
                     </td>
                     <td>
-                        {% set state = guard_route(data.properties.url) %}
+                        {% set state = data.properties.url|guard_route %}
                         {% if state == true %}
                         <link-trash
                             href="{{ path(data.properties.url) }}"
                             title="{{ 'trash.go'|trans({}, 'admin.messages') }}"
                         />
                         {% endif %}
-                        {% set state = guard_route('api_action_empty') %}
+                        {% set state = 'api_action_empty'|guard_route %}
                         {% if state == true %}
                             <link-empty
                                 data-redirect="{{ path(app.request.attributes.get('_route')) }}"

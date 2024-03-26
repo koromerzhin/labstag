@@ -1,42 +1,42 @@
 {% extends 'admin.html.twig' %}
 {% block body %}
-    {% embed "admin/table.html.twig" %}
+    {% embed "admin/table.html.twig" with {
+        theads: [
+            {
+                'field': 'a.street',
+                'name': 'user.address.street'|trans({}, 'admin.messages')
+            },
+            {
+                'field': 'a.country',
+                'name': 'user.address.country'|trans({}, 'admin.messages')
+            },
+            {
+                'field': 'a.zipcode',
+                'name': 'user.address.zipcode'|trans({}, 'admin.messages')
+            },
+            {
+                'field': 'a.city',
+                'name': 'user.address.city'|trans({}, 'admin.messages')
+            },
+            {
+                'name': 'user.address.gps'|trans({}, 'admin.messages')
+            },
+            {
+                'field': 'a.type',
+                'name': 'user.address.type'|trans({}, 'admin.messages')
+            },
+            {
+                'field': 'a.pmr',
+                'name': 'user.address.pmr'|trans({}, 'admin.messages')
+            },
+            {
+                'name': 'user.address.user'|trans({}, 'admin.messages')
+            }
+        ],
+        pagination: pagination,
+        action: true
+    } %}
         {% import "admin/macro.html.twig" as macro_admin %}
-        {% block thead %}
-            {% set theads = [
-                {
-                    'field': 'a.street',
-                    'name': 'user.address.street'|trans({}, 'admin.messages')
-                },
-                {
-                    'field': 'a.country',
-                    'name': 'user.address.country'|trans({}, 'admin.messages')
-                },
-                {
-                    'field': 'a.zipcode',
-                    'name': 'user.address.zipcode'|trans({}, 'admin.messages')
-                },
-                {
-                    'field': 'a.city',
-                    'name': 'user.address.city'|trans({}, 'admin.messages')
-                },
-                {
-                    'name': 'user.address.gps'|trans({}, 'admin.messages')
-                },
-                {
-                    'field': 'a.type',
-                    'name': 'user.address.type'|trans({}, 'admin.messages')
-                },
-                {
-                    'field': 'a.pmr',
-                    'name': 'user.address.pmr'|trans({}, 'admin.messages')
-                },
-                {
-                    'name': 'user.address.user'|trans({}, 'admin.messages')
-                }
-            ] %}
-			{{ macro_admin.thead(theads, pagination, true) }}
-        {% endblock %}
         {% block tbody %}
             {% for entity in pagination %}
                 <tr data-id="{{ entity.id }}">

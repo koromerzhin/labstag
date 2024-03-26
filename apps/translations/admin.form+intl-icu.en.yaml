@@ -388,3 +388,9 @@ chapter.name.placeholder: __chapter.name.placeholder
 chapter.slug.label: __chapter.slug.label
 chapter.slug.help: __chapter.slug.help
 chapter.slug.placeholder: __chapter.slug.placeholder
+layout.groupes.label: __layout.groupes.label
+layout.groupes.help: __layout.groupes.help
+layout.groupes.placeholder: __layout.groupes.placeholder
+block.groupes.label: __block.groupes.label
+block.groupes.help: __block.groupes.help
+block.groupes.placeholder: __block.groupes.placeholder

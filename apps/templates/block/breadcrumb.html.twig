@@ -1,4 +1,4 @@
 {% import "macro.html.twig" as macro_site %}
-<section id="{{ block_id(block) }}" class="{{ block_class(block) }}">
+<section id="{{ block|block_id }}" class="{{ block|block_class }}">
     {{ macro_site.breadcrumbs(breadcrumbs) }}
 </section>

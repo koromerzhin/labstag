@@ -237,16 +237,13 @@ class OauthService
         ?AbstractProvider $provider
     ): ?AbstractProvider
     {
-        $params = array_merge(
-            $params,
-            [
-                'userAgent' => 'platform:appid:version, (by /u/username)',
-                'scopes'    => [
-                    'identity',
-                    'read',
-                ],
-            ]
-        );
+        $params = [...$params,
+            'userAgent' => 'platform:appid:version, (by /u/username)',
+            'scopes'    => [
+                'identity',
+                'read',
+            ],
+        ];
 
         return ('reddit' == $clientName) ? new Reddit($params) : $provider;
     }
@@ -271,11 +268,7 @@ class OauthService
 
     protected function getConfig(string $clientName): array
     {
-        if (isset($this->configProvider[$clientName])) {
-            return $this->configProvider[$clientName];
-        }
-
-        return [];
+        return $this->configProvider[$clientName] ?? [];
     }
 
     protected function initProvider(string $clientName): AbstractProvider

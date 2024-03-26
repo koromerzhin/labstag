@@ -2,7 +2,7 @@
 
 namespace Labstag\Form\Admin\Paragraph\History;
 
-use Labstag\Entity\Paragraph\History\User;
+use Labstag\Entity\Paragraph\History\User as HistoryUser;
 use Labstag\Lib\ParagraphAbstractTypeLib;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -12,7 +12,7 @@ class UserType extends ParagraphAbstractTypeLib
     {
         $optionsResolver->setDefaults(
             [
-                'data_class' => User::class,
+                'data_class' => HistoryUser::class,
             ]
         );
     }

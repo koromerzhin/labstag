@@ -11,7 +11,7 @@
                 {% if urledit != '' %}
                     <a href="{{ path(urledit, {'id': row.id}) }}" class="paragraph_show" target="iframe_paragaph" data-bs-toggle="modal" data-bs-target="#paragrapheModal">
                 {% endif %}
-                {{ paragraph_name(row.type) }}
+                {{ row.type|paragraph_name }}
                 {% if urledit != '' %}
                     </a>
                 {% endif %}

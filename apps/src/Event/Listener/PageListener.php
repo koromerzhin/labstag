@@ -2,22 +2,17 @@
 
 namespace Labstag\Event\Listener;
 
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\Events;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Labstag\Entity\Page;
 use Labstag\Lib\EventListenerLib;
 
+#[AsDoctrineListener(event: Events::postPersist)]
+#[AsDoctrineListener(event: Events::postRemove)]
+#[AsDoctrineListener(event: Events::postUpdate)]
 class PageListener extends EventListenerLib
 {
-    public function getSubscribedEvents(): array
-    {
-        return [
-            Events::postPersist,
-            Events::postRemove,
-            Events::postUpdate,
-        ];
-    }
-
     public function postPersist(LifecycleEventArgs $lifecycleEventArgs): void
     {
         $this->logActivity('persist', $lifecycleEventArgs);

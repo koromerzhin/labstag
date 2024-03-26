@@ -1,41 +1,41 @@
 {% extends 'admin.html.twig' %}
 {% block body %}
-    {% embed "admin/table.html.twig" %}
+    {% embed "admin/table.html.twig" with {
+        theads: [
+            {
+                'field': 'a.numero',
+                'name': 'user.phone.numero'|trans({}, 'admin.messages')
+            },
+            {
+                'field': 'a.country',
+                'name': 'user.phone.country'|trans({}, 'admin.messages')
+            },
+            {
+                'name': 'user.phone.verif'|trans({}, 'admin.messages')
+            },
+            {
+                'field': 'a.type',
+                'name': 'user.phone.type'|trans({}, 'admin.messages')
+            },
+            {
+                'field': 'a.principal',
+                'name': 'user.phone.principal'|trans({}, 'admin.messages')
+            },
+            {
+                'field': 'a.state',
+                'name': 'workflow.state'|trans({}, 'admin.messages')
+            },
+            {
+                'name': 'user.phone.workflow'|trans({}, 'admin.messages')
+            },
+            {
+                'name': 'user.phone.user'|trans({}, 'admin.messages')
+            }
+        ],
+        pagination: pagination,
+        action: true
+    } %}
         {% import "admin/macro.html.twig" as macro_admin %}
-        {% block thead %}
-            {% set theads = [
-                {
-                    'field': 'a.numero',
-                    'name': 'user.phone.numero'|trans({}, 'admin.messages')
-                },
-                {
-                    'field': 'a.country',
-                    'name': 'user.phone.country'|trans({}, 'admin.messages')
-                },
-                {
-                    'name': 'user.phone.verif'|trans({}, 'admin.messages')
-                },
-                {
-                    'field': 'a.type',
-                    'name': 'user.phone.type'|trans({}, 'admin.messages')
-                },
-                {
-                    'field': 'a.principal',
-                    'name': 'user.phone.principal'|trans({}, 'admin.messages')
-                },
-                {
-                    'field': 'a.state',
-                    'name': 'workflow.state'|trans({}, 'admin.messages')
-                },
-                {
-                    'name': 'user.phone.workflow'|trans({}, 'admin.messages')
-                },
-                {
-                    'name': 'user.phone.user'|trans({}, 'admin.messages')
-                }
-            ] %}
-			{{ macro_admin.thead(theads, pagination, true) }}
-        {% endblock %}
         {% block tbody %}
             {% for entity in pagination %}
                 <tr data-id="{{ entity.id }}">
@@ -45,7 +45,7 @@
                         {{ entity.country|country_name('fr') }}
                     </td>
                     <td>
-                        {% set check = verifPhone(entity.country, entity.numero)  ? 'ok' : 'ko' %}
+                        {% set check = verif_phone(entity.country, entity.numero)  ? 'ok' : 'ko' %}
                         <span class="check-{{ check }}"></span>
                     </td>
                     <td>{{ entity.type }}</td>

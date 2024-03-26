@@ -4,71 +4,149 @@ jobs:
   tests:
     runs-on: ubuntu-22.04
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
-      - name: Repository lampy
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
-          ref: 'v2.0'
-          repository: koromerzhin/lampy
-          path: lampy
-      - name: Install npm dependencies
-        run: npm install
-      - name: 'set .env'
-        run: 'cp apps/.env.test apps/.env'
-      - name: 'set .env'
-        run: 'cp .env.example .env'
-      - name: 'SET BDD'
-        run: npm run bdd:mariadb
-      - name: 'Launch Lampy'
-        run: cd lampy && npm run exec
-      - name: 'Image pull'
-        run: npm run docker:getpull-image
-      - name: 'Build containers'
-        run: npm run docker:deploy
-      - name: 'Waiting'
-        run: npm run docker:waiting
-      - name: linter readme.md
-        run: npm run lint:markdown
-      - name: linter SCSS
-        run: npm run lint:stylelint:fix
-      - name: "install PHAR"
-        run: npm run download:phar
-      - name: 'docker ls'
-        run: npm run docker:ls
-      - name: linter PHP Code Sniffer
-        run: npm run lint:phpcs:error
-      - name: linter PHP MD
-        run: npm run lint:phpmd
-      - name: linter PHPMND
-        run: npm run lint:phpmnd
-      - name: Add assets
-        run: npm run assets
-      - name: Test lancement bootstrap
-        run: npm run encore:dev
-      - name: Linter twig
-        run: npm run lint:twig
-      - name: Linter yaml
-        run: npm run lint:yaml
-      - name: linter phpstan
-        run: npm run lint:phpstan:0
-      - name: 'BDD MIGRATE'
-        run: npm run doctrine:migrate
-      - name: 'BDD Schema update'
-        run: npm run doctrine:schema:update
-      - name: 'Run the fixtures'
-        run: npm run doctrine:fixtures
-      - name: 'Install Labstag'
-        run: npm run cmd:labstag:all
-      - name: Run Acceptance Tests
-        run: npm run test:behat
-      - name: Cypress run
-        uses: cypress-io/github-action@v5
-      - name: Archive screenshots
-        uses: actions/upload-artifact@v3
-        with:
-          name: screenshot
-          path: cypress/
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    - name: Repository lampy
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        ref: 'v2.0'
+        repository: koromerzhin/lampy
+        path: lampy
+    - name: Cache npm packages
+      id: npm-cache
+      uses: actions/cache@v3
+      with:
+        path: node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+    - name: Install npm dependencies
+      if: steps.npm-cache.outputs.cache-hit != 'true'
+      run: npm install
+    - name: 'set apps/.env'
+      run: 'cp apps/.env.test apps/.env'
+    - name: 'set .env'
+      run: 'cp .env.example .env'
+    - name: 'SET BDD'
+      run: npm run bdd:mariadb
+    - name: 'Launch Lampy'
+      run: cd lampy && npm run exec
+    - name: 'Image pull'
+      run: npm run docker:getpull-image
+    - name: 'Build containers'
+      run: npm run docker:deploy
+    - name: 'Waiting'
+      run: npm run docker:waiting
+    - name: linter readme.md
+      run: npm run lint:markdown
+    - name: linter SCSS
+      run: npm run lint:stylelint:fix
+    - name: "install PHAR"
+      run: npm run download:phar
+    - name: 'docker ls'
+      run: npm run docker:ls
+    - name: linter PHP Code Sniffer
+      uses: nick-fields/retry@v2
+      with:
+        timeout_minutes: 10
+        max_attempts: 3
+        command: npm run lint:phpcs:error
+    - name: linter PHP MD
+      run: npm run lint:phpmd
+    - name: linter PHPMND
+      run: npm run lint:phpmnd
+    - name: Add assets
+      run: npm run assets
+    - name: Test lancement bootstrap
+      run: npm run encore:dev
+    - name: Linter twig
+      run: npm run lint:twig
+    - name: Linter yaml
+      run: npm run lint:yaml
+    - name: linter phpstan
+      run: npm run lint:phpstan:0
+    - name: 'BDD MIGRATE'
+      run: npm run doctrine:migrate
+    - name: 'BDD Schema update'
+      run: npm run doctrine:schema:update
+    - name: 'Run the fixtures'
+      run: npm run doctrine:fixtures
+    - name: 'Labstag (install)'
+      run: npm run labstag:install
+    - name: 'Labstag (guard)'
+      run: npm run labstag:guard-route
+    - name: 'Labstag (workflow)'
+      run: npm run labstag:workflows-show
+    - name: Run Acceptance Tests
+      run: npm run test:behat
+    - name: Cypress run
+      uses: cypress-io/github-action@v5
+    - name: Archive screenshots
+      uses: actions/upload-artifact@v3
+      with:
+        name: screenshot-tests
+        path: cypress/
+  launch:
+    runs-on: ubuntu-22.04
+    needs: tests
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    - name: Repository lampy
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        ref: 'v2.0'
+        repository: koromerzhin/lampy
+        path: lampy
+    - name: Cache npm packages
+      id: npm-cache
+      uses: actions/cache@v3
+      with:
+        path: node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+    - name: Install npm dependencies
+      if: steps.npm-cache.outputs.cache-hit != 'true'
+      run: npm install
+    - name: 'set apps/.env'
+      run: 'cp apps/.env.test apps/.env'
+    - name: 'set .env'
+      run: 'cp .env.example .env'
+    - name: 'SET BDD'
+      run: npm run bdd:mariadb
+    - name: 'Launch Lampy'
+      run: cd lampy && npm run exec
+    - name: 'Image pull'
+      run: npm run docker:getpull-image
+    - name: 'Build containers'
+      run: npm run docker:deploy
+    - name: 'Waiting'
+      run: npm run docker:waiting
+    - name: 'docker ls'
+      run: npm run docker:ls
+    - name: Add assets
+      run: npm run assets
+    - name: Test lancement bootstrap
+      run: npm run encore:build
+    - name: 'BDD MIGRATE'
+      run: npm run doctrine:migrate
+    - name: 'BDD Schema update'
+      run: npm run doctrine:schema:update
+    - name: 'Run the fixtures'
+      run: npm run doctrine:fixtures
+    - name: 'Labstag install'
+      run: npm run cmd:labstag:all
+    - name: Cypress run
+      uses: cypress-io/github-action@v5
+    - name: Archive screenshots
+      uses: actions/upload-artifact@v3
+      with:
+        name: screenshot-launch
+        path: cypress/

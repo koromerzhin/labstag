@@ -53,7 +53,7 @@ class MailerService
 
     public function send(Email $email): void
     {
-        $this->enqueueMethod->enqueue(
+        $this->enqueueMethod->async(
             MailerInterface::class,
             'send',
             [$email]

@@ -2,7 +2,6 @@
 
 namespace Labstag\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -23,7 +22,6 @@ use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 
 #[Gedmo\SoftDeleteable(fieldName: 'deletedAt', timeAware: false)]
 #[ORM\Entity(repositoryClass: BlockRepository::class)]
-#[ApiResource]
 class Block implements EntityTrashInterface
 {
     use SoftDeleteableEntity;
@@ -40,6 +38,9 @@ class Block implements EntityTrashInterface
     #[ORM\OneToMany(targetEntity: Footer::class, mappedBy: 'block', cascade: ['persist'], orphanRemoval: true)]
     private Collection $footers;
 
+    #[ORM\ManyToMany(targetEntity: Groupe::class, inversedBy: 'blocks')]
+    private Collection $groupes;
+
     #[ORM\OneToMany(targetEntity: Header::class, mappedBy: 'block', cascade: ['persist'], orphanRemoval: true)]
     private Collection $headers;
 
@@ -54,6 +55,9 @@ class Block implements EntityTrashInterface
 
     #[ORM\OneToMany(targetEntity: Navbar::class, mappedBy: 'block', cascade: ['persist'], orphanRemoval: true)]
     private Collection $menu;
+
+    #[ORM\ManyToMany(targetEntity: Page::class, inversedBy: 'blocks')]
+    private Collection $notinpages;
 
     #[ORM\OneToMany(targetEntity: Paragraph::class, mappedBy: 'block', cascade: ['persist'], orphanRemoval: true)]
     private Collection $paragraphs;
@@ -80,6 +84,8 @@ class Block implements EntityTrashInterface
         $this->menu        = new ArrayCollection();
         $this->flashbags   = new ArrayCollection();
         $this->customs     = new ArrayCollection();
+        $this->groupes     = new ArrayCollection();
+        $this->notinpages  = new ArrayCollection();
     }
 
     public function addBreadcrumb(Breadcrumb $breadcrumb): self
@@ -122,6 +128,15 @@ class Block implements EntityTrashInterface
         return $this;
     }
 
+    public function addGroupe(Groupe $groupe): self
+    {
+        if (!$this->groupes->contains($groupe)) {
+            $this->groupes->add($groupe);
+        }
+
+        return $this;
+    }
+
     public function addHeader(Header $header): self
     {
         if (!$this->headers->contains($header)) {
@@ -147,6 +162,15 @@ class Block implements EntityTrashInterface
         if (!$this->menu->contains($navbar)) {
             $this->menu[] = $navbar;
             $navbar->setBlock($this);
+        }
+
+        return $this;
+    }
+
+    public function addNotinpage(Page $page): self
+    {
+        if (!$this->notinpages->contains($page)) {
+            $this->notinpages->add($page);
         }
 
         return $this;
@@ -182,6 +206,14 @@ class Block implements EntityTrashInterface
         return $this->footers;
     }
 
+    /**
+     * @return Collection<int, Groupe>
+     */
+    public function getGroupes(): Collection
+    {
+        return $this->groupes;
+    }
+
     public function getHeaders(): Collection
     {
         return $this->headers;
@@ -200,6 +232,14 @@ class Block implements EntityTrashInterface
     public function getMenu(): Collection
     {
         return $this->menu;
+    }
+
+    /**
+     * @return Collection<int, Page>
+     */
+    public function getNotinpages(): Collection
+    {
+        return $this->notinpages;
     }
 
     public function getParagraphs(): Collection
@@ -255,6 +295,13 @@ class Block implements EntityTrashInterface
         return $this;
     }
 
+    public function removeGroupe(Groupe $groupe): self
+    {
+        $this->groupes->removeElement($groupe);
+
+        return $this;
+    }
+
     public function removeHeader(Header $header): self
     {
         $this->removeElementBlock($this->headers, $header);
@@ -272,6 +319,13 @@ class Block implements EntityTrashInterface
     public function removeMenu(Navbar $navbar): self
     {
         $this->removeElementBlock($this->menu, $navbar);
+
+        return $this;
+    }
+
+    public function removeNotinpage(Page $page): self
+    {
+        $this->notinpages->removeElement($page);
 
         return $this;
     }

@@ -14,7 +14,9 @@ use Labstag\Service\RepositoryService;
 use Symfony\Bridge\Twig\AppVariable;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 
@@ -24,6 +26,7 @@ abstract class ParagraphLib extends AbstractController
     protected array $template = [];
 
     public function __construct(
+        protected CacheInterface $cache,
         protected FileService $fileService,
         protected UploadAnnotationReader $uploadAnnotationReader,
         protected ErrorService $errorService,
@@ -39,11 +42,21 @@ abstract class ParagraphLib extends AbstractController
     {
     }
 
-    public function getCode(EntityParagraphInterface $entityParagraph): string
+    public function getClassCSS(
+        array $dataClass,
+        EntityParagraphInterface $entityParagraph
+    ): array
     {
         unset($entityParagraph);
 
-        return '';
+        return $dataClass;
+    }
+
+    public function getCode(EntityParagraphInterface $entityParagraph): array
+    {
+        unset($entityParagraph);
+
+        return [];
     }
 
     public function setData(Paragraph $paragraph): void
@@ -56,18 +69,33 @@ abstract class ParagraphLib extends AbstractController
         return $this->showTemplateFile($this->getCode($entityParagraph));
     }
 
-    protected function getTemplateData(string $type): array
+    public function twig(EntityParagraphInterface $entityParagraph): string
     {
-        if (isset($this->template[$type])) {
-            return $this->template[$type];
+        return $this->getTemplateFile($this->getCode($entityParagraph));
+    }
+
+    public function view(string $twig, array $parameters = []): ?Response
+    {
+        return $this->render(
+            $twig,
+            $parameters
+        );
+    }
+
+    protected function getTemplateData(array $types): array
+    {
+        $code = md5(serialize($types));
+        if (isset($this->template[$code])) {
+            return $this->template[$code];
         }
 
         $loader   = $this->twigEnvironment->getLoader();
         $htmltwig = '.html.twig';
-        $files    = [
-            'paragraph/'.$type.$htmltwig,
-            'paragraph/default'.$htmltwig,
-        ];
+        $files    = array_map(
+            static fn ($type): string => 'paragraph/'.$type.$htmltwig,
+            $types
+        );
+        $files[] = 'paragraph/default'.$htmltwig;
 
         $view = end($files);
 
@@ -81,26 +109,26 @@ abstract class ParagraphLib extends AbstractController
             break;
         }
 
-        $this->template[$type] = [
+        $this->template[$code] = [
             'hook'  => 'paragraph',
-            'type'  => $type,
+            'types' => $types,
             'files' => $files,
             'view'  => $view,
         ];
 
-        return $this->template[$type];
+        return $this->template[$code];
     }
 
-    protected function getTemplateFile(string $type): string
+    protected function getTemplateFile(array $types): string
     {
-        $data = $this->getTemplateData($type);
+        $data = $this->getTemplateData($types);
 
         return $data['view'];
     }
 
-    protected function showTemplateFile(string $type): array
+    protected function showTemplateFile(array $types): array
     {
-        $data    = $this->getTemplateData($type);
+        $data    = $this->getTemplateData($types);
         $globals = $this->twigEnvironment->getGlobals();
         if (!isset($globals['app'])) {
             return [];

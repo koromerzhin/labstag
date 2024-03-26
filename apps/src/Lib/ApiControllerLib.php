@@ -40,10 +40,10 @@ abstract class ApiControllerLib extends AbstractController
                 return $data;
             }
 
-            foreach ($results as $row) {
-                /** @var RouteUser $row */
+            foreach ($results as $result) {
+                /** @var RouteUser $result */
                 /** @var Route $route */
-                $route          = $row->getRefroute();
+                $route          = $result->getRefroute();
                 $data['user'][] = [
                     'route' => $route->getName(),
                 ];
@@ -75,14 +75,14 @@ abstract class ApiControllerLib extends AbstractController
         string $entity
     ): mixed
     {
-        /** @var RepositoryLib $userRepository */
-        $userRepository = $repositoryService->get(User::class);
+        /** @var RepositoryLib $repositoryLib */
+        $repositoryLib = $repositoryService->get(User::class);
         /** @var RepositoryLib $entityRepository */
         $entityRepository = $repositoryService->get($entity);
         $get              = $request->query->all();
         if (array_key_exists('user', $get)) {
             /** @var User $user */
-            $user = $userRepository->find($get['user']);
+            $user = $repositoryLib->find($get['user']);
 
             return $entityRepository->findEnableByGroupe($user->getRefgroupe());
         }

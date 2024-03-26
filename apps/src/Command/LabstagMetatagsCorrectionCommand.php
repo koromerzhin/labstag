@@ -28,67 +28,67 @@ class LabstagMetatagsCorrectionCommand extends CommandLib
 {
     public function executeChapter(): void
     {
-        /** @var ChapterRepository $repository */
-        $repository = $this->repositoryService->get(Chapter::class);
-        $all        = $repository->findAll();
+        /** @var ChapterRepository $repositoryLib */
+        $repositoryLib = $this->repositoryService->get(Chapter::class);
+        $all           = $repositoryLib->findAll();
         foreach ($all as $entity) {
             /** @var Chapter $entity */
-            $repository->save($entity);
+            $repositoryLib->save($entity);
         }
     }
 
     public function executeEdito(): void
     {
-        /** @var EditoRepository $repository */
-        $repository = $this->repositoryService->get(Edito::class);
-        $all        = $repository->findAll();
+        /** @var EditoRepository $repositoryLib */
+        $repositoryLib = $this->repositoryService->get(Edito::class);
+        $all           = $repositoryLib->findAll();
         foreach ($all as $entity) {
             /** @var Edito $entity */
-            $repository->save($entity);
+            $repositoryLib->save($entity);
         }
     }
 
     public function executeHistory(): void
     {
-        /** @var HistoryRepository $repository */
-        $repository = $this->repositoryService->get(History::class);
-        $all        = $repository->findAll();
+        /** @var HistoryRepository $repositoryLib */
+        $repositoryLib = $this->repositoryService->get(History::class);
+        $all           = $repositoryLib->findAll();
         foreach ($all as $entity) {
             /** @var History $entity */
-            $repository->save($entity);
+            $repositoryLib->save($entity);
         }
     }
 
     public function executePage(): void
     {
-        /** @var PageRepository $repository */
-        $repository = $this->repositoryService->get(Page::class);
-        $all        = $repository->findAll();
+        /** @var PageRepository $repositoryLib */
+        $repositoryLib = $this->repositoryService->get(Page::class);
+        $all           = $repositoryLib->findAll();
         foreach ($all as $entity) {
             /** @var Page $entity */
-            $repository->save($entity);
+            $repositoryLib->save($entity);
         }
     }
 
     public function executePost(): void
     {
-        /** @var PostRepository $repository */
-        $repository = $this->repositoryService->get(Post::class);
-        $all        = $repository->findAll();
+        /** @var PostRepository $repositoryLib */
+        $repositoryLib = $this->repositoryService->get(Post::class);
+        $all           = $repositoryLib->findAll();
         foreach ($all as $entity) {
             /** @var Post $entity */
-            $repository->save($entity);
+            $repositoryLib->save($entity);
         }
     }
 
     public function executeRender(): void
     {
-        /** @var RenderRepository $repository */
-        $repository = $this->repositoryService->get(Render::class);
-        $all        = $repository->findAll();
+        /** @var RenderRepository $repositoryLib */
+        $repositoryLib = $this->repositoryService->get(Render::class);
+        $all           = $repositoryLib->findAll();
         foreach ($all as $entity) {
             /** @var Render $entity */
-            $repository->save($entity);
+            $repositoryLib->save($entity);
         }
     }
 

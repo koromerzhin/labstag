@@ -25,12 +25,12 @@ class GroupeController extends AdminControllerLib
     #[Route(path: '/{id}/guard', name: 'guard')]
     public function guard(Groupe $groupe): Response
     {
-        $guardService = $this->adminService->setDomain('guard');
-        if (!$guardService instanceof GuardService) {
+        $viewService = $this->adminService->setDomain('guard');
+        if (!$viewService instanceof GuardService) {
             throw new Exception('TrashService not found');
         }
 
-        return $guardService->groupe($groupe);
+        return $viewService->groupe($groupe);
     }
 
     #[Route(path: '/', name: 'index', methods: ['GET'])]

@@ -1,16 +1,25 @@
 {
-  "threshold": 2,
-  "reporters": ["html", "markdown"],
-  "ignore": [
-    "**/node_modules/**",
-    "**/.git/**",
-    "apps/src/**/.gitignore",
-    "**/.rbenv/**",
-    "**/.venv/**",
-    "**/*cache*/**",
-    "**/.github/**",
-    "**/.idea/**",
-    "**/report/**",
-    "**/*.svg"
-  ]
+    "threshold": 0,
+    "reporters": [
+        "html",
+        "markdown",
+        "console",
+        "badge"
+    ],
+    "ignorePattern": [
+        "namespace *;",
+        "use *;"
+    ],
+    "ignore": [
+        "**/node_modules/**",
+        "**/.git/**",
+        "apps/src/**/.gitignore",
+        "**/.rbenv/**",
+        "**/.venv/**",
+        "**/*cache*/**",
+        "**/.github/**",
+        "**/.idea/**",
+        "**/report/**",
+        "**/*.svg"
+    ]
 }

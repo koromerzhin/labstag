@@ -4,7 +4,8 @@
         "blocks": [
             {
                 "type": "navbar",
-                "code-menu": "front-header"
+                "code-menu": "front-header",
+                "notinpages": ["login", "disclaimer", "lost", "change-password"]
             },
             {
                 "type": "header"
@@ -18,7 +19,8 @@
         "region": "content",
         "blocks": [
             {
-                "type": "breadcrumb"
+                "type": "breadcrumb",
+                "notinpages": ["login", "disclaimer", "lost", "change-password"]
             },
             {
                 "type": "flashbag"

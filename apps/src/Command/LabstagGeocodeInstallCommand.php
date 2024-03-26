@@ -31,7 +31,7 @@ class LabstagGeocodeInstallCommand extends CommandLib
             throw new Exception('Argument country invalide');
         }
 
-        if (empty($country)) {
+        if ('' === $country) {
             $symfonyStyle->note(
                 sprintf(
                     'Argument countrie obligatoire: %s',
@@ -39,7 +39,7 @@ class LabstagGeocodeInstallCommand extends CommandLib
                 )
             );
 
-            return COMMAND::FAILURE;
+            return Command::FAILURE;
         }
 
         $csv = $this->geocodeService->csv($country);
@@ -48,7 +48,7 @@ class LabstagGeocodeInstallCommand extends CommandLib
                 ['fichier inexistant']
             );
 
-            return COMMAND::FAILURE;
+            return Command::FAILURE;
         }
 
         $progressBar = new ProgressBar($output, is_countable($csv) ? count($csv) : 0);

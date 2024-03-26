@@ -8,11 +8,11 @@ use Labstag\Interfaces\EntityParagraphInterface;
 
 class HeaderParagraph extends ShowParagraph
 {
-    public function getCode(EntityParagraphInterface $entityParagraph): string
+    public function getCode(EntityParagraphInterface $entityParagraph): array
     {
         unset($entityParagraph);
 
-        return 'post/header';
+        return ['post/header'];
     }
 
     public function getEntity(): string

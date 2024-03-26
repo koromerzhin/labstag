@@ -1,5 +1,5 @@
 {% if block.menu.id is defined and show %}
-    <section id="{{ block_id(block) }}" class="{{ block_class(block) }}">
+    <section id="{{ block|block_id }}" class="{{ block|block_class }}">
 		<div class="navbar navbar-expand-lg">
             <div class="container-fluid">
                 <a class="navbar-brand" href="{{ path('front') }}">{{ config.site_title }}</a>

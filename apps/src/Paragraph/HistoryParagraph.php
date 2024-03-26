@@ -10,15 +10,30 @@ use Labstag\Interfaces\EntityParagraphInterface;
 use Labstag\Interfaces\ParagraphInterface;
 use Labstag\Lib\ParagraphLib;
 use Labstag\Repository\HistoryRepository;
-use Symfony\Component\HttpFoundation\Response;
 
 class HistoryParagraph extends ParagraphLib implements ParagraphInterface
 {
-    public function getCode(EntityParagraphInterface $entityParagraph): string
+    public function context(EntityParagraphInterface $entityParagraph): mixed
+    {
+        /** @var HistoryRepository $repositoryLib */
+        $repositoryLib = $this->repositoryService->get(EntityHistory::class);
+        $histories     = $repositoryLib->getLimitOffsetResult(
+            $repositoryLib->findPublier(),
+            5,
+            0
+        );
+
+        return [
+            'histories' => $histories,
+            'paragraph' => $entityParagraph,
+        ];
+    }
+
+    public function getCode(EntityParagraphInterface $entityParagraph): array
     {
         unset($entityParagraph);
 
-        return 'history';
+        return ['history'];
     }
 
     public function getEntity(): string
@@ -44,25 +59,6 @@ class HistoryParagraph extends ParagraphLib implements ParagraphInterface
     public function isShowForm(): bool
     {
         return false;
-    }
-
-    public function show(EntityParagraphInterface $entityParagraph): Response
-    {
-        /** @var HistoryRepository $repositoryLib */
-        $repositoryLib = $this->repositoryService->get(EntityHistory::class);
-        $histories     = $repositoryLib->getLimitOffsetResult(
-            $repositoryLib->findPublier(),
-            5,
-            0
-        );
-
-        return $this->render(
-            $this->getTemplateFile($this->getcode($entityParagraph)),
-            [
-                'histories' => $histories,
-                'paragraph' => $entityParagraph,
-            ]
-        );
     }
 
     public function useIn(): array

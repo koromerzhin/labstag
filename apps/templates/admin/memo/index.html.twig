@@ -1,37 +1,37 @@
 {% extends 'admin.html.twig' %}
 {% block body %}
-    {% embed "admin/table.html.twig" %}
+    {% embed "admin/table.html.twig" with {
+        theads: [
+            {
+                'field': 'a.title',
+                'name': 'memo.title'|trans({}, 'admin.messages')
+            },
+            {
+                'field': 'a.dateStart',
+                'name': 'memo.date_start'|trans({}, 'admin.messages')
+            },
+            {
+                'field': 'a.dateEnd',
+                'name': 'memo.date_end'|trans({}, 'admin.messages')
+            },
+            {
+                'name': 'memo.user'|trans({}, 'admin.messages')
+            },
+            {
+                'name': 'memo.pararaphs'|trans({}, 'admin.messages')
+            },
+            {
+                'field': 'a.state',
+                'name': 'workflow.state'|trans({}, 'admin.messages')
+            },
+            {
+                'name': 'memo.workflow'|trans({}, 'admin.messages')
+            }
+        ],
+        pagination: pagination,
+        action: true
+    } %}
         {% import "admin/macro.html.twig" as macro_admin %}
-        {% block thead %}
-			{% set theads = [
-                {
-                    'field': 'a.title',
-                    'name': 'memo.title'|trans({}, 'admin.messages')
-                },
-                {
-                    'field': 'a.dateStart',
-                    'name': 'memo.date_start'|trans({}, 'admin.messages')
-                },
-                {
-                    'field': 'a.dateEnd',
-                    'name': 'memo.date_end'|trans({}, 'admin.messages')
-                },
-                {
-                    'name': 'memo.user'|trans({}, 'admin.messages')
-                },
-                {
-                    'name': 'memo.pararaphs'|trans({}, 'admin.messages')
-                },
-                {
-                    'field': 'a.state',
-                    'name': 'workflow.state'|trans({}, 'admin.messages')
-                },
-                {
-                    'name': 'memo.workflow'|trans({}, 'admin.messages')
-                }
-            ] %}
-			{{ macro_admin.thead(theads, pagination, true) }}
-        {% endblock %}
         {% block tbody %}
             {% for entity in pagination %}
                 <tr data-id="{{ entity.id }}">

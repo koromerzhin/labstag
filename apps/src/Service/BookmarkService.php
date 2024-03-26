@@ -51,7 +51,7 @@ class BookmarkService
             return;
         }
 
-        $bookmark = new bookmark();
+        $bookmark = new Bookmark();
         $bookmark->setRefuser($user);
         $bookmark->setUrl($url);
         $bookmark->setIcon($icon);

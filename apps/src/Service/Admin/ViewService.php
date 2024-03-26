@@ -29,7 +29,6 @@ use Labstag\Service\RepositoryService;
 use Labstag\Service\SessionService;
 use Labstag\Service\TrashService;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -215,10 +214,10 @@ class ViewService
     ): void
     {
         $compiledRoute   = $data->compile();
-        $breadcrumbTitle = array_merge(
-            $this->setHeaderTitle(),
-            $this->domainService->getTitles()
-        );
+        $breadcrumbTitle = [
+            ...$this->setHeaderTitle(),
+            ...$this->domainService->getTitles(),
+        ];
         $title = '';
         foreach ($breadcrumbTitle as $key => $value) {
             if ($key == $route) {
@@ -240,7 +239,7 @@ class ViewService
             }
         }
 
-        if ((is_countable($variables) ? count($variables) : 0) != count($params)) {
+        if ((is_countable($variables) ? count($variables) : 0) !== count($params)) {
             return;
         }
 
@@ -296,32 +295,16 @@ class ViewService
             throw new Exception('Domain not found');
         }
 
-        $templates = $domain->getTemplates();
-        $template  = (array_key_exists($type, $templates)) ? $templates[$type] : 'admin/crud/form.html.twig';
-
-        $this->modalAttachmentDelete();
-        $formType = $domain->getType();
-        $url      = $domain->getUrlAdmin();
-        $this->denyAccessUnlessGranted(
-            empty($entity->getId()) ? 'new' : 'edit',
-            $entity
-        );
-        $this->btnService->setBtnViewUpdate($url, $entity);
-        $form = $this->createForm($formType, $entity);
-        $this->btnService->addBtnSave(
-            $form->getName(),
-            empty($entity->getId()) ? 'Ajouter' : 'Sauvegarder'
-        );
-        if ($form->has('paragraph')) {
-            $this->modalParagraphs();
-        }
-
-        $form->handleRequest($this->requeststack->getCurrentRequest());
+        $url = $domain->getUrlAdmin();
+        [
+            $template,
+            $form,
+        ] = $this->initEditOrNew($domain, $type, $entity, $url);
         if ($form->isSubmitted() && $form->isValid()) {
             $this->setPositionParagraphs();
             $this->attachFormService->upload($entity);
-            $repository = $domain->getRepository();
-            $repository->save($entity);
+            $repositoryLib = $domain->getRepository();
+            $repositoryLib->save($entity);
             $this->sessionService->flashBagAdd(
                 'success',
                 $this->translator->trans('data.save')
@@ -331,13 +314,11 @@ class ViewService
             }
         }
 
-        $parameters = array_merge(
-            $parameters,
-            [
-                'entity' => $entity,
-                'form'   => $form,
-            ]
-        );
+        $parameters = [
+            ...$parameters,
+            'entity' => $entity,
+            'form'   => $form,
+        ];
 
         return $this->render(
             $template,
@@ -509,6 +490,7 @@ class ViewService
 
         $searchLib = $domain->getSearchData();
         $searchLib->search($get, $this->repositoryService);
+
         $route = $request->get('_route');
         if (!is_string($route)) {
             return $parameters;
@@ -549,12 +531,10 @@ class ViewService
 
     private function generateMenus(array $parameters = []): array
     {
-        return array_merge(
-            $parameters,
-            [
-                'allmenu' => $this->menuService->createMenus(),
-            ]
-        );
+        return [
+            ...$parameters,
+            'allmenu' => $this->menuService->createMenus(),
+        ];
     }
 
     private function getBreadcrumb(
@@ -587,6 +567,40 @@ class ViewService
         return $breadcrumb;
     }
 
+    private function initEditOrNew(
+        DomainInterface $domain,
+        string $type,
+        EntityInterface $entity,
+        array $url
+    ): array
+    {
+        $templates = $domain->getTemplates();
+        $template  = (array_key_exists($type, $templates)) ? $templates[$type] : 'admin/crud/form.html.twig';
+
+        $this->modalAttachmentDelete();
+        $formType = $domain->getType();
+        $this->denyAccessUnlessGranted(
+            null === $entity->getId() || '' === $entity->getId() ? 'new' : 'edit',
+            $entity
+        );
+        $this->btnService->setBtnViewUpdate($url, $entity);
+        $form = $this->createForm($formType, $entity);
+        $this->btnService->addBtnSave(
+            $form->getName(),
+            null === $entity->getId() || '' === $entity->getId() ? 'Ajouter' : 'Sauvegarder'
+        );
+        if ($form->has('paragraph')) {
+            $this->modalParagraphs();
+        }
+
+        $form->handleRequest($this->requeststack->getCurrentRequest());
+
+        return [
+            $template,
+            $form,
+        ];
+    }
+
     private function listOrTrash(
         string $type,
         array $parameters = []
@@ -615,13 +629,11 @@ class ViewService
             throw new AccessDeniedException();
         }
 
-        $parameters = array_merge(
-            $parameters,
-            [
-                'pagination' => $pagination,
-                'actions'    => $url,
-            ]
-        );
+        $parameters = [
+            ...$parameters,
+            'pagination' => $pagination,
+            'actions'    => $url,
+        ];
         $parameters = $this->setSearchForms($parameters);
 
         $template = $templates[$type];
@@ -653,17 +665,17 @@ class ViewService
             return;
         }
 
-        /** @var ParagraphRepository $paragraphRepository */
-        $paragraphRepository = $this->repositoryService->get(Paragraph::class);
+        /** @var ParagraphRepository $repositoryLib */
+        $repositoryLib = $this->repositoryService->get(Paragraph::class);
         foreach ($paragraphs as $id => $position) {
             /** @var int $position */
-            $paragraph = $paragraphRepository->find($id);
+            $paragraph = $repositoryLib->find($id);
             if (!$paragraph instanceof Paragraph) {
                 continue;
             }
 
             $paragraph->setPosition($position);
-            $paragraphRepository->save($paragraph);
+            $repositoryLib->save($paragraph);
         }
     }
 

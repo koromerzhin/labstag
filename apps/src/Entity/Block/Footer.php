@@ -2,7 +2,6 @@
 
 namespace Labstag\Entity\Block;
 
-use ApiPlatform\Metadata\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -14,7 +13,6 @@ use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 
 #[ORM\Entity(repositoryClass: FooterRepository::class)]
 #[ORM\Table(name: 'block_footer')]
-#[ApiResource(routePrefix: '/block')]
 class Footer implements Stringable, EntityBlockInterface
 {
 

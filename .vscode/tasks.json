@@ -1,0 +1,19 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+        {
+            "type": "npm",
+            "script": "composer:outdated",
+            "problemMatcher": [],
+            "label": "npm: composer:outdated",
+            "detail": "docker exec -i $($npm_package_config_phpfpm) symfony composer outdated"
+        },
+        {
+            "type": "npm",
+            "script": "composer:update",
+            "problemMatcher": [],
+            "label": "npm: composer:update",
+            "detail": "docker exec -i $($npm_package_config_phpfpm) symfony composer update"
+        }
+    ]
+}

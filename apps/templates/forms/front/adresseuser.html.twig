@@ -1,0 +1,18 @@
+{% set state = 'api_geo_codes_get_collection'|guard_route %}
+{% if state == true %}
+    {% set url = path('api_geo_codes_get_collection', {'_format': 'json'}) %}
+{% else %}
+    {% set url = '#' %}
+{% endif %}
+<div class="row" data-url="{{ url }}">
+    {% for input in row %}
+        <div class="col-6">
+            {{ form_row(input) }}
+        </div>
+    {% endfor %}
+    {% if allow_delete %}
+        <div class="text-center col-6">
+            {% embed "embed/btn/delete.html.twig" %}{% endembed %}
+        </div>
+    {% endif %}
+</div>

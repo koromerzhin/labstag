@@ -1,0 +1,19 @@
+label {
+  &:not(.float-end label) {
+    &.required {
+      &::after {
+        content: " *";
+        color: red;
+      }
+    }
+  }
+}
+
+.require-forminfo {
+  text-align: right;
+
+  span {
+    font-weight: bold;
+    color: red;
+  }
+}

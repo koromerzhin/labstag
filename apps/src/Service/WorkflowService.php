@@ -74,7 +74,7 @@ class WorkflowService
     {
         $workflow = null;
         foreach ($this->data as $key => $state) {
-            if (is_subclass_of($entity, $key)) {
+            if ($entity::class == $key) {
                 $workflow = $state;
 
                 break;

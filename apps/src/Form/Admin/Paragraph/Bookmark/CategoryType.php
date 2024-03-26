@@ -2,7 +2,7 @@
 
 namespace Labstag\Form\Admin\Paragraph\Bookmark;
 
-use Labstag\Entity\Paragraph\Bookmark\Category;
+use Labstag\Entity\Paragraph\Bookmark\Category as BookmarkCategory;
 use Labstag\Lib\ParagraphAbstractTypeLib;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -12,7 +12,7 @@ class CategoryType extends ParagraphAbstractTypeLib
     {
         $optionsResolver->setDefaults(
             [
-                'data_class' => Category::class,
+                'data_class' => BookmarkCategory::class,
             ]
         );
     }

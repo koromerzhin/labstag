@@ -44,4 +44,9 @@ class LostPasswordType extends AbstractTypeLib
             ['csrf_token_id' => 'lostpassword']
         );
     }
+
+    public function getBlockPrefix(): string
+    {
+        return 'lost-password';
+    }
 }

@@ -2,7 +2,7 @@
 
 namespace Labstag\Form\Admin\Block\Collection;
 
-use Labstag\Entity\Block\Link;
+use Labstag\Entity\Block\Link as BlockLink;
 use Labstag\Lib\BlockAbstractTypeLib;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -36,7 +36,7 @@ class LinkType extends BlockAbstractTypeLib
     {
         $optionsResolver->setDefaults(
             [
-                'data_class' => Link::class,
+                'data_class' => BlockLink::class,
             ]
         );
     }

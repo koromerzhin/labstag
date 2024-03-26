@@ -1,7 +1,6 @@
 {
 
     "files.exclude": {
-        "**/apps/var/cache": true,
         "**/.git": true,
         "**/.svn": true,
         "**/.hg": true,
@@ -10,12 +9,12 @@
         "**/Thumbs.db": true
     },
     "search.exclude": {
-        "**/apps/var/cache": true,
+        "**/apps/var": true,
         "**/apps/vendor": true,
         "**/node_modules": true
     },
     "files.watcherExclude": {
-        "**/apps/var/cache": true,
+        "**/apps/var": true,
         "**/apps/vendor": true,
         "**/node_modules": true
     },
@@ -30,13 +29,11 @@
         "**/vendor/**/{Tests,tests}/**",
         "**/.history/**",
         "**/vendor/**/vendor/**",
-        "**/apps/var/cache/**",
+        "**/apps/var/**",
     ],
     "php.files.exclude": [
         "**/node_modules/**"
-        "**/apps/var/cache/**"
+        "**/apps/var/**"
     ],
-    "php.executablePath": "/bin/php",
-    "phpstan.binPath": "apps/phpstan.phar",
-    "phpstan.configFile": "apps/phpstan.neon"
+    "php.executablePath": "/bin/php"
 }

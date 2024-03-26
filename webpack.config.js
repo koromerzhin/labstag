@@ -1,4 +1,8 @@
+const path = require('path');
 var Encore = require('@symfony/webpack-encore');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const { CKEditorTranslationsPlugin } = require( '@ckeditor/ckeditor5-dev-translations' );
+const { styles } = require( '@ckeditor/ckeditor5-dev-utils' );
 // Manually configure the runtime environment if not already configured yet by the "encore" command.
 // It's useful when you use tools that rely on webpack.config.js file.
 if (!Encore.isRuntimeEnvironmentConfigured()) {
@@ -13,15 +17,20 @@ Encore
   // only needed for CDN's or sub-directory deploy
   .setManifestKeyPrefix('assets/')
   .copyFiles([
-    {from: './node_modules/tarteaucitronjs', to: 'tarteaucitron/[path][name].[ext]', pattern: /\.(js)$/, includeSubdirectories: false},
-    {from: './node_modules/tarteaucitronjs/css', to: 'tarteaucitron/css/[path][name].[ext]'},
-    {from: './node_modules/tarteaucitronjs/lang', to: 'tarteaucitron/lang/[path][name].[ext]'},
-    {from: './node_modules/ckeditor4/', to: 'ckeditor/[path][name].[ext]', pattern: /\.(js|css)$/, includeSubdirectories: false},
-    {from: './node_modules/ckeditor4/adapters', to: 'ckeditor/adapters/[path][name].[ext]'},
-    {from: './node_modules/ckeditor4/lang', to: 'ckeditor/lang/[path][name].[ext]'},
-    {from: './node_modules/ckeditor4/plugins', to: 'ckeditor/plugins/[path][name].[ext]'},
-    {from: './node_modules/ckeditor4/skins', to: 'ckeditor/skins/[path][name].[ext]'},
-    {from: './node_modules/ckeditor4/vendor', to: 'ckeditor/vendor/[path][name].[ext]'}
+    {
+      from: './node_modules/tarteaucitronjs',
+      to: 'tarteaucitron/[path][name].[ext]',
+      pattern: /\.(js)$/,
+      includeSubdirectories: false
+    },
+    {
+      from: './node_modules/tarteaucitronjs/css',
+      to: 'tarteaucitron/css/[path][name].[ext]'
+    },
+    {
+      from: './node_modules/tarteaucitronjs/lang',
+      to: 'tarteaucitron/lang/[path][name].[ext]'
+    }
   ])
   /*
    * ENTRY CONFIG
@@ -29,8 +38,8 @@ Encore
    * Each entry will result in one JavaScript file (e.g. app.js)
    * and one CSS file (e.g. app.css) if your JavaScript imports CSS.
    */
-  .addEntry("front", ["./assets/js/front.js", "./assets/scss/front.scss"])
-  .addEntry("back", ["./assets/js/back.js", "./assets/scss/back.scss"])
+  .addEntry('front', ['./assets/front.js', './assets/front.scss'])
+  .addEntry('back', ['./assets/back.js', './assets/back.scss'])
 
   // enables the Symfony UX Stimulus bridge (used in assets/bootstrap.js)
   // .enableStimulusBridge('./assets/controllers.json')
@@ -40,8 +49,8 @@ Encore
 
   // will require an extra script tag for runtime.js
   // but, you probably want this, unless you're building a single-page app
-  // .enableSingleRuntimeChunk()
-  .disableSingleRuntimeChunk()
+  .enableSingleRuntimeChunk()
+  // .disableSingleRuntimeChunk()
 
   /*
    * FEATURE CONFIG
@@ -54,13 +63,13 @@ Encore
   .enableBuildNotifications()
   .enableSourceMaps(!Encore.isProduction())
   // enables hashed filenames (e.g. app.abc123.css)
-  .enableVersioning(true)
+  .enableVersioning(Encore.isProduction())
 
   // enables @babel/preset-env polyfills
-  .configureBabelPresetEnv((config) => {
-    config.useBuiltIns = 'usage';
-    config.corejs = 3;
-  })
+  // .configureBabelPresetEnv((config) => {
+  //   config.useBuiltIns = 'usage';
+  //   config.corejs = 3;
+  // })
 
   // enables Sass/SCSS support
   .enableSassLoader()
@@ -73,14 +82,67 @@ Encore
 
   // uncomment to get integrity="..." attributes on your script & link tags
   // requires WebpackEncoreBundle 1.4 or higher
-  .enableIntegrityHashes(true)
+  .enableIntegrityHashes(Encore.isProduction())
 
   // uncomment if you're having problems with a jQuery plugin
   // .autoProvidejQuery()
   .configureDevServerOptions(options => {
     options.allowedHosts = 'all';
   })
+  .addPlugin(new CleanWebpackPlugin())
+  .addPlugin(
+    new CKEditorTranslationsPlugin({
+      // The main language that will be built into the main bundle.
+      language: 'fr',
+
+      // Additional languages that will be emitted to the `outputDirectory`.
+      // This option can be set to an array of language codes or `'all'` to build all found languages.
+      // The bundle is optimized for one language when this option is omitted.
+      additionalLanguages: 'all',
+
+      // For more advanced options see https://github.com/ckeditor/ckeditor5-dev/tree/master/packages/ckeditor5-dev-translations.
+    })
+  )
+  .addRule(
+    {
+      test: /ckeditor5-[^/\\]+[/\\]theme[/\\]icons[/\\][^/\\]+\.svg$/,
+      loader: 'raw-loader'
+    }
+  )
+  .configureLoaderRule( 'images', loader => {
+    loader.exclude = /ckeditor5-[^/\\]+[/\\]theme[/\\]icons[/\\][^/\\]+\.svg$/;
+  })
+  .addLoader({
+    test: /ckeditor5-[^/\\]+[/\\]theme[/\\].+\.css$/,
+    loader: 'postcss-loader',
+    options: {
+        postcssOptions: styles.getPostCssConfig( {
+            themeImporter: {
+                themePath: require.resolve( '@ckeditor/ckeditor5-theme-lark' )
+            },
+            minify: true
+        } )
+    }
+  } )
+
+  .enablePostCssLoader(
+    (options) => {
+      options.postcssOptions = {
+        path: path.resolve(__dirname, 'postcss.config.js')
+      };
+    }
+  )
+  .addAliases({
+    '@nm': path.resolve(__dirname, 'node_modules'),
+    '@': path.resolve(__dirname, 'assets'),
+    '@components': path.resolve(__dirname, 'components'),
+    '@back': path.resolve(__dirname, 'assets/back'),
+    '@front': path.resolve(__dirname, 'assets/front'),
+    '@global': path.resolve(__dirname, 'assets/global'),
+    '@class': path.resolve(__dirname, 'assets/class'),
+    '@fonts': path.resolve(__dirname, 'assets/fonts'),
+    '@images': path.resolve(__dirname, 'assets/images')
+  })
 ;
 
-var config = Encore.getWebpackConfig();
-module.exports = config;
+module.exports = Encore.getWebpackConfig();

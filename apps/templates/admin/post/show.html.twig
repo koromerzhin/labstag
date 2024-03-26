@@ -41,7 +41,7 @@
                     {% else %}
                         {% set url = 'admin_category_show' %}
                     {% endif %}
-                    {% set state = guard_route(url) %}
+                    {% set state = url|guard_route %}
                     {% if state == true %}
                         <a href="{{ path(url, {'id': entity.refcategory.id}) }}">{{ entity.refcategory }}</a>
                     {% else %}
@@ -58,7 +58,7 @@
                     {% else %}
                         {% set url = 'admin_user_show' %}
                     {% endif %}
-                    {% set state = guard_route(url) %}
+                    {% set state = url|guard_route %}
                     {% if state == true %}
                         <a href="{{ path(url, {'id': entity.refuser.id}) }}">{{ entity.refuser }}</a>
                     {% else %}

@@ -2,7 +2,6 @@
 
 namespace Labstag\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -22,7 +21,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[Uploadable]
 #[Gedmo\SoftDeleteable(fieldName: 'deletedAt', timeAware: false)]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ApiResource]
 class User implements UserInterface, PasswordAuthenticatedUserInterface, Stringable, EntityTrashInterface
 {
     use SoftDeleteableEntity;
@@ -33,15 +31,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Stringa
      */
     protected const DATAUNSERIALIZE = 4;
 
-    #[ORM\ManyToOne(targetEntity: Groupe::class, inversedBy: 'users', cascade: ['persist'])]
-    #[ORM\JoinColumn(name: 'refgroupe_id', nullable: true)]
-    protected ?Groupe $groupe = null;
-
     #[ORM\Column(type: 'string', nullable: true)]
     protected string $password;
 
-    #[Assert\NotCompromisedPassword()]
+    #[Assert\NotCompromisedPassword]
     protected ?string $plainPassword = null;
+
+    #[ORM\ManyToOne(targetEntity: Groupe::class, inversedBy: 'users', cascade: ['persist'])]
+    #[ORM\JoinColumn(name: 'refgroupe_id', nullable: true)]
+    protected ?Groupe $refgroupe = null;
 
     #[ORM\Column(type: 'json')]
     protected array $roles = ['ROLE_USER'];
@@ -463,7 +461,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Stringa
 
     public function getRefgroupe(): ?Groupe
     {
-        return $this->groupe;
+        return $this->refgroupe;
     }
 
     /**
@@ -713,7 +711,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Stringa
 
     public function setRefgroupe(?Groupe $groupe): self
     {
-        $this->groupe = $groupe;
+        $this->refgroupe = $groupe;
 
         return $this;
     }

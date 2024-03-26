@@ -11,15 +11,32 @@ use Labstag\Interfaces\ParagraphInterface;
 use Labstag\Lib\ParagraphLib;
 use Labstag\Repository\PostRepository;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class ListParagraph extends ParagraphLib implements ParagraphInterface
 {
-    public function getCode(EntityParagraphInterface $entityParagraph): string
+    public function context(EntityParagraphInterface $entityParagraph): mixed
+    {
+        /** @var PostRepository $repositoryLib */
+        $repositoryLib = $this->repositoryService->get(Post::class);
+        /** @var Request $request */
+        $request    = $this->requestStack->getCurrentRequest();
+        $pagination = $this->paginator->paginate(
+            $repositoryLib->findPublier(),
+            $request->query->getInt('page', 1),
+            10
+        );
+
+        return [
+            'pagination' => $pagination,
+            'paragraph'  => $entityParagraph,
+        ];
+    }
+
+    public function getCode(EntityParagraphInterface $entityParagraph): array
     {
         unset($entityParagraph);
 
-        return 'post/list';
+        return ['post/list'];
     }
 
     public function getEntity(): string
@@ -45,27 +62,6 @@ class ListParagraph extends ParagraphLib implements ParagraphInterface
     public function isShowForm(): bool
     {
         return false;
-    }
-
-    public function show(EntityParagraphInterface $entityParagraph): Response
-    {
-        /** @var PostRepository $repositoryLib */
-        $repositoryLib = $this->repositoryService->get(Post::class);
-        /** @var Request $request */
-        $request    = $this->requestStack->getCurrentRequest();
-        $pagination = $this->paginator->paginate(
-            $repositoryLib->findPublier(),
-            $request->query->getInt('page', 1),
-            10
-        );
-
-        return $this->render(
-            $this->getTemplateFile($this->getCode($entityParagraph)),
-            [
-                'pagination' => $pagination,
-                'paragraph'  => $entityParagraph,
-            ]
-        );
     }
 
     public function useIn(): array

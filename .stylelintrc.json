@@ -1,11 +1,17 @@
 {
-  "extends": "stylelint-config-standard",
-  "rules": {
-      "at-rule-no-unknown": [
-          true,
-          {
-            "ignoreAtRules": ["extend", "include"]
-        }
-    ]
-  }
+    "extends": "stylelint-config-standard",
+    "rules": {
+        "import-notation": [
+            "string"
+        ],
+        "at-rule-no-unknown": [
+            true,
+            {
+                "ignoreAtRules": [
+                    "extend",
+                    "include"
+                ]
+            }
+        ]
+    }
 }

@@ -7,12 +7,9 @@ use Labstag\Entity\Email;
 use Labstag\Entity\OauthConnectUser;
 use Labstag\Entity\Phone;
 use Labstag\Entity\User;
-use Labstag\Form\Security\ChangePasswordType;
-use Labstag\Form\Security\DisclaimerType;
-use Labstag\Form\Security\LoginType;
-use Labstag\Form\Security\LostPasswordType;
+use Labstag\Lib\FrontControllerLib;
 use Labstag\Repository\OauthConnectUserRepository;
-use Labstag\Service\DataService;
+use Labstag\Repository\PageRepository;
 use Labstag\Service\ErrorService;
 use Labstag\Service\OauthService;
 use Labstag\Service\SessionService;
@@ -21,7 +18,6 @@ use Labstag\Service\WorkflowService;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Token\AccessToken;
 use LogicException;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,41 +25,16 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\UsageTrackingTokenStorage;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class SecurityController extends AbstractController
+class SecurityController extends FrontControllerLib
 {
     #[Route(path: '/change-password/{id}', name: 'app_changepassword', priority: 1)]
     public function changePassword(
-        TranslatorInterface $translator,
-        WorkflowService $workflowService,
-        SessionService $sessionService,
-        User $user,
-        Request $request
+        PageRepository $pageRepository
     ): Response
     {
-        if ('lostpassword' != $user->getState()) {
-            $sessionService->flashBagAdd(
-                'danger',
-                $translator->trans('security.user.sendlostpassword.fail')
-            );
-
-            return $this->redirectToRoute('front');
-        }
-
-        $form = $this->createForm(ChangePasswordType::class, $user);
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $workflowService->changeState($user, ['valider']);
-
-            return $this->redirectToRoute('front');
-        }
-
-        return $this->render(
-            'security/change-password.html.twig',
-            ['formChangePassword' => $form]
-        );
+        return $this->page('change-password', $pageRepository);
     }
 
     #[Route(path: '/confirm/email/{id}', name: 'app_confirm_mail', priority: 1)]
@@ -146,72 +117,18 @@ class SecurityController extends AbstractController
 
     #[Route(path: '/disclaimer', name: 'disclaimer', priority: 1)]
     public function disclaimer(
-        TranslatorInterface $translator,
-        SessionService $sessionService,
-        Request $request,
-        DataService $dataService
-    ): RedirectResponse|Response
+        PageRepository $pageRepository
+    ): Response
     {
-        $form = $this->createForm(DisclaimerType::class, []);
-        $form->handleRequest($request);
-
-        $session = $request->getSession();
-        if ($form->isSubmitted()) {
-            $post = $request->request->all($form->getName());
-            if (isset($post['confirm'])) {
-                $session->set('disclaimer', 1);
-
-                return $this->redirectToRoute('front');
-            }
-
-            $sessionService->flashBagAdd(
-                'danger',
-                $translator->trans('security.disclaimer.doaccept')
-            );
-        }
-
-        $config = $dataService->getConfig();
-        if (1 == $session->get('disclaimer', 0)
-            || !isset($config['disclaimer'])
-            || !isset($config['disclaimer']['activate'])
-            || 1 != $config['disclaimer']['activate']
-        ) {
-            return $this->redirectToRoute('front');
-        }
-
-        return $this->render(
-            'security/disclaimer.html.twig',
-            [
-                'class_body' => 'DisclaimerPage',
-                'form'       => $form,
-            ]
-        );
+        return $this->page('disclaimer', $pageRepository);
     }
 
     #[Route(path: '/login', name: 'app_login', priority: 1)]
     public function login(
-        AuthenticationUtils $authenticationUtils,
-        OauthConnectUserRepository $oauthConnectUserRepository
+        PageRepository $pageRepository
     ): Response
     {
-        // get the login error if there is one
-        $authenticationException = $authenticationUtils->getLastAuthenticationError();
-        // last username entered by the user
-        $lastUsername = $authenticationUtils->getLastUsername();
-        $form         = $this->createForm(
-            LoginType::class,
-            ['username' => $lastUsername]
-        );
-        $oauths = $oauthConnectUserRepository->findDistinctAllOauth();
-
-        return $this->render(
-            'security/login.html.twig',
-            [
-                'oauths'    => $oauths,
-                'formLogin' => $form,
-                'error'     => $authenticationException,
-            ]
-        );
+        return $this->page('login', $pageRepository);
     }
 
     #[Route(path: '/logout', name: 'app_logout', priority: 1)]
@@ -223,21 +140,11 @@ class SecurityController extends AbstractController
     }
 
     #[Route(path: '/lost', name: 'app_lost', priority: 1)]
-    public function lost(Request $request, UserService $userService): Response
+    public function lost(
+        PageRepository $pageRepository
+    ): Response
     {
-        $form = $this->createForm(LostPasswordType::class);
-        $form->handleRequest($request);
-        if ($form->isSubmitted()) {
-            $post = $request->request->all($form->getName());
-            $userService->postLostPassword($post);
-
-            return $this->redirectToRoute('app_login');
-        }
-
-        return $this->render(
-            'security/lost-password.html.twig',
-            ['formLostPassword' => $form]
-        );
+        return $this->page('lost', $pageRepository);
     }
 
     /**

@@ -86,7 +86,10 @@ class UserMailService
             'datetime' => $dateTime->format('d/m/Y H:i'),
         ];
 
-        $change = array_merge($change, $otherchange);
+        $change = [
+            ...$change,
+            ...$otherchange,
+        ];
 
         foreach ($change as $key => $after) {
             $before  = '%'.$key.'%';

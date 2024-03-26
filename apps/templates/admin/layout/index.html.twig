@@ -1,25 +1,25 @@
 {% extends 'admin.html.twig' %}
 {% block body %}
-    {% embed "admin/table.html.twig" %}
+    {% embed "admin/table.html.twig" with {
+        theads: [
+            {
+                'field': 'a.name',
+                'name': 'layout.name'|trans({}, 'admin.messages')
+            },
+            {
+                'name': 'layout.custom'|trans({}, 'admin.messages')
+            },
+            {
+                'name': 'layout.url'|trans({}, 'admin.messages')
+            },
+            {
+                'name': 'layout.paragraphs'|trans({}, 'admin.messages')
+            }
+        ],
+        pagination: pagination,
+        action: true
+    } %}
         {% import "admin/macro.html.twig" as macro_admin %}
-        {% block thead %}
-            {% set theads = [
-                {
-                    'field': 'a.name',
-                    'name': 'layout.name'|trans({}, 'admin.messages')
-                },
-                {
-                    'name': 'layout.custom'|trans({}, 'admin.messages')
-                },
-                {
-                    'name': 'layout.url'|trans({}, 'admin.messages')
-                },
-                {
-                    'name': 'layout.paragraphs'|trans({}, 'admin.messages')
-                }
-            ] %}
-            {{ macro_admin.thead(theads, pagination, true) }}
-        {% endblock %}
         {% block tbody %}
             {% for entity in pagination %}
                 <tr data-id="{{ entity.id }}">
@@ -35,7 +35,7 @@
                     <td>
                         <ul>
                             {% for paragraph in entity.paragraphs %}
-                                <li>{{ paragraph_name(paragraph.type) }}</li>
+                                <li>{{ paragraph.type|paragraph_name }}</li>
                             {% endfor %}
                         </ul>
                     </td>

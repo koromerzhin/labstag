@@ -27,7 +27,7 @@ abstract class SearchLib
 
             $type = $this->getType($key);
             if (!is_null($type)) {
-                if (Datetime::class == $type) {
+                if (DateTime::class == $type) {
                     $value = $this->initDateTime($value);
                 } elseif (0 != substr_count((string) $type, 'Labstag')) {
                     $value = $this->initObject($value, $type, $repositoryService);

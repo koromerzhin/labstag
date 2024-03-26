@@ -1,48 +1,48 @@
 {% extends 'admin.html.twig' %}
 {% block body %}
-	{% embed "admin/table.html.twig" %}
+	{% embed "admin/table.html.twig" with {
+        theads: [
+            {
+                'field': 'a.countryCode',
+                'name': 'geocode.countrycode'|trans({}, 'admin.messages')
+            },
+            {
+                'field': 'a.postalCode',
+                'name': 'geocode.postalcode'|trans({}, 'admin.messages')
+            },
+            {
+                'field': 'a.placeName',
+                'name': 'geocode.placename'|trans({}, 'admin.messages')
+            },
+            {
+                'field': 'a.stateName',
+                'name': 'geocode.statename'|trans({}, 'admin.messages')
+            },
+            {
+                'field': 'a.provinceName',
+                'name': 'geocode.provincename'|trans({}, 'admin.messages')
+            },
+            {
+                'field': 'a.communityName',
+                'name': 'geocode.communityname'|trans({}, 'admin.messages')
+            },
+            {
+                'field': 'a.latitude',
+                'name': 'geocode.latitude'|trans({}, 'admin.messages')
+            },
+            {
+                'field': 'a.longitude',
+                'name': 'geocode.longitude'|trans({}, 'admin.messages')
+            },
+            {
+                'field': 'a.accuracy',
+                'name': 'geocode.accuracy'|trans({}, 'admin.messages')
+            },
+        ],
+        pagination: pagination,
+        action: true
+    } %}
 		{% import "admin/macro.html.twig" as macro_admin %}
-		{% block thead %}
-			{% set theads = [
-                {
-                    'field': 'a.countryCode',
-                    'name': 'geocode.countrycode'|trans({}, 'admin.messages')
-                },
-                {
-                    'field': 'a.postalCode',
-                    'name': 'geocode.postalcode'|trans({}, 'admin.messages')
-                },
-                {
-                    'field': 'a.placeName',
-                    'name': 'geocode.placename'|trans({}, 'admin.messages')
-                },
-                {
-                    'field': 'a.stateName',
-                    'name': 'geocode.statename'|trans({}, 'admin.messages')
-                },
-                {
-                    'field': 'a.provinceName',
-                    'name': 'geocode.provincename'|trans({}, 'admin.messages')
-                },
-                {
-                    'field': 'a.communityName',
-                    'name': 'geocode.communityname'|trans({}, 'admin.messages')
-                },
-                {
-                    'field': 'a.latitude',
-                    'name': 'geocode.latitude'|trans({}, 'admin.messages')
-                },
-                {
-                    'field': 'a.longitude',
-                    'name': 'geocode.longitude'|trans({}, 'admin.messages')
-                },
-                {
-                    'field': 'a.accuracy',
-                    'name': 'geocode.accuracy'|trans({}, 'admin.messages')
-                },
-            ] %}
-			{{ macro_admin.thead(theads, pagination, true) }}
-		{% endblock %}
 		{% block tbody %}
 			{% for entity in pagination %}
 				<tr data-id="{{ entity.id }}">

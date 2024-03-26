@@ -1,0 +1,9 @@
+@use '@front/utils/theme' as theme;
+
+@function theme($keys...) {
+  $map: theme.$global;
+  @each $key in $keys {
+    $map: map-get($map, $key);
+  }
+  @return $map;
+}

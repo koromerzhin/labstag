@@ -5,7 +5,7 @@
     {{ encore_entry_link_tags('global') }}
 {% endblock %}
 {% block content %}
-    {{ macro_site.flashbag(app) }}
+    {{ macro_site.flashbag(app.flashes) }}
     {% block body %}
     {% endblock %}
 {% endblock %}

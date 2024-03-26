@@ -364,9 +364,9 @@ class ActionsController extends ApiControllerLib
             return;
         }
 
-        /** @var RepositoryLib $repository */
-        $repository = $repositoryService->get($entityTrash::class);
-        $repository->remove($entityTrash);
+        /** @var RepositoryLib $repositoryLib */
+        $repositoryLib = $repositoryService->get($entityTrash::class);
+        $repositoryLib->remove($entityTrash);
     }
 
     private function deleteEntityByRepository(RepositoryLib $serviceEntityRepositoryLib): void
@@ -484,10 +484,10 @@ class ActionsController extends ApiControllerLib
         string $id
     ): ?EntityTrashInterface
     {
-        /** @var RepositoryLib $repository */
-        $repository = $repositoryService->get($entity);
+        /** @var RepositoryLib $repositoryLib */
+        $repositoryLib = $repositoryService->get($entity);
 
-        $data = $repository->find($id);
+        $data = $repositoryLib->find($id);
         if (!$data instanceof EntityTrashInterface) {
             return null;
         }
@@ -505,9 +505,9 @@ class ActionsController extends ApiControllerLib
         }
 
         $entityTrash->setDeletedAt(null);
-        /** @var RepositoryLib $repository */
-        $repository = $repositoryService->get($entityTrash::class);
-        $repository->save($entityTrash);
+        /** @var RepositoryLib $repositoryLib */
+        $repositoryLib = $repositoryService->get($entityTrash::class);
+        $repositoryLib->save($entityTrash);
     }
 
     private function tokenVerif(

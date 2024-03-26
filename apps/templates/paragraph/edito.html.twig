@@ -1,17 +1,17 @@
 {% if edito.id is defined %}
-    <section id="{{ paragraph_id(paragraph) }}" class="{{ paragraph_class(paragraph) }}">
-        <h1 class="header_edito_title">
+    <section id="{{ paragraph|paragraph_id }}" class="{{ paragraph|paragraph_class }}">
+        <h1 class="header-edito-title">
             <a href="{{ path('front_edito') }}">
                 {{ edito.title }}
             </a>
         </h1>
         {% set fond = attachment(edito.fond) %}
         {% if fond is not null and fond.name is not null %}
-            <picture class="header_edito_img">
+            <picture class="header-edito-img">
                 <img loading="lazy" alt="{{ edito.title|e('html_attr') }}" src="{{ asset(fond.name) | imagefilter('my_thumb') }}"/>
             </picture>
         {% endif %}
-        <div class="header_edito_content">
+        <div class="header-edito-content">
             {{ edito.content|raw }}
         </div>
     </section>

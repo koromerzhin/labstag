@@ -2,7 +2,7 @@
 
 namespace Labstag\Form\Admin\Paragraph\Post;
 
-use Labstag\Entity\Paragraph\Post\User;
+use Labstag\Entity\Paragraph\Post\User as PostUser;
 use Labstag\Lib\ParagraphAbstractTypeLib;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -12,7 +12,7 @@ class UserType extends ParagraphAbstractTypeLib
     {
         $optionsResolver->setDefaults(
             [
-                'data_class' => User::class,
+                'data_class' => PostUser::class,
             ]
         );
     }

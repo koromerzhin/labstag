@@ -1,29 +1,19 @@
 {% extends 'admin.html.twig' %}
 {% block body %}
-    {% embed "admin/table.html.twig" %}
+    {% embed "admin/table.html.twig" with {
+        theads: [
+            {
+                'field': 'a.title',
+                'name': 'block.title'|trans({}, 'admin.messages')
+            },
+            {
+                'field': 'a.type',
+                'name': 'block.type'|trans({}, 'admin.messages')
+            }
+        ],
+        action: true
+    } %}
         {% import "admin/macro.html.twig" as macro_admin %}
-        {% block thead %}
-            {% set theads = [
-                {
-                    'field': 'a.title',
-                    'name': 'block.title'|trans({}, 'admin.messages')
-                },
-                {
-                    'field': 'a.type',
-                    'name': 'block.type'|trans({}, 'admin.messages')
-                }
-            ] %}
-            <tr>
-                {% for thead in theads %}
-                    <th>
-                        {% if thead.name is defined %}
-                            {{ thead.name }}
-                        {% endif %}
-                    </th>
-                {% endfor %}
-                <th></th>
-            <tr>
-        {% endblock %}
         {% block tbody %}
             {% for type, row in data %}
                 <tr>

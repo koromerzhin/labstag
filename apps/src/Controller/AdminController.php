@@ -19,9 +19,9 @@ class AdminController extends AdminControllerLib
     #[Route(path: '/export', name: 'admin_export')]
     public function export(): RedirectResponse
     {
-        $param = $this->paramConfig();
+        $configurationService = $this->paramConfig();
 
-        return $param->export();
+        return $configurationService->export();
     }
 
     #[Route(path: '/paragraph', name: 'admin_paragraph', methods: ['GET'])]
@@ -45,46 +45,46 @@ class AdminController extends AdminControllerLib
     #[Route(path: '/param', name: 'admin_param', methods: ['GET', 'POST'])]
     public function param(): Response
     {
-        $param = $this->paramConfig();
+        $configurationService = $this->paramConfig();
 
-        return $param->form();
+        return $configurationService->form();
     }
 
-    #[Route(path: '/themes', name: 'admin_themes')]
-    public function themes(): Response
+    #[Route(path: '/themes/{state}', name: 'admin_themes', defaults: ['state' => 'admin'])]
+    public function themes(string $state): Response
     {
-        return $this->adminConfig()->themes();
+        return $this->adminConfig()->themes($state);
     }
 
     #[IgnoreSoftDelete]
     #[Route(path: '/trash', name: 'admin_trash')]
     public function trash(): Response
     {
-        $trashService = $this->adminService->setDomain('trash');
-        if (!$trashService instanceof EntityTrashService) {
+        $viewService = $this->adminService->setDomain('trash');
+        if (!$viewService instanceof EntityTrashService) {
             throw new Exception('TrashService not found');
         }
 
-        return $trashService->list();
+        return $viewService->list();
     }
 
     private function adminConfig(): AdminService
     {
-        $adminService = $this->adminService->setDomain('admin');
-        if (!$adminService instanceof AdminService) {
+        $viewService = $this->adminService->setDomain('admin');
+        if (!$viewService instanceof AdminService) {
             throw new Exception('AdminService not found');
         }
 
-        return $adminService;
+        return $viewService;
     }
 
     private function paramConfig(): ConfigurationService
     {
-        $configurationService = $this->adminService->setDomain(Configuration::class);
-        if (!$configurationService instanceof ConfigurationService) {
+        $viewService = $this->adminService->setDomain(Configuration::class);
+        if (!$viewService instanceof ConfigurationService) {
             throw new Exception('ConfigurationService not found');
         }
 
-        return $configurationService;
+        return $viewService;
     }
 }

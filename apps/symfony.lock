@@ -114,6 +114,15 @@
     "doctrine/sql-formatter": {
         "version": "1.1.1"
     },
+    "easycorp/easyadmin-bundle": {
+        "version": "4.9",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "3.0",
+            "ref": "b131e6cbfe1b898a508987851963fff485986285"
+        }
+    },
     "egulias/email-validator": {
         "version": "2.1.22"
     },
@@ -122,6 +131,18 @@
     },
     "fakerphp/faker": {
         "version": "v1.16.0"
+    },
+    "friendsofphp/php-cs-fixer": {
+        "version": "3.34",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "3.0",
+            "ref": "be2103eb4a20942e28a6dd87736669b757132435"
+        },
+        "files": [
+            ".php-cs-fixer.dist.php"
+        ]
     },
     "friendsofphp/proxy-manager-lts": {
         "version": "v1.0.2"
@@ -143,19 +164,6 @@
     },
     "guzzlehttp/psr7": {
         "version": "2.1.0"
-    },
-    "helios-ag/fm-elfinder-bundle": {
-        "version": "10.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "10.0",
-            "ref": "addd79a9903ee92664f4cff61eb6cdd1b95945e7"
-        },
-        "files": [
-            "config/packages/fm_elfinder.yaml",
-            "config/routes/fm_elfinder.yaml"
-        ]
     },
     "imagine/imagine": {
         "version": "1.2.4"
@@ -388,6 +396,18 @@
     "spipu/html2pdf": {
         "version": "v5.2.3"
     },
+    "squizlabs/php_codesniffer": {
+        "version": "3.7",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "3.6",
+            "ref": "1019e5c08d4821cb9b77f4891f8e9c31ff20ac6f"
+        },
+        "files": [
+            "phpcs.xml.dist"
+        ]
+    },
     "stevenmaguire/oauth2-bitbucket": {
         "version": "3.0.0"
     },
@@ -397,8 +417,17 @@
     "stevenmaguire/oauth2-paypal": {
         "version": "2.0.0"
     },
-    "studio-42/elfinder": {
-        "version": "2.1.59"
+    "stof/doctrine-extensions-bundle": {
+        "version": "1.10",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "1.2",
+            "ref": "e805aba9eff5372e2d149a9ff56566769e22819d"
+        },
+        "files": [
+            "config/packages/stof_doctrine_extensions.yaml"
+        ]
     },
     "symfony/apache-pack": {
         "version": "1.0",
@@ -543,7 +572,7 @@
         "version": "v5.4.2"
     },
     "symfony/lock": {
-        "version": "6.2",
+        "version": "6.3",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
@@ -805,18 +834,6 @@
         "files": [
             "config/packages/web_profiler.yaml",
             "config/routes/web_profiler.yaml"
-        ]
-    },
-    "symfony/webapp-meta": {
-        "version": "1.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "1.0",
-            "ref": "67cae591d131c133d63b893c5324796b88c59b34"
-        },
-        "files": [
-            "config/packages/messenger.yaml"
         ]
     },
     "symfony/webpack-encore-bundle": {

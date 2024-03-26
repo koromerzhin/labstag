@@ -16,12 +16,12 @@ class OauthConnectUserRepository extends RepositoryLib
 
     public function findDistinctAllOauth(): array
     {
-        $builder = $this->createQueryBuilder('u');
-        $builder->select('u.name');
-        $builder->distinct();
-        $builder->orderBy('u.name', 'ASC');
+        $queryBuilder = $this->createQueryBuilder('u');
+        $queryBuilder->select('u.name');
+        $queryBuilder->distinct();
+        $queryBuilder->orderBy('u.name', 'ASC');
 
-        $results = $builder->getQuery()->getResult();
+        $results = $queryBuilder->getQuery()->getResult();
         if (!is_array($results)) {
             return [];
         }
@@ -35,11 +35,11 @@ class OauthConnectUserRepository extends RepositoryLib
             return null;
         }
 
-        $dql = $this->createQueryBuilder('p');
-        $dql->where('p.user! = :iduser');
-        $dql->andWhere('p.identity = :identity');
-        $dql->andWhere('p.name = :name');
-        $dql->setParameters(
+        $queryBuilder = $this->createQueryBuilder('p');
+        $queryBuilder->where('p.user! = :iduser');
+        $queryBuilder->andWhere('p.identity = :identity');
+        $queryBuilder->andWhere('p.name = :name');
+        $queryBuilder->setParameters(
             [
                 'iduser'   => $user->getId(),
                 'name'     => $client,
@@ -47,7 +47,7 @@ class OauthConnectUserRepository extends RepositoryLib
             ]
         );
 
-        $result = $dql->getQuery()->getOneOrNullResult();
+        $result = $queryBuilder->getQuery()->getOneOrNullResult();
         if (!$result instanceof OauthConnectUser) {
             return null;
         }
@@ -61,17 +61,17 @@ class OauthConnectUserRepository extends RepositoryLib
             return null;
         }
 
-        $dql = $this->createQueryBuilder('p');
-        $dql->where('p.name = :name');
-        $dql->andWhere('p.user = :iduser');
-        $dql->setParameters(
+        $queryBuilder = $this->createQueryBuilder('p');
+        $queryBuilder->where('p.name = :name');
+        $queryBuilder->andWhere('p.user = :iduser');
+        $queryBuilder->setParameters(
             [
                 'iduser' => (string) $user->getId(),
                 'name'   => $oauthCode,
             ]
         );
 
-        $result = $dql->getQuery()->getOneOrNullResult();
+        $result = $queryBuilder->getQuery()->getOneOrNullResult();
         if (!$result instanceof OauthConnectUser) {
             return null;
         }
@@ -85,18 +85,18 @@ class OauthConnectUserRepository extends RepositoryLib
             return null;
         }
 
-        $builder = $this->createQueryBuilder('u');
-        $builder->where(
+        $queryBuilder = $this->createQueryBuilder('u');
+        $queryBuilder->where(
             'u.name = :name AND u.identity = :identity'
         );
-        $builder->setParameters(
+        $queryBuilder->setParameters(
             [
                 'name'     => $oauth,
                 'identity' => $identity,
             ]
         );
 
-        $result = $builder->getQuery()->getOneOrNullResult();
+        $result = $queryBuilder->getQuery()->getOneOrNullResult();
         if (!$result instanceof OauthConnectUser) {
             return null;
         }

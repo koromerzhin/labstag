@@ -6,17 +6,42 @@ use Labstag\Entity\Groupe;
 use Labstag\Entity\Route;
 use Labstag\Entity\User;
 use Labstag\Lib\ExtensionLib;
+use Twig\TwigFilter;
+use Twig\TwigFunction;
 
 class GuardExtension extends ExtensionLib
 {
-    public function getFiltersFunctions(): array
+    /**
+     * @return TwigFilter[]
+     */
+    public function getFilters(): array
     {
         return [
-            'guard_group_access'       => 'guardAccessGroupRoutes',
-            'guard_route_enable_group' => 'guardRouteEnableGroupe',
-            'guard_route_enable_user'  => 'guardRouteEnableUser',
-            'guard_route'              => 'guardRoute',
-            'guard_user_access'        => 'guardAccessUserRoutes',
+            new TwigFilter(
+                'guard_group_access',
+                fn (Groupe $groupe): bool => $this->guardAccessGroupRoutes($groupe)
+            ),
+            new TwigFilter(
+                'guard_route',
+                fn (string $route): bool => $this->guardRoute($route)
+            ),
+            new TwigFilter(
+                'guard_user_access',
+                fn (User $user): bool => $this->guardAccessUserRoutes($user)
+            ),
+        ];
+    }
+
+    /**
+     * @return TwigFunction[]
+     */
+    public function getFunctions(): array
+    {
+        return [
+            new TwigFunction(
+                'guard_route_enable_group',
+                fn (Route $route, Groupe $groupe): bool => $this->guardRouteEnableGroupe($route, $groupe)
+            ),
         ];
     }
 
@@ -44,10 +69,5 @@ class GuardExtension extends ExtensionLib
     public function guardRouteEnableGroupe(Route $route, Groupe $groupe): bool
     {
         return $this->guardService->guardRouteEnableGroupe($route, $groupe);
-    }
-
-    public function guardRouteEnableUser(Route $route, User $user): bool
-    {
-        return $this->guardService->guardRouteEnableUser($route, $user);
     }
 }

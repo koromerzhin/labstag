@@ -456,3 +456,9 @@ block.title.placeholder: __block.title.placeholder
 block.region.label: __block.region.label
 block.region.help: __block.region.help
 block.region.placeholder: __block.region.placeholder
+layout.groupes.label: __layout.groupes.label
+layout.groupes.help: __layout.groupes.help
+layout.groupes.placeholder: __layout.groupes.placeholder
+block.groupes.label: __block.groupes.label
+block.groupes.help: __block.groupes.help
+block.groupes.placeholder: __block.groupes.placeholder

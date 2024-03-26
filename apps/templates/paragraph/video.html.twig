@@ -1,4 +1,4 @@
-<section id="{{ paragraph_id(paragraph) }}" class="{{ paragraph_class(paragraph) }}">
+<section id="{{ paragraph|paragraph_id }}" class="{{ paragraph|paragraph_class }}">
     <div alt="{{ paragraph.title|e('html_attr') }}" data-embed="{{ embed }}" class="video" style="--img: url({{ image | imagefilter('paragraph_video') }}); width: 50%; margin:auto; background-image: var(--img); background-repeat: no-repeat; background-size: cover; aspect-ratio: 16 / 9;">
         <button>Play</button>
         <div class="player"></div>

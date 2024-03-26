@@ -2,7 +2,6 @@
 
 namespace Labstag\Entity\Block;
 
-use ApiPlatform\Metadata\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -15,7 +14,6 @@ use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 
 #[ORM\Entity(repositoryClass: CustomRepository::class)]
 #[ORM\Table(name: 'block_custom')]
-#[ApiResource(routePrefix: '/block')]
 class Custom implements Stringable, EntityBlockInterface
 {
 

@@ -1,0 +1,12 @@
+<div class="row">
+{% for input in prototype %}
+    <div class="col-12">
+        {{ form_row(input) }}
+    </div>
+{% endfor %}
+{% if allow_delete %}
+    <div class="text-center col-12">
+        {% embed "embed/btn/delete.html.twig" %}{% endembed %}
+    </div>
+{% endif %}
+</div>

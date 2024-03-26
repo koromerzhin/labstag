@@ -25,12 +25,12 @@ class UserController extends AdminControllerLib
     #[Route(path: '/{id}/guard', name: 'guard')]
     public function guard(User $user): Response
     {
-        $guardService = $this->adminService->setDomain('guard');
-        if (!$guardService instanceof GuardService) {
+        $viewService = $this->adminService->setDomain('guard');
+        if (!$viewService instanceof GuardService) {
             throw new Exception('TrashService not found');
         }
 
-        return $guardService->user($user);
+        return $viewService->user($user);
     }
 
     #[Route(path: '/', name: 'index', methods: ['GET'])]

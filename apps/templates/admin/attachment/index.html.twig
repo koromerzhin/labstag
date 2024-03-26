@@ -1,34 +1,34 @@
 {% extends 'admin.html.twig' %}
 {% block body %}
-    {% embed "admin/table.html.twig" %}
+    {% embed "admin/table.html.twig" with {
+        theads: [
+            {
+                'field': 'a.name',
+                'name': 'attachment.name'|trans({}, 'admin.messages')
+            },
+            {
+                'field': 'a.mimeType',
+                'name': 'attachment.mimetype'|trans({}, 'admin.messages')
+            },
+            {
+                'field': 'a.size',
+                'name': 'attachment.size'|trans({}, 'admin.messages')
+            },
+            {
+                'name': 'attachment.download'|trans({}, 'admin.messages')
+            },
+            {
+                'field': 'a.state',
+                'name': 'attachment.state'|trans({}, 'admin.messages')
+            },
+            {
+                'name': 'attachment.workflow'|trans({}, 'admin.messages')
+            }
+        ],
+        pagination: pagination,
+        action: true
+    } %}
         {% import "admin/macro.html.twig" as macro_admin %}
-        {% block thead %}
-            {% set theads = [
-                {
-                    'field': 'a.name',
-                    'name': 'attachment.name'|trans({}, 'admin.messages')
-                },
-                {
-                    'field': 'a.mimeType',
-                    'name': 'attachment.mimetype'|trans({}, 'admin.messages')
-                },
-                {
-                    'field': 'a.size',
-                    'name': 'attachment.size'|trans({}, 'admin.messages')
-                },
-                {
-                    'name': 'attachment.download'|trans({}, 'admin.messages')
-                },
-                {
-                    'field': 'a.state',
-                    'name': 'attachment.state'|trans({}, 'admin.messages')
-                },
-                {
-                    'name': 'attachment.workflow'|trans({}, 'admin.messages')
-                }
-            ] %}
-            {{ macro_admin.thead(theads, pagination, true) }}
-        {% endblock %}
         {% block tbody %}
             {% for entity in pagination %}
                 <tr data-id="{{ entity.id }}">

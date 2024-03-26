@@ -1,18 +1,29 @@
 {% extends 'admin.html.twig' %}
 {% block body %}
-    {% embed "admin/table.html.twig" %}
+    {% embed "admin/table.html.twig" with {
+        theads: [
+            {
+                name: 'menu.name'|trans({}, 'admin.messages'),
+            },
+            {
+                name: 'menu.icon'|trans({}, 'admin.messages'),
+            },
+            {
+                name: 'menu.position'|trans({}, 'admin.messages'),
+            },
+            {
+                name: 'menu.data'|trans({}, 'admin.messages'),
+            },
+            {
+                name: 'menu.separateur'|trans({}, 'admin.messages'),
+            },
+            {
+                name: 'menu.clef'|trans({}, 'admin.messages'),
+            }
+        ],
+        action: true
+    } %}
         {% import "admin/macro.html.twig" as macro_admin %}
-        {% block thead %}
-            <tr>
-                <th>{{ 'menu.name'|trans({}, 'admin.messages') }}</th>
-                <th>{{ 'menu.icon'|trans({}, 'admin.messages') }}</th>
-                <th>{{ 'menu.position'|trans({}, 'admin.messages') }}</th>
-                <th>{{ 'menu.data'|trans({}, 'admin.messages') }}</th>
-                <th>{{ 'menu.separateur'|trans({}, 'admin.messages') }}</th>
-                <th>{{ 'menu.clef'|trans({}, 'admin.messages') }}</th>
-                <th></th>
-            </tr>
-        {% endblock %}
         {% block tbody %}
             {% for entity in pagination %}
                 <tr data-id="{{ entity.id }}">

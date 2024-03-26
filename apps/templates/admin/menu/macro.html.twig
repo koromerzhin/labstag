@@ -16,7 +16,7 @@
 {% endmacro %}
 {% macro addlink(entity, url) %}
     {% set title = "admin.menu.add"|trans({}, 'admin.messages') %}
-    {% set state1 = guard_route(url) %}
+    {% set state1 = url|guard_route %}
     {% set state2 = is_granted('add', entity) %}
     {% if state1 == true and state2 == true %}
         <link-add
@@ -27,7 +27,7 @@
 {% endmacro %}
 {% macro adddivider(entity, url) %}
     {% set title = "admin.menu.adddivider"|trans({}, 'admin.messages') %}
-    {% set state1 = guard_route(url) %}
+    {% set state1 = url|guard_route %}
     {% set state2 = is_granted('add', entity) %}
     {% if state1 == true and state2 == true %}
         <link-add
@@ -38,7 +38,7 @@
 {% endmacro %}
 {% macro move(entity, url) %}
     {% set title = "admin.menu.move"|trans({}, 'admin.messages') %}
-    {% set state1 = guard_route(url) %}
+    {% set state1 = url|guard_route %}
     {% set state2 = is_granted('add', entity) %}
     {% if state1 == true and state2 == true %}
         <link-move

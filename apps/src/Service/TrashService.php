@@ -6,17 +6,22 @@ use Doctrine\Persistence\ManagerRegistry;
 use Labstag\Annotation\Trashable;
 use Labstag\Lib\RepositoryLib;
 use ReflectionClass;
-use Symfony\Component\DependencyInjection\Argument\RewindableGenerator;
+use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 class TrashService
 {
+
+    protected $rewindableGenerator;
+
     public function __construct(
-        protected RewindableGenerator $rewindableGenerator,
+        #[TaggedIterator('repositories')]
+        iterable $rewindableGenerator,
         protected ManagerRegistry $managerRegistry,
         protected CsrfTokenManagerInterface $csrfTokenManager
     )
     {
+        $this->rewindableGenerator = $rewindableGenerator;
     }
 
     public function all(): array

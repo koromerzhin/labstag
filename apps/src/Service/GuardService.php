@@ -192,7 +192,7 @@ class GuardService
             return true;
         }
 
-        if (empty($token) || !$token->getUser() instanceof User) {
+        if (!$token instanceof TokenInterface || !$token->getUser() instanceof User) {
             /** @var Groupe $groupe */
             $groupe = $this->groupeRepository->findOneBy(['code' => 'visiteur']);
 

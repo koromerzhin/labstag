@@ -20,28 +20,28 @@ class UserRepository extends RepositoryLib
         string $name
     ): mixed
     {
-        $query = $this->createQueryBuilder('u');
-        $query->leftJoin('u.oauthConnectUsers', 'o');
-        $query->where('o.name = :name');
-        $query->andWhere('o.identity=:identity');
-        $query->setParameters(
+        $queryBuilder = $this->createQueryBuilder('u');
+        $queryBuilder->leftJoin('u.oauthConnectUsers', 'o');
+        $queryBuilder->where('o.name = :name');
+        $queryBuilder->andWhere('o.identity=:identity');
+        $queryBuilder->setParameters(
             [
                 'name'     => $name,
                 'identity' => $identity,
             ]
         );
 
-        return $query->getQuery()->getOneOrNullResult();
+        return $queryBuilder->getQuery()->getOneOrNullResult();
     }
 
     public function findUserEnable(string $field): ?User
     {
-        $query = $this->createQueryBuilder('u');
-        $query->where(
+        $queryBuilder = $this->createQueryBuilder('u');
+        $queryBuilder->where(
             'u.username=:username OR u.email=:email'
         );
-        $query->andWhere('u.state LIKE :state1 OR u.state LIKE :state2');
-        $query->setParameters(
+        $queryBuilder->andWhere('u.state LIKE :state1 OR u.state LIKE :state2');
+        $queryBuilder->setParameters(
             [
                 'state1'   => '%valider%',
                 'state2'   => '%lostpassword%',
@@ -50,7 +50,7 @@ class UserRepository extends RepositoryLib
             ]
         );
 
-        $result = $query->getQuery()->getOneOrNullResult();
+        $result = $queryBuilder->getQuery()->getOneOrNullResult();
         if (!$result instanceof User) {
             return null;
         }
@@ -60,17 +60,17 @@ class UserRepository extends RepositoryLib
 
     public function findUserName(string $field): mixed
     {
-        $query = $this->createQueryBuilder('u');
-        $query->where(
+        $queryBuilder = $this->createQueryBuilder('u');
+        $queryBuilder->where(
             'u.username LIKE :username OR u.email LIKE :email'
         );
-        $query->setParameters(
+        $queryBuilder->setParameters(
             [
                 'username' => '%'.$field.'%',
                 'email'    => '%'.$field.'%',
             ]
         );
 
-        return $query->getQuery()->getResult();
+        return $queryBuilder->getQuery()->getResult();
     }
 }

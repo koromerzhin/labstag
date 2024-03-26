@@ -1,4 +1,4 @@
-<section id="{{ paragraph_id(paragraph) }}" class="{{ paragraph_class(paragraph) }}">
+<section id="{{ paragraph|paragraph_id }}" class="{{ paragraph|paragraph_class }}">
     <ul>
         {% for bookmark in bookmarks %}
             <li>

@@ -5,15 +5,21 @@ namespace Labstag\Twig;
 use Labstag\Entity\Block;
 use Labstag\Interfaces\EntityBlockInterface;
 use Labstag\Lib\ExtensionLib;
+use Twig\TwigFilter;
 
 class BlockExtension extends ExtensionLib
 {
     public function getBlockClass(EntityBlockInterface $entityBlock): string
     {
         /** @var Block $block */
-        $block = $entityBlock->getBlock();
+        $block     = $entityBlock->getBlock();
+        $dataClass = [
+            'block-'.$block->getType(),
+        ];
 
-        return 'block-'.$block->getType();
+        $dataClass = $this->blockService->getClassCss($dataClass, $block);
+
+        return implode(' ', $dataClass);
     }
 
     public function getBlockId(EntityBlockInterface $entityBlock): string
@@ -24,11 +30,20 @@ class BlockExtension extends ExtensionLib
         return 'block-'.$block->getType().'-'.$block->getId();
     }
 
-    public function getFiltersFunctions(): array
+    /**
+     * @return TwigFilter[]
+     */
+    public function getFilters(): array
     {
         return [
-            'block_id'    => 'getBlockId',
-            'block_class' => 'getBlockClass',
+            new TwigFilter(
+                'block_id',
+                fn (EntityBlockInterface $entityBlock): string => $this->getBlockId($entityBlock)
+            ),
+            new TwigFilter(
+                'block_class',
+                fn (EntityBlockInterface $entityBlock): string => $this->getBlockClass($entityBlock)
+            ),
         ];
     }
 }

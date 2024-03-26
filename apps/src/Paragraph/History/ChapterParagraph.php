@@ -12,15 +12,42 @@ use Labstag\Interfaces\ParagraphInterface;
 use Labstag\Lib\ParagraphLib;
 use Labstag\Repository\ChapterRepository;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class ChapterParagraph extends ParagraphLib implements ParagraphInterface
 {
-    public function getCode(EntityParagraphInterface $entityParagraph): string
+    public function context(EntityParagraphInterface $entityParagraph): mixed
+    {
+        /** @var Request $request */
+        $request    = $this->requestStack->getCurrentRequest();
+        $all        = $request->attributes->all();
+        $routeParam = $all['_route_params'];
+        $history    = $routeParam['history'] ?? null;
+        $chapter    = $routeParam['chapter'] ?? null;
+        /** @var ChapterRepository $repositoryLib */
+        $repositoryLib = $this->repositoryService->get(Chapter::class);
+        $chapter       = $repositoryLib->findChapterByHistory($history, $chapter);
+        if (!$chapter instanceof Chapter) {
+            return null;
+        }
+
+        /** @var History $history */
+        $history  = $chapter->getHistory();
+        $prevnext = $this->getPrevNext($chapter, $history);
+
+        return [
+            'prev'      => $prevnext['prev'],
+            'next'      => $prevnext['next'],
+            'chapter'   => $chapter,
+            'history'   => $chapter->getHistory(),
+            'paragraph' => $entityParagraph,
+        ];
+    }
+
+    public function getCode(EntityParagraphInterface $entityParagraph): array
     {
         unset($entityParagraph);
 
-        return 'history/chapter';
+        return ['history/chapter'];
     }
 
     public function getEntity(): string
@@ -46,37 +73,6 @@ class ChapterParagraph extends ParagraphLib implements ParagraphInterface
     public function isShowForm(): bool
     {
         return false;
-    }
-
-    public function show(EntityParagraphInterface $entityParagraph): ?Response
-    {
-        /** @var Request $request */
-        $request    = $this->requestStack->getCurrentRequest();
-        $all        = $request->attributes->all();
-        $routeParam = $all['_route_params'];
-        $history    = $routeParam['history'] ?? null;
-        $chapter    = $routeParam['chapter'] ?? null;
-        /** @var ChapterRepository $repositoryLib */
-        $repositoryLib = $this->repositoryService->get(Chapter::class);
-        $chapter       = $repositoryLib->findChapterByHistory($history, $chapter);
-        if (!$chapter instanceof Chapter) {
-            return null;
-        }
-
-        /** @var History $history */
-        $history  = $chapter->getHistory();
-        $prevnext = $this->getPrevNext($chapter, $history);
-
-        return $this->render(
-            $this->getTemplateFile($this->getcode($entityParagraph)),
-            [
-                'prev'      => $prevnext['prev'],
-                'next'      => $prevnext['next'],
-                'chapter'   => $chapter,
-                'history'   => $chapter->getHistory(),
-                'paragraph' => $entityParagraph,
-            ]
-        );
     }
 
     /**

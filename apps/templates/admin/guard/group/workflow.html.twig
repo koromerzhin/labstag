@@ -1,6 +1,6 @@
-{% set state1 = guard_route('api_guard_workflow') %}
-{% set state2 = guard_route('api_guard_workflowgroup') %}
-{% set state3 = guard_route('api_guard_workflowsetgroup') %}
+{% set state1 = 'api_guard_workflow'|guard_route %}
+{% set state2 = 'api_guard_workflowgroup'|guard_route %}
+{% set state3 = 'api_guard_workflowsetgroup'|guard_route %}
 {% set state = state1 and state2 and state3 %}
 {% if state1 == false %}
     {{ 'guard.lost'|trans({}, 'admin.messages') }}
@@ -21,11 +21,11 @@
             <tr>
                 <th>
                     {% if 'superadmin' != group.code %}
-                        <guard-changeworkflow
-                            state=0
-                            url="{{ path('api_guard_workflowgroup', {'group' : group.id}) }}"
-                            token="{{ csrf_token('guard') }}"
-                        />
+                        {% embed "embed/guard/changeworkflow.html.twig" with {
+                            state: 0,
+                            url: path('api_guard_workflowgroup', {'group' : group.id}),
+                            token: csrf_token('guard')
+                        } %}{% endembed %}
                     {% else %}
                         ----
                     {% endif %}
@@ -43,15 +43,15 @@
                 </td>
                 <td>
                     {% if 'superadmin' != group.code %}
-                        <guard-setworkflow
-                            title="{{ group.name|e('html_attr') }}"
-                            state=0
-                            groupe="{{ group.code|e('html_attr') }}"
-                            entity="{{ workflow.entity|e('html_attr') }}"
-                            transition="{{ workflow.transition|e('html_attr') }}"
-                            url="{{ path('api_guard_workflowsetgroup', {'group' : group.id, 'workflow' : workflow.id}) }}"
-                            token="{{ csrf_token('guard') }}"
-                        />
+                        {% embed "embed/guard/setworkflow.html.twig" with {
+                            title: group.name|e('html_attr'),
+                            state: 0,
+                            groupe: group.code|e('html_attr'),
+                            entity: workflow.entity|e('html_attr'),
+                            transition: workflow.transition|e('html_attr'),
+                            url: path('api_guard_workflowsetgroup', {'group' : group.id, 'workflow' : workflow.id}),
+                            token: csrf_token('guard')
+                        } %}{% endembed %}
                     {% else %}
                         ---
                     {% endif %}

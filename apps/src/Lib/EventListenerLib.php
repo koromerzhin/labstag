@@ -2,7 +2,6 @@
 
 namespace Labstag\Lib;
 
-use Doctrine\Bundle\DoctrineBundle\EventSubscriber\EventSubscriberInterface;
 use Labstag\Entity\Chapter;
 use Labstag\Entity\Edito;
 use Labstag\Entity\History;
@@ -25,7 +24,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-abstract class EventListenerLib implements EventSubscriberInterface
+abstract class EventListenerLib
 {
     public function __construct(
         protected BlockService $blockService,

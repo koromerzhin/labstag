@@ -8,10 +8,19 @@ use Labstag\Interfaces\BlockInterface;
 use Labstag\Interfaces\EntityBlockInterface;
 use Labstag\Interfaces\EntityFrontInterface;
 use Labstag\Lib\BlockLib;
-use Symfony\Component\HttpFoundation\Response;
 
 class HeaderBlock extends BlockLib implements BlockInterface
 {
+    public function context(EntityBlockInterface $entityBlock, ?EntityFrontInterface $entityFront): mixed
+    {
+        unset($entityFront);
+        if (!$entityBlock instanceof Header) {
+            return null;
+        }
+
+        return ['block' => $entityBlock];
+    }
+
     public function getCode(EntityBlockInterface $entityBlock, ?EntityFrontInterface $entityFront): string
     {
         unset($entityBlock, $entityFront);
@@ -42,17 +51,5 @@ class HeaderBlock extends BlockLib implements BlockInterface
     public function isShowForm(): bool
     {
         return true;
-    }
-
-    public function show(EntityBlockInterface $entityBlock, ?EntityFrontInterface $entityFront): ?Response
-    {
-        if (!$entityBlock instanceof Header) {
-            return null;
-        }
-
-        return $this->render(
-            $this->getTemplateFile($this->getcode($entityBlock, $entityFront)),
-            ['block' => $entityBlock]
-        );
     }
 }
